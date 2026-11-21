@@ -37,6 +37,14 @@ if (!html.includes('MI2_STATIC = true') || html.includes('class="back"')) { cons
 fs.mkdirSync(out, { recursive: true });
 fs.writeFileSync(path.join(out, 'index.html'), html);
 fs.writeFileSync(path.join(out, 'wiki.json'), JSON.stringify(db));
+// plan.json: the small slice the in-game Action Queue planner downloads (item names and per-hour action rates).
+{
+  const items = {};
+  for (const r of Object.values(db.records)) if (r.t === 'Item') items[r.id] = r.n;
+  const rates = Object.entries(db.rates || {}).filter(([, x]) => x.area !== 'Quests')
+    .map(([id, x]) => ({ id, skill: x.skill, name: x.name, level: x.level, sec: x.sec, xp: x.xp, out: x.out, in: x.in }));
+  fs.writeFileSync(path.join(out, 'plan.json'), JSON.stringify({ gameVersion: db.gameVersion, items, rates }));
+}
 // Copy the game images the wiki uses.
 const imgSrc = path.join(__dirname, 'data', 'img');
 let copied = 0;
@@ -48,4 +56,4 @@ if (fs.existsSync(imgSrc)) for (const rel of new Set(Object.values(db.images || 
 }
 console.log(`  img/       ${copied} images`);
 const kb = f => (fs.statSync(path.join(out, f)).size / 1024).toFixed(0) + ' KB';
-console.log(`Wrote ${out}\n  index.html ${kb('index.html')}\n  wiki.json  ${kb('wiki.json')} (${Object.keys(db.records).length} records, ${db.namespace})`);
+console.log(`Wrote ${out}\n  index.html ${kb('index.html')}\n  plan.json  ${kb('plan.json')}\n  wiki.json  ${kb('wiki.json')} (${Object.keys(db.records).length} records, ${db.namespace})`);

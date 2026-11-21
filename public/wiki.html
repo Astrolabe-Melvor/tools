@@ -1342,11 +1342,35 @@ function itemPlanHtml(id, qty, compact) {
   let h = `<div class="plan"><p><b>Estimated time: ${hrs(total)}</b>${lvH ? ` <span class="sub">(${hrs(lvH)} of leveling + ${hrs(p.hours)} of gathering and making)</span>` : ''}</p>`;
   if (lvls.length) h += `<p>Levels needed first: ${lvls.map(([sk, l]) => `<a href="#/plan/skill/${sk}/${l}">${skillIcon(sk)}${sk} ${lvOf(L, sk)} → ${l}</a> <span class="sub">(${hrs(levelHours(sk, lvOf(L, sk), l, L))})</span>`).join(', ')}</p>`;
   h += `<ul class="ptree">${planTree(p)}</ul>`;
+  const code = aqCode(p);
+  if (code) h += `<p><button class="btn" data-aq="${esc(code)}">Copy for Action Queue</button> <span class="sub">Paste it in the game: Action Queue (F6) &gt; Saved and shared &gt; Add steps from a pasted code. Needs Astrolabe Loader.</span></p>`;
   const drops = dropSources(id, qty).slice(0, 4);
   if (drops.length) h += `<p class="note">Monster drops${MONEY ? '' : ' (time depends on your combat stats)'}: ${drops.map(d => `${link(d.k)} about ${fmt(d.kills)} kill${d.kills === 1 ? '' : 's'}`).join(', ')}.</p>`;
   if (!compact && p.alts?.length) h += `<p class="note">Other options: ${p.alts.map(a => `${srcText(a)} (${hrs(a.total)})`).join('; ')}</p>`;
   return h + '</div>';
 }
+
+// An Action Queue share code ("AQ1:" + base64 JSON) for a plan: level-ups first ("train the skill the fastest way"),
+// then each action, ingredients before what they make, each until it has made the amount the plan needs.
+function aqCode(p) {
+  const steps = [], byAction = {};
+  for (const [sk, l] of Object.entries(p.levels || {})) steps.push({ a: `${sk}:*best`, g: 'Level', n: l, s: sk });
+  (function walk(n) {
+    for (const c of n.children || []) walk(c);
+    const src = n.src;
+    if (!src || src.kind !== 'action' || src.r.combat || !(n.need > 0)) return;
+    const k = src.r.id;
+    if (byAction[k]) { byAction[k].n += Math.ceil(n.need); return; }
+    steps.push(byAction[k] = { a: k, g: 'MoreItems', n: Math.ceil(n.need), i: n.id });
+  })(p);
+  if (!steps.some(x => x.g === 'MoreItems')) return '';
+  return 'AQ1:' + btoa(unescape(encodeURIComponent(JSON.stringify({ lanes: 1, loop: false, steps }))));
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest && e.target.closest('[data-aq]');
+  if (!b) return;
+  navigator.clipboard.writeText(b.dataset.aq).then(() => { b.textContent = 'Copied: paste it in the game'; }, () => { prompt('Copy this code:', b.dataset.aq); });
+});
 
 function pagePlan(kind, a, b) {
   let h = `<h2>${icon('Assets/Icons/GuideBook.png', 'ic-l')}Planner</h2><p class="lead">Find the fastest way to get any item or reach any level. Times are hours of play, counting the levels you need, the ingredients you have to gather and, for shop items, the time to earn the gold.</p>` + levelsBox();
