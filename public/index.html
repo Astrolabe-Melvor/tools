@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Astrolabe Tools</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@600;700;800&family=Fira+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#141a1f; --panel:#262626; --panel2:#1a1a1a; --line:#3a3a3a; --line2:#3d3d3d;
+    --text:#ecebe6; --dim:#a7a49b; --gold:#f0c348; --teal:#8ec9ee; --good:#9fd49a; --bad:#e08a74;
+    --serif:"Fira Sans Condensed", "Arial Narrow", sans-serif; --sans:"Fira Sans", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 var(--sans); }
+  a { color:var(--teal); text-decoration:none; } a:hover { text-decoration:underline; }
+  :focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+
+  header { position:sticky; top:0; z-index:10; display:flex; align-items:center; gap:28px; height:60px; padding:0 22px; background:#0e1b1f; border-bottom:1px solid var(--line); }
+  .brand { font:700 22px var(--serif); white-space:nowrap; }
+  header h1 { margin:0; font:700 18px var(--serif); color:var(--gold); }
+  .chip { color:var(--dim); font-size:13px; }
+  .chip b { color:var(--text); font-weight:500; }
+  .stat { display:flex; flex-direction:column; line-height:1.15; }
+  .stat span { color:var(--dim); font-size:12px; }
+  .stat b { font-size:17px; font-weight:500; }
+  .gold { color:var(--gold); }
+  #status { margin-left:auto; color:var(--dim); font-size:13px; }
+  #status.err { color:var(--bad); }
+
+  .frame { display:grid; grid-template-columns:210px minmax(0,1fr); }
+  #side { position:sticky; top:60px; align-self:start; height:calc(100vh - 60px); padding:20px 12px 20px 18px; display:flex; flex-direction:column; gap:1px; font-size:16px; }
+  #side h4 { font:700 15px var(--serif); color:var(--gold); margin:16px 0 4px 8px; }
+  #side h4:first-child { margin-top:0; }
+  #side button, #side a { display:block; text-align:left; width:100%; background:none; border:0; border-radius:3px; color:var(--text); padding:5px 8px; font:inherit; cursor:pointer; }
+  #side button:hover, #side a:hover { background:var(--panel); text-decoration:none; }
+  #side button.on { background:var(--panel); color:var(--teal); box-shadow:inset 3px 0 0 var(--gold); }
+  .col { min-width:0; padding:22px 28px 40px 22px; }
+  main { background:var(--panel); border:1px solid var(--line); border-radius:4px; padding:24px 30px 34px; max-width:1500px; }
+  .page-title { font:700 34px/1.15 var(--serif); margin:0 0 6px; padding-bottom:8px; border-bottom:2px solid var(--gold); }
+  .lead { font:400 18px/1.55 var(--serif); max-width:78ch; margin:10px 0 18px; }
+
+  .bar { display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; margin-bottom:14px; }
+  input, select { background:var(--bg); color:var(--text); border:1px solid var(--line2); border-radius:3px; padding:4px 9px; font:inherit; }
+  .seg { display:flex; flex-wrap:wrap; gap:2px; border-bottom:1px solid var(--line2); width:100%; }
+  .seg button { background:none; color:var(--dim); border:0; border-bottom:2px solid transparent; margin-bottom:-1px; padding:6px 12px; font:inherit; font-size:16px; cursor:pointer; }
+  .seg button:hover { color:var(--text); }
+  .seg button.on { color:var(--text); border-color:var(--gold); }
+  table { width:100%; border-collapse:collapse; background:var(--panel); }
+  th, td { padding:6px 11px; text-align:left; border:1px solid var(--line2); white-space:nowrap; }
+  th { background:var(--panel2); font-weight:700; font-size:14px; cursor:pointer; user-select:none; }
+  th:hover { color:var(--teal); }
+  tr:nth-child(even) td { background:#303030; }
+  th.num, td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  tbody tr:hover td { background:#383838; }
+  .lvl { font-weight:700; color:var(--gold); }
+  .prog { width:150px; height:7px; background:var(--bg); border-radius:4px; overflow:hidden; display:inline-block; vertical-align:middle; }
+  .prog i { display:block; height:100%; background:var(--teal); }
+  .pct { color:var(--dim); font-size:13px; margin-left:6px; }
+  .rate { color:var(--good); }
+  .muted { color:var(--dim); }
+  .active td { background:#1f3a33 !important; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:0 22px; }
+  .item { display:flex; justify-content:space-between; gap:8px; padding:4px 2px; border-bottom:1px dotted var(--line2); }
+  .item .n { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .item .c { font-variant-numeric:tabular-nums; color:var(--gold); }
+  h2 { font:700 22px var(--serif); margin:26px 0 8px; padding-bottom:4px; border-bottom:1px solid var(--line2); }
+  .note { color:var(--dim); font-size:14px; max-width:100ch; }
+  details.howto { margin-top:22px; border-top:1px solid var(--line2); padding-top:8px; }
+  details.howto summary { cursor:pointer; font:700 17px var(--serif); color:var(--gold); }
+  .tag { display:inline-block; font-size:13px; padding:0 7px; border:1px solid var(--line2); border-radius:9px; color:var(--dim); margin-left:6px; }
+  .tag.warn { color:#e3c27a; border-color:#5d5030; } .tag.good { color:var(--good); border-color:#3d5c3b; } .tag.bad { color:var(--bad); border-color:#6a3d34; }
+  .gcard { border-top:1px solid var(--line2); padding:4px 0 18px; }
+  .gcard h2 { border:0; margin:16px 0 0; }
+  .gcard td, .gcard th { white-space:normal; }
+  .gcard table { margin-top:8px; }
+  .gcols { display:grid; grid-template-columns:3fr 2fr; gap:24px; }
+  @media (max-width:1100px) { .gcols { grid-template-columns:1fr; } }
+  .sub { color:var(--dim); font-size:13px; }
+  #moneyRows td:last-child, #combatRows td:last-child { white-space:normal; min-width:200px; }
+  tr.mrow { cursor:pointer; }
+  tr.detail td { background:var(--bg) !important; white-space:normal; }
+  .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; padding:4px 0 8px; }
+  .detail-grid th { cursor:default; }
+  .neg { color:var(--bad); }
+  label.chk, label.muted { color:var(--dim); display:inline-flex; gap:6px; align-items:center; }
+  @media (max-width:900px) {
+    .frame { grid-template-columns:1fr; }
+    #side { position:static; height:auto; flex-direction:row; flex-wrap:wrap; padding:10px; }
+    #side h4 { display:none; } #side button, #side a { width:auto; }
+    header { height:auto; flex-wrap:wrap; padding:10px 14px; gap:10px 20px; }
+    .col { padding:10px 8px; } main { padding:16px 14px; }
+    main table { display:block; overflow-x:auto; }
+  }
+
+  body { background:linear-gradient(#0b0f14d9, #0b0f14f2), url(img/Assets/Backgrounds/Bank/Banking_Night.webp) center top / cover fixed, var(--bg); }
+  header { background:#0d0d0dee; border-bottom:2px solid #000; }
+  main { border:14px solid transparent; border-image:url(img/Assets/UI/Textures/TEX_Crafting_14.webp) 28 fill / 14px stretch; background:none; padding:16px 22px 26px; }
+  #side { padding-top:16px; }
+  #side h4 { color:#e9dcbf; }
+  #side button.on { background:#333; box-shadow:inset 3px 0 0 var(--gold); color:#fff; }
+  .page-title { border-bottom:0; padding-bottom:0; font-weight:800; }
+  .lead { font-family:var(--sans); font-size:16px; }
+  h2 { border:0; display:inline-block; color:#fff; padding:5px 22px 6px; border:0 solid transparent; border-width:0 16px; border-image:url(img/Assets/UI/Textures/TEX_FrameHeader_1.webp) 0 30 fill / 0 16px stretch; font-size:17px; }
+  .seg { border-bottom:0; gap:4px; }
+  .seg button { border:8px solid transparent; border-image:url(img/Assets/UI/Textures/Buttons/TEX_Button_Normal.webp) 20 fill / 8px stretch; margin:0; padding:0 6px; color:var(--text); font:600 15px var(--serif); }
+  .seg button.on { border-image-source:url(img/Assets/UI/Textures/Buttons/TEX_ActionButton_Normal.webp); color:#fff; }
+  .seg button:hover { border-image-source:url(img/Assets/UI/Textures/Buttons/TEX_Button_Hover.webp); }
+  th { color:#e9dcbf; }
+  table { border:2px solid #101010; }
+  details.howto summary { color:#e9dcbf; }
+</style>
+</head>
+<body>
+<header>
+  <span class="brand">Astrolabe Tools</span>
+  <h1 id="name"></h1>
+  <span class="chip" id="mode"></span>
+  <div class="stat"><span>Total level</span><b id="total">-</b></div>
+  <div class="stat"><span>Gold</span><b class="gold" id="gp">-</b></div>
+  <div class="stat"><span>Slayer coins</span><b id="sc">-</b></div>
+  <div class="stat"><span>Doing</span><b id="active">-</b></div>
+  <div id="status">Loading...</div>
+</header>
+<div class="frame">
+<nav id="side" aria-label="Sections">
+  <h4>Your account</h4>
+  <button data-view="skills" class="on">Skills</button>
+  <button data-view="money">Making money</button>
+  <button data-view="combat">Combat</button>
+  <button data-view="gear">Gear</button>
+  <button data-view="astrology">Astrology</button>
+  <button data-view="upgrades">Upgrades</button>
+  <button data-view="bank">Bank</button>
+  <h4>More</h4>
+  <a href="/wiki.html">Wiki</a>
+  <a href="/api/export.xlsx" title="Download everything as an Excel workbook (first export takes ~15 s while combat is simulated)">Export spreadsheet</a>
+</nav>
+<div class="col">
+<main>
+  <section id="skills">
+    <h1 class="page-title">Skills</h1>
+    <p class="lead">Your levels, how far each is from the next, and how fast you are gaining XP while this page is open.</p>
+    <div class="bar">
+      <div class="seg" id="cat">
+        <button data-c="All" class="on">All</button><button data-c="Non-Combat">Non-Combat</button><button data-c="Combat">Combat</button><button data-c="Passive">Passive</button>
+      </div>
+      <label class="muted">Target level <input id="target" type="number" min="2" max="120" value="99" style="width:70px"></label>
+    </div>
+    <table>
+      <thead><tr>
+        <th data-k="name">Skill</th><th data-k="level" class="num">Level</th><th data-k="xp" class="num">XP</th>
+        <th data-k="progress">Progress</th><th data-k="xpToNext" class="num">XP to next</th>
+        <th data-k="xpToTarget" class="num">XP to target</th><th data-k="rate" class="num">XP/hr (this session)</th><th data-k="eta" class="num">Time to target</th>
+      </tr></thead>
+      <tbody id="skillRows"></tbody>
+    </table>
+    <details class="howto"><summary>How this is calculated</summary><p class="note">XP/hr is measured from save changes while this page is open, so it fills in after the game saves a couple of times. Time to target assumes that rate holds.</p></details>
+  </section>
+  <section id="money" hidden>
+    <h1 class="page-title">Making money</h1>
+    <p class="lead">Every way your account can make gold right now, ranked by what you would earn if you left it running. Click a method for what it produces, what it uses and the gear it assumes.</p>
+    <div class="bar">
+      <div class="seg" id="mcat">
+        <button data-c="All" class="on">All</button><button data-c="Gathering">Gathering</button><button data-c="Production">Production</button><button data-c="Thieving">Thieving</button><button data-c="Agility">Agility</button><button data-c="Combat">Combat</button><button data-c="Passive">Farming &amp; Ranching</button>
+      </div>
+      <label class="muted">Leave running for <input id="hours" type="number" min="0.5" max="72" step="0.5" value="8" style="width:70px"> hours</label>
+      <input id="msearch" placeholder="Search actions or items..." style="width:220px">
+    </div>
+    <div class="bar">
+      <label class="chk"><input type="checkbox" id="inputsCost" checked> Count ingredients as cost (at sell price)</label>
+      <label class="muted">Skill gear <select id="useGear" title="Each skill has its own toolbelt. 'Best' re-picks every slot per method.">
+        <option value="1">What I have equipped</option><option value="owned">Best gear I own</option><option value="all">Best gear in the game</option><option value="0">No gear</option></select></label>
+      <label class="chk"><input type="checkbox" id="showLocked"> Show locked actions</label>
+      <label class="chk"><input type="checkbox" id="showQuest"> Show quest-only actions</label>
+      <label class="chk"><input type="checkbox" id="needStock" checked> Hide actions I have no ingredients for</label>
+    </div>
+    <div id="passiveSum" class="sub" style="margin-bottom:10px"></div>
+    <table>
+      <thead><tr>
+        <th data-m="name">Action</th><th data-m="totalForHours" class="num" id="totalHead">Gold in 8 hr</th><th data-m="gpPerHour" class="num">Gold/hr</th>
+        <th data-m="xpPerHour" class="num">XP/hr</th><th data-m="success" class="num">Success</th><th data-m="seconds" class="num">Sec/action</th><th>Notes</th>
+      </tr></thead>
+      <tbody id="moneyRows"></tbody>
+    </table>
+    <details class="howto"><summary>How this is calculated</summary><p class="note">Every active money method in one list: gathering, hunting, production (including herblore), thieving and heists, agility and combat. Gold = everything produced valued at its shop sell price, plus coins picked up. With ingredients counted, the cost of what you use (at sell price) is subtracted: ingredients, traps, course entry fees, and for combat your food, ammo and runes. "Gold in N hr" stops when your bank runs out of what the method uses. Applied: equipped toolbelt gear, shop upgrades, pets, mastery guild ranks and astrology nodes. Combat uses your best saved loadout per enemy (see the Combat tab for detail). Hunting uses the best trap you own and your journal level per animal. Agility uses your technique levels and assumes no shortcuts built. Farming and ranching run alongside everything else, so they have their own button and a running total above the list: each plot uses the crop you have planted (and suggests a better one), assuming you replant on time; each pen uses your animals' saved happiness, and counts feed, treats and the cost of replacing animals when they die of old age. Not included yet: grain mill and distillery, heist bonuses, potions you could drink. Click a row for the breakdown.</p></details>
+  </section>
+  <section id="combat" hidden>
+    <h1 class="page-title">Combat</h1>
+    <p class="lead">Every fight simulated with your saved loadouts: how fast you kill, what you earn and how much food it costs. Click a monster for the full breakdown.</p>
+    <div class="bar">
+      <div class="seg" id="cload"></div>
+      <div class="seg" id="ccat">
+        <button data-c="All" class="on">All</button><button data-c="CombatAreas">Combat areas</button><button data-c="SlayerZones">Slayer zones</button><button data-c="DarkAreas">Dark areas</button><button data-c="dungeon">Dungeons</button>
+      </div>
+      <input id="csearch" placeholder="Search enemies, areas, drops..." style="width:220px">
+    </div>
+    <div class="bar">
+      <label class="chk"><input type="checkbox" id="cnet" checked> Subtract food, ammo and runes (at sell price)</label>
+      <label class="chk"><input type="checkbox" id="csafe"> Hide fights where one enemy turn can kill me</label>
+      <label class="chk"><input type="checkbox" id="clocked"> Show locked areas</label>
+      <label class="chk"><input type="checkbox" id="cquest"> Show quest areas</label>
+    </div>
+    <div id="cplayer" class="sub" style="margin-bottom:12px"></div>
+    <div id="cstatus" class="sub" style="margin-bottom:8px"></div>
+    <table>
+      <thead><tr>
+        <th data-c="name">Enemy</th><th data-c="gp" class="num">Gold/hr</th><th data-c="combatXpPerHour" class="num">Combat XP/hr</th>
+        <th data-c="slay" class="num">Slayer coins/hr</th><th data-c="killSeconds" class="num">Sec/kill</th><th data-c="hitChance" class="num">Hit</th>
+        <th data-c="foodPerHour" class="num">Food/hr</th><th data-c="danger" class="num">Worst turn</th><th>Notes</th>
+      </tr></thead>
+      <tbody id="combatRows"></tbody>
+    </table>
+    <details class="howto"><summary>How this is calculated</summary><p class="note">Simulated fights using your loadout from the save: equipment, set bonuses, stance, prayer, spell, food light, combat toolbelt items, pets and combat mastery ranks. Includes enemy special attacks and the combat triangle, elemental bonuses, area effects and darkness. Not modelled: damage over time, stuns and other status effects, conditional bonuses, potions you might drink. Gold = coins plus drops at sell price (chests valued by their contents). Slayer coins and Slayer XP only count while the enemy is your task. Food/hr assumes you auto-eat and never die. Worst turn = every hit of the enemy's strongest attack landing at max. 3 s respawn between kills. Click a row for the breakdown.</p></details>
+  </section>
+  <section id="upgrades" hidden>
+    <h1 class="page-title">Upgrades</h1>
+    <p class="lead">Shop purchases and mastery ranks, ranked by how much faster they would make you money, with how long each takes to pay for itself.</p>
+    <div class="bar">
+      <div class="seg" id="ucat"><button data-c="shop" class="on">Shop upgrades</button><button data-c="mastery">Next mastery ranks</button></div>
+      <label class="chk"><input type="checkbox" id="uafford"> Only what I can afford now</label>
+      <label class="chk"><input type="checkbox" id="uall"> Show upgrades I can't estimate yet</label>
+    </div>
+    <table>
+      <thead id="uhead"></thead>
+      <tbody id="urows"></tbody>
+    </table>
+    <details class="howto"><summary>How this is calculated</summary><p class="note">Each upgrade is applied to your account and the money model is re-run for the skills it affects. Gold/hr gain = how much the best method in that skill improves, using 8-hour totals so methods your bank can't keep fed don't count. XP gain = the change in that skill's best XP/hr. Payback = cost (gold plus items at sell price) / gold/hr gain. Combat, bank space and other upgrades the money model doesn't cover show "not estimated". Only shop upgrades whose requirements you meet are listed.</p></details>
+  </section>
+  <section id="gear" hidden>
+    <h1 class="page-title">Gear</h1>
+    <p class="lead">Each skill has its own toolbelt. For your best method in each skill, this compares what you have equipped with the best gear you own and the best gear in the game, and lists what is worth getting next.</p>
+    <div class="bar">
+      <input id="gsearch" placeholder="Filter skills or items..." style="width:220px">
+      <label class="chk"><input type="checkbox" id="glevel" checked> Only wishlist items I have the level for</label>
+    </div>
+    <div id="gbody"><p class="muted">Loading...</p></div>
+    <details class="howto"><summary>How this is calculated</summary><p class="note">Every skill has its own toolbelt. For each skill this takes the method that makes the most gold over 8 hours with the best gear you own, and shows three setups for it: what you have equipped, the best gear you own (bank or any toolbelt), and the best gear in the game. Wishlist = items you don't own, each added on top of your best owned setup, ranked by gold/hr gained on that method (or XP/hr where a skill's gear only adds XP). Potions are charged at sell price per action. Slots locked behind shop upgrades or mastery ranks are skipped. Bonuses that depend on conditions or scale with something aren't counted yet. Item names link to the wiki for where to get them.</p></details>
+  </section>
+  <section id="astrology" hidden>
+    <h1 class="page-title">Astrology</h1>
+    <p class="lead">Your constellations, when the next node slot opens, and which node to pick. Nodes are ranked by what they add to your best gold/hr and XP/hr (re-running the money model with the node added); nodes that unlock content are listed first.</p>
+    <div id="abody"><p class="muted">Loading...</p></div>
+    <details class="howto"><summary>How this is calculated</summary><p class="note">Knowledge only goes up. Minor node slots open at fixed knowledge totals (12, 66, 178, 290, 582, ...) and you choose which minor node fills each one; every 4 minor nodes opens a major slot, and majors can be taken in any order. Time to the next slot uses 1,200 studies of knowledge per hour plus +2% per minor node you have in that constellation (other knowledge bonuses not counted yet). Gold/hr gain is the change in the best 8-hour method of each skill the node affects; XP gain is the change in that skill's best XP/hr. Combat bonuses aren't estimated. See the wiki's constellation pages for every node and the observation odds.</p></details>
+  </section>
+  <section id="bank" hidden>
+    <h1 class="page-title">Bank</h1>
+    <p class="lead">Everything in your bank.</p>
+    <div class="bar">
+      <input id="search" placeholder="Search items..." style="width:240px">
+      <select id="bankSort"><option value="tab">Bank order</option><option value="count">Most first</option><option value="name">A-Z</option></select>
+      <span class="muted" id="bankInfo"></span>
+    </div>
+    <div id="bankBody"></div>
+  </section>
+</main>
+</div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+let ICONS = { item: {}, enemy: {}, skill: {} };
+fetch('/api/icons').then(r => r.json()).then(x => { if (!x.error) { ICONS = x; render(); if (money) renderMoney(); if (gear) renderGear(); } }).catch(() => {});
+const ico = (kind, id, size = 20) => ICONS[kind]?.[id] ? `<img src="img/${ICONS[kind][id]}" alt="" loading="lazy" style="width:${size}px;height:${size}px;object-fit:contain;vertical-align:-5px;margin-right:6px">` : '';
+const fmt = n => Math.round(n).toLocaleString();
+const dur = h => !isFinite(h) || h <= 0 ? '-' : h < 1 ? Math.round(h * 60) + ' min' : h < 48 ? Math.floor(h) + ' hr ' + Math.round((h % 1) * 60) + ' min' : (h / 24).toFixed(1) + ' days';
+
+let save = null, xpTable = [], cat = 'All', sortKey = 'default', sortDir = -1;
+const xpHist = {}; // skill -> [{t, xp}]
+
+function track(s) {
+  const t = s.modified;
+  for (const sk of s.skills) {
+    const h = xpHist[sk.id] ||= [];
+    if (!h.length || h[h.length - 1].t !== t) h.push({ t, xp: sk.xp });
+  }
+}
+function rateFor(id) {
+  const h = xpHist[id];
+  if (!h || h.length < 2) return 0;
+  const a = h[0], b = h[h.length - 1];
+  const hours = (b.t - a.t) / 3.6e6;
+  return hours > 0 ? (b.xp - a.xp) / hours : 0;
+}
+
+function renderHeader() {
+  const h = save.header;
+  $('name').textContent = h.name;
+  $('mode').innerHTML = `Mode <b>${h.mode}</b> &middot; Save v${h.version}`;
+  $('total').textContent = fmt(save.totalLevel);
+  $('gp').textContent = fmt(save.bank.wallet.GoldPieces ?? h.gp);
+  $('sc').textContent = fmt(save.bank.wallet.SlayerCoins ?? h.slayerCoins);
+  $('active').textContent = h.activeAction ? `${h.activeAction} (${h.activeSkill})` : 'Idle';
+}
+
+function renderSkills() {
+  const target = Math.max(2, Math.min(120, +$('target').value || 99));
+  let rows = save.skills.filter(s => cat === 'All' || s.category === cat).map(s => {
+    const rate = rateFor(s.id);
+    const xpToTarget = Math.max(0, xpTable[target] - s.xp);
+    return { ...s, rate, xpToTarget, eta: rate > 0 ? xpToTarget / rate : Infinity };
+  });
+  if (sortKey !== 'default') rows.sort((a, b) => (typeof a[sortKey] === 'string' ? a[sortKey].localeCompare(b[sortKey]) : a[sortKey] - b[sortKey]) * sortDir);
+  $('skillRows').innerHTML = rows.map(s => `
+    <tr class="${s.name === save.header.activeSkill ? 'active' : ''}">
+      <td>${ico('skill', s.id)}${s.name}</td>
+      <td class="num lvl">${s.level}</td>
+      <td class="num">${fmt(s.xp)}</td>
+      <td><span class="prog"><i style="width:${(s.progress * 100).toFixed(1)}%"></i></span><span class="pct">${(s.progress * 100).toFixed(1)}%</span></td>
+      <td class="num">${fmt(s.xpToNext)}</td>
+      <td class="num">${s.level >= target ? '<span class="muted">done</span>' : fmt(s.xpToTarget)}</td>
+      <td class="num ${s.rate > 0 ? 'rate' : 'muted'}">${s.rate > 0 ? fmt(s.rate) : '-'}</td>
+      <td class="num">${s.level >= target ? '' : dur(s.eta)} ${s.level < target ? `<a href="/wiki.html#/plan/skill/${s.id}/${target}" class="sub" style="margin-left:8px">plan</a>` : ''}</td>
+    </tr>`).join('');
+}
+
+function renderBank() {
+  const q = $('search').value.trim().toLowerCase();
+  const sort = $('bankSort').value;
+  const all = save.bank.tabs.flatMap(t => t.items.map(i => ({ ...i, tab: t.name })));
+  const match = i => !q || i.name.toLowerCase().includes(q) || i.id.toLowerCase().includes(q);
+  $('bankInfo').textContent = `${all.length} item types`;
+  const card = i => `<div class="item"><span class="n" title="${i.id}">${ico('item', i.id, 24)}${i.name}</span><span class="c">${fmt(i.count)}</span></div>`;
+  if (sort === 'tab') {
+    $('bankBody').innerHTML = save.bank.tabs.map(t => {
+      const items = t.items.filter(match);
+      return items.length ? `<h2>${t.name} (${items.length})</h2><div class="grid">${items.map(card).join('')}</div>` : '';
+    }).join('') || '<p class="muted">No matches.</p>';
+  } else {
+    const list = all.filter(match).sort(sort === 'count' ? (a, b) => b.count - a.count : (a, b) => a.name.localeCompare(b.name));
+    $('bankBody').innerHTML = `<div class="grid">${list.map(card).join('')}</div>`;
+  }
+}
+
+function render() { if (!save) return; renderHeader(); renderSkills(); renderBank(); }
+
+async function load() {
+  try {
+    const r = await fetch('/api/save');
+    const s = await r.json();
+    if (s.error) throw new Error(s.error);
+    xpTable = s.xpTable; save = s; track(s); render();
+    $('status').className = '';
+    $('status').textContent = 'Save updated ' + new Date(s.modified).toLocaleTimeString();
+    if (!$('money').hidden) loadMoney();
+    if (!$('combat').hidden) loadCombat();
+    if (!$('upgrades').hidden) loadUpgrades();
+    if (!$('gear').hidden) loadGear();
+    if (!$('astrology').hidden) loadAstro();
+  } catch (e) {
+    $('status').className = 'err'; $('status').textContent = e.message;
+  }
+}
+
+function showView(view) {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x.dataset.view === view));
+  document.querySelectorAll('main section').forEach(s => s.hidden = s.id !== view);
+  window.history.replaceState(null, '', '#' + view);
+  if (view === 'money') loadMoney();
+  if (view === 'combat') loadCombat();
+  if (view === 'upgrades') loadUpgrades();
+  if (view === 'gear') loadGear();
+  if (view === 'astrology') loadAstro();
+}
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => showView(b.dataset.view));
+setTimeout(() => { if (['bank', 'money', 'combat', 'upgrades', 'gear', 'astrology'].includes(location.hash.slice(1))) showView(location.hash.slice(1)); });
+document.querySelectorAll('#cat button').forEach(b => b.onclick = () => {
+  cat = b.dataset.c; document.querySelectorAll('#cat button').forEach(x => x.classList.toggle('on', x === b)); renderSkills();
+});
+document.querySelectorAll('#skills th[data-k]').forEach(th => th.onclick = () => {
+  const k = th.dataset.k; sortDir = sortKey === k ? -sortDir : (k === 'name' ? 1 : -1); sortKey = k; renderSkills();
+});
+$('target').oninput = renderSkills;
+$('search').oninput = renderBank;
+$('bankSort').onchange = renderBank;
+
+
+// ---------- Money ----------
+const GATHER = new Set(['Woodcutting', 'Mining', 'Fishing', 'Hunting']);
+const groupOf = sk => GATHER.has(sk) ? 'Gathering' : ['Thieving', 'Agility', 'Combat'].includes(sk) ? sk : ['Farming', 'Ranching'].includes(sk) ? 'Passive' : 'Production';
+let money = null, mcat = 'All', msort = 'totalForHours', mdir = -1, open = new Set(), moneyKey = '';
+async function loadMoney(force) {
+  const q = `hours=${+$('hours').value || 8}&inputs=${$('inputsCost').checked ? 1 : 0}&gear=${$('useGear').value}`;
+  const key = q + '|' + (save?.modified ?? '');
+  if (!force && key === moneyKey) return;
+  moneyKey = key;
+  if (!money) $('moneyRows').innerHTML = '<tr><td colspan="7" class="muted">Working out every method (the first load simulates combat and can take ~15 s)...</td></tr>';
+  const r = await fetch('/api/money?' + q).then(r => r.json());
+  if (r.error) { $('moneyRows').innerHTML = `<tr><td colspan="7" class="neg">${r.error}</td></tr>`; return; }
+  money = r.results; renderMoney();
+}
+function renderMoney() {
+  if (!money) return;
+  const hrs = +$('hours').value || 8;
+  $('totalHead').textContent = `Gold in ${hrs} hr`;
+  const q = $('msearch').value.trim().toLowerCase();
+  let rows = money.filter(a =>
+    (mcat === 'All' ? !a.passive : groupOf(a.skill) === mcat) &&
+    ($('showLocked').checked || a.unlocked) &&
+    ($('showQuest').checked || !a.notes.includes('quest only')) &&
+    (!$('needStock').checked || !a.inputs.length || a.stockHours > 0) &&
+    (!q || a.name.toLowerCase().includes(q) || a.skill.toLowerCase().includes(q) || a.outputs.some(o => o.name.toLowerCase().includes(q)) || a.inputs.some(i => i.name.toLowerCase().includes(q))));
+  rows.sort((a, b) => (typeof a[msort] === 'string' ? a[msort].localeCompare(b[msort]) : a[msort] - b[msort]) * mdir);
+  rows = rows.slice(0, 300);
+  // Passive income runs on top of whatever you're doing, so it's summed separately.
+  const pas = money.filter(a => a.passive);
+  const pasGp = pas.reduce((v, a) => v + a.gpPerHour, 0);
+  $('passiveSum').innerHTML = pas.length ? `Farming &amp; ranching (runs alongside everything): <b class="${pasGp < 0 ? 'neg' : 'gold'}">${fmt(pasGp)}</b> gold/hr from ${pas.length} plots and pens, ${fmt(pas.reduce((v, a) => v + a.xpPerHour, 0))} XP/hr` : '';
+  const g = n => `<span class="${n < 0 ? 'neg' : ''}">${fmt(n)}</span>`;
+  $('moneyRows').innerHTML = rows.map(a => {
+    const notes = [
+      ...a.missing.map(m => `<span class="tag bad">needs ${m}</span>`),
+      ...a.notes.map(n => `<span class="tag warn">${n}</span>`),
+      a.inputs.length && a.stockHours < hrs ? `<span class="tag">runs out in ${dur(a.stockHours)}</span>` : '',
+      a.gearGain > 1 ? `<span class="tag good">gear swap +${fmt(a.gearGain)}/hr</span>` : '',
+      a.gearPlan?.some(x => x.item && !x.owned) ? `<span class="tag warn">uses gear you don't own</span>` : '',
+    ].join('');
+    const main = `<tr class="mrow" data-id="${a.id}">
+      <td>${a.outputs?.[0] ? ico('item', a.outputs[0].id, 24) : ico('skill', a.skill, 24)}${a.name}<div class="sub">${a.skill}${a.area ? ' &middot; ' + a.area : ''}</div></td>
+      <td class="num gold">${g(a.totalForHours)}</td><td class="num">${g(a.gpPerHour)}</td>
+      <td class="num">${fmt(a.xpPerHour)}</td><td class="num">${(a.success * 100).toFixed(0)}%</td>
+      <td class="num">${a.seconds < 100 ? a.seconds.toFixed(2) : fmt(a.seconds)}${a.unit ? `<div class="sub">per ${a.unit}</div>` : ''}</td><td>${notes}</td></tr>`;
+    if (!open.has(a.id)) return main;
+    const tbl = (title, list, extra) => `<div><b>${title}</b><table><tr><th>Item</th><th class="num">Per hour</th><th class="num">Gold/hr</th>${extra ? '<th class="num">In bank</th><th class="num">Lasts</th>' : ''}</tr>
+      ${list.map(x => `<tr><td>${x.name}</td><td class="num">${x.perHour < 10 ? x.perHour.toFixed(2) : fmt(x.perHour)}</td><td class="num">${fmt(x.value)}</td>${extra ? `<td class="num">${fmt(x.have)}</td><td class="num">${dur(x.hoursLeft)}</td>` : ''}</tr>`).join('') || '<tr><td class="muted">None</td></tr>'}</table></div>`;
+    const cash = a.cashPerHour ? [{ name: 'Gold coins', perHour: a.cashPerHour, value: a.cashPerHour }] : [];
+    return main + `<tr class="detail"><td colspan="7"><div class="detail-grid">${tbl('Produces', [...cash, ...a.outputs])}${tbl('Uses', a.inputs, true)}</div>
+      ${a.gearPlan ? gearPlanTable(a) : `<div class="sub">Gear applied: ${a.gear.length ? a.gear.join(', ') : 'none'}</div>`}
+      ${a.account?.length ? `<div class="sub">Account bonuses applied: ${a.account.join(', ')}</div>` : ''}</td></tr>`;
+  }).join('') || '<tr><td colspan="7" class="muted">Nothing matches.</td></tr>';
+  document.querySelectorAll('tr.mrow').forEach(tr => tr.onclick = () => {
+    const id = tr.dataset.id; open.has(id) ? open.delete(id) : open.add(id); renderMoney();
+  });
+}
+document.querySelectorAll('#mcat button').forEach(b => b.onclick = () => {
+  mcat = b.dataset.c; document.querySelectorAll('#mcat button').forEach(x => x.classList.toggle('on', x === b)); renderMoney();
+});
+document.querySelectorAll('th[data-m]').forEach(th => th.onclick = () => {
+  const k = th.dataset.m; mdir = msort === k ? -mdir : (k === 'name' || k === 'seconds' ? 1 : -1); msort = k; renderMoney();
+});
+['hours', 'inputsCost', 'useGear'].forEach(id => $(id).onchange = () => loadMoney(true));
+['showLocked', 'showQuest', 'needStock'].forEach(id => $(id).onchange = renderMoney);
+$('msearch').oninput = renderMoney;
+
+function gearPlanTable(a) {
+  const nm = id => id ? (save?.bank && itemName(id)) : '';
+  const rows = a.gearPlan.filter(x => x.item || x.current);
+  return `<div style="margin:6px 0"><b>${a.skill} toolbelt for this method</b>${a.potionCost ? ` <span class="sub">(potions cost ~${fmt(a.potionCost)} gold/hr at sell price, already subtracted)</span>` : ''}
+    <table><tr><th>Slot</th><th>Use</th><th>Equipped now</th><th></th></tr>${rows.map(x => `<tr><td class="muted">${x.slotName}</td>
+    <td>${x.item ? `<a href="/wiki.html#/r/Item:${x.item}" target="_blank">${x.itemName}</a>` : '<span class="muted">empty</span>'}</td>
+    <td class="muted">${x.currentName || 'empty'}</td>
+    <td>${x.item && x.item !== x.current ? (x.owned ? '<span class="tag good">swap in</span>' : '<span class="tag warn">not owned</span>') : ''}</td></tr>`).join('')}</table></div>`;
+}
+const itemNames = {};
+function itemName(id) {
+  if (!Object.keys(itemNames).length && save) for (const t of save.bank.tabs) for (const i of t.items) itemNames[i.id] = i.name;
+  return itemNames[id] || id.replace(/([a-z])([A-Z])/g, '$1 $2');
+}
+
+// ---------- Astrology ----------
+let astroKey = '';
+async function loadAstro() {
+  const key = String(save?.modified ?? '');
+  if (key === astroKey) return;
+  astroKey = key;
+  if (!$('abody').dataset.done) $('abody').innerHTML = '<p class="muted">Ranking every node (takes a few seconds)...</p>';
+  const r = await fetch('/api/astrology').then(r => r.json());
+  if (r.error) { $('abody').innerHTML = `<p class="neg">${r.error}</p>`; return; }
+  $('abody').dataset.done = 1;
+  const wl = id => `<a href="/wiki.html#/r/AstrologyConstellation:${id}" target="_blank">`;
+  const unl = list => list.map(k => k.split(':')[1].replace(/([a-z])([A-Z])/g, '$1 $2')).join(', ');
+  const val = n => [n.gp > 0.5 ? `<span class="gold">+${fmt(n.gp)} gold/hr</span>` : '', n.xpPct > 0.0001 ? `+${(n.xpPct * 100).toFixed(1)}% XP/hr` : '', n.unlocks.length ? `<span class="tag good">unlocks ${unl(n.unlocks)}</span>` : '', n.combat ? '<span class="tag">combat</span>' : ''].filter(Boolean).join(' ') || '<span class="muted">no estimate</span>';
+  const skillsOf = n => n.rows.map(x => x.skill).join(', ');
+  $('abody').innerHTML = r.constellations.map(c => {
+    const minorC = c.candidates.filter(n => n.kind === 'minor'), majorC = c.candidates.filter(n => n.kind === 'major');
+    const pickRows = (list, free) => list.slice(0, 6).map((n, i) => `<tr${!n.available ? ' class="muted"' : ''}><td>${i < free && n.available ? '<span class="tag good">pick now</span>' : ''}</td><td>${n.kind === 'major' ? n.name : 'Minor ' + n.name}<div class="sub">${n.text}</div></td><td>${val(n)}</td><td class="sub">${skillsOf(n)}</td><td class="sub">${n.req.map(q => q.skill + ' ' + q.level).join(' or ') || '-'}</td></tr>`).join('');
+    const status = !c.unlocked && !c.knowledge ? `<span class="muted">locked (Astrology ${c.level})</span>` : `${fmt(Math.round(c.knowledge))} knowledge · ${c.minors}/16 minor · ${c.majors}/4 major${c.nextAt ? ` · next slot at ${fmt(c.nextAt)} (${dur(c.hoursToNext)} of studying)` : ' · all slots open'}`;
+    const free = (c.freeMinor ? `<span class="tag good">${c.freeMinor} minor slot${c.freeMinor > 1 ? 's' : ''} free</span>` : '') + (c.freeMajor ? `<span class="tag good">${c.freeMajor} major slot free</span>` : '');
+    if (!c.unlocked && !c.knowledge) return `<div class="gcard"><h2>${wl(c.id)}${c.name}</a></h2><div class="sub">${status} · ${fmt(c.xph)} XP/hr when unlocked</div></div>`;
+    return `<div class="gcard"><h2>${wl(c.id)}${c.name}</a></h2><div class="sub">${status} ${free}</div>
+      <div class="gcols"><div><b>Best minor nodes</b><table><tr><th></th><th>Node</th><th>Worth</th><th>Skills</th><th>Needs</th></tr>${pickRows(minorC, c.freeMinor) || '<tr><td colspan="5" class="muted">All taken</td></tr>'}</table></div>
+      <div><b>Best major nodes</b><table><tr><th></th><th>Node</th><th>Worth</th><th>Skills</th><th>Needs</th></tr>${pickRows(majorC, c.freeMajor) || '<tr><td colspan="5" class="muted">All taken</td></tr>'}</table></div></div></div>`;
+  }).join('');
+}
+
+// ---------- Gear ----------
+let gear = null, gearKey = '';
+async function loadGear() {
+  const key = String(save?.modified ?? '');
+  if (key === gearKey) return;
+  gearKey = key;
+  const r = await fetch('/api/gear').then(r => r.json());
+  if (r.error) { $('gbody').innerHTML = `<p class="neg">${r.error}</p>`; return; }
+  gear = r; renderGear();
+}
+function renderGear() {
+  if (!gear) return;
+  const q = $('gsearch').value.trim().toLowerCase();
+  const wl = (s) => s.wishlist.filter(w => !$('glevel').checked || w.levelOk);
+  const link = (id, n) => id ? `<a href="/wiki.html#/r/Item:${id}" target="_blank">${ico('item', id)}${n}</a>` : '<span class="muted">empty</span>';
+  const cards = Object.entries(gear.skills).filter(([k, s]) => s.top && (!q || k.toLowerCase().includes(q) ||
+    s.slots.some(x => (x.itemName || '').toLowerCase().includes(q)) || s.wishlist.some(w => w.name.toLowerCase().includes(q)) ||
+    s.top.owned.slots.concat(s.top.all.slots).some(x => (x.itemName || '').toLowerCase().includes(q))));
+  $('gbody').innerHTML = cards.map(([k, s]) => {
+    const t = s.top, o = Object.fromEntries(t.owned.slots.map(x => [x.slot, x])), a = Object.fromEntries(t.all.slots.map(x => [x.slot, x]));
+    const delta = (v, b) => v - b > 1 ? ` <span class="tag good">+${fmt(v - b)}</span>` : '';
+    const slotRows = s.slots.map(x => {
+      const sn = x.name.replace(k + ' ', '');
+      if (!x.open) return `<tr class="muted"><td>${sn}</td><td colspan="3">locked</td></tr>`;
+      const ow = o[x.id], al = a[x.id];
+      const mark = (p) => p?.item && p.item !== x.item ? (p.owned ? ' <span class="tag good">swap</span>' : ' <span class="tag warn">get</span>') : '';
+      return `<tr><td class="muted">${sn}</td><td>${link(x.item, x.itemName)}</td><td>${link(ow?.item, ow?.itemName)}${mark(ow)}</td><td>${link(al?.item, al?.itemName)}${mark(al)}</td></tr>`;
+    }).join('');
+    const w = wl(s);
+    return `<div class="gcard"><h2>${ico('skill', k, 22)}${k}</h2><div class="sub">Top method: <b>${t.name}</b>${t.area ? ' &middot; ' + t.area : ''}${t.objective === 'xp' ? ' &middot; ranked by XP/hr (nothing in this skill makes gold)' : ''}</div>
+      <div class="gcols"><div><table><tr><th>Slot</th>${(() => { const xp = t.objective === 'xp', u = xp ? ' XP/hr' : ' gold/hr', v = p => xp ? p.xp : p.gp, b = xp ? t.owned.baseXp : t.equippedGp;
+        return `<th>Equipped<div class="sub">${fmt(b)}${u}</div></th><th>Best I own<div class="sub">${fmt(v(t.owned))}${u}${delta(v(t.owned), b)}</div></th><th>Best in game<div class="sub">${fmt(v(t.all))}${u}${delta(v(t.all), b)}</div></th>`; })()}</tr>${slotRows}</table></div>
+      <div><b>Wishlist</b>${w.length ? `<table><tr><th>Item</th><th>Slot</th><th class="num">Gold/hr</th><th class="num">XP/hr</th><th>Needs</th></tr>${w.map(x =>
+        `<tr><td>${link(x.item, x.name)}${x.potion ? ' <span class="tag">potion</span>' : ''}</td><td class="muted">${x.slot.replace(k + ' ', '')}</td><td class="num">${x.gain > 1 ? '+' + fmt(x.gain) : '-'}</td><td class="num">${x.xpGain > 1 ? '+' + fmt(x.xpGain) : '-'}</td><td class="${x.levelOk ? 'muted' : 'neg'}">${x.levels.map(l => l.skill + ' ' + l.level).join(', ')}</td></tr>`).join('')}</table>` : '<p class="muted">Nothing you don\'t own improves this method.</p>'}</div></div></div>`;
+  }).join('') || '<p class="muted">Nothing matches.</p>';
+}
+$('gsearch').oninput = renderGear;
+$('glevel').onchange = renderGear;
+
+// ---------- Combat ----------
+let combat = null, cload = null, ccat = 'All', csort = 'gp', cdir = -1, copen = new Set(), combatBusy = false;
+// Called on every save poll. The server answers instantly from cache unless combat inputs changed;
+// the table is only re-rendered when the result actually differs, and never blanked while loading.
+async function loadCombat(force) {
+  if (combatBusy) return;
+  combatBusy = true;
+  try {
+    if (!combat || force) $('cstatus').textContent = 'Simulating fights...';
+    const r = await fetch('/api/combat' + (cload ? '?loadout=' + cload : '')).then(r => r.json());
+    if (r.error) { $('cstatus').textContent = r.error; $('cstatus').className = 'neg'; return; }
+    $('cstatus').textContent = ''; $('cstatus').className = 'sub';
+    const changed = !combat || force || r.fingerprint !== combat.fingerprint || r.player.loadout !== combat.player.loadout;
+    combat = r; cload = r.player.loadout;
+    if (changed) renderCombat();
+  } finally { combatBusy = false; }
+}
+const pct = x => (x * 100).toFixed(0) + '%';
+const num1 = x => x == null ? '-' : x < 10 ? x.toFixed(1) : fmt(x);
+function renderCombat() {
+  if (!combat) return;
+  const p = combat.player;
+  $('cload').innerHTML = p.loadouts.map(l => `<button data-l="${l.id}" class="${l.id === p.loadout ? 'on' : ''}">${l.name}${l.active ? ' (active)' : ''}</button>`).join('');
+  document.querySelectorAll('#cload button').forEach(b => b.onclick = () => { cload = b.dataset.l; loadCombat(true); });
+  $('cplayer').innerHTML = `${p.style} &middot; ${p.stance}${p.spell ? ' &middot; ' + p.spell : ''}${p.prayers.length ? ' &middot; prayer ' + p.prayers.join(', ') : ''}
+    &middot; max hit <b>${p.maxHit}</b> (min ${p.minHit}) &middot; accuracy ${fmt(p.accuracy)} &middot; attack every ${(p.interval / 1000).toFixed(1)} s
+    &middot; HP <b>${p.hp}</b> &middot; evasion ${fmt(p.evasion.melee)} / ${fmt(p.evasion.ranged)} / ${fmt(p.evasion.magic)} (melee / ranged / magic)
+    &middot; protection ${fmt(p.protection)}${p.armour ? ' &middot; armour ' + p.armour : ''}${p.food ? ' &middot; food ' + p.food.name + ' (' + p.food.heal + ')' : ''}${p.ammo ? ' &middot; ammo ' + p.ammo : ''}
+    ${p.notes.map(n => `<span class="tag warn">${n}</span>`).join('')}`;
+  const net = $('cnet').checked;
+  const q = $('csearch').value.trim().toLowerCase();
+  let rows = combat.rows.map(r => ({ ...r, gp: r.gpPerHour - (net ? r.costPerHour || 0 : 0), slay: r.slayer ? r.slayer.coins : 0, danger: r.playerHp ? r.worstTurn / r.playerHp : 0 }))
+    .filter(r => (ccat === 'All' || (ccat === 'dungeon' ? r.kind === 'dungeon' : r.kind !== 'dungeon' && r.category === ccat))
+      && ($('clocked').checked || !r.missing.length)
+      && ($('cquest').checked || (r.category !== 'Quests' && !r.notes.includes('quest')))
+      && (!$('csafe').checked || r.worstTurn < (r.playerHp || p.hp))
+      && (!q || r.name.toLowerCase().includes(q) || (r.area || '').toLowerCase().includes(q) || r.drops.some(d => d.name.toLowerCase().includes(q))));
+  rows.sort((a, b) => (typeof a[csort] === 'string' ? a[csort].localeCompare(b[csort]) : (a[csort] ?? 0) - (b[csort] ?? 0)) * cdir);
+  const g = n => `<span class="${n < 0 ? 'neg' : ''}">${fmt(n)}</span>`;
+  $('combatRows').innerHTML = rows.map(r => {
+    const hp = r.playerHp || p.hp;
+    const dangerCls = r.worstTurn >= hp ? 'neg' : r.worstTurn >= hp / 2 ? 'gold' : '';
+    const notes = [
+      ...r.missing.map(m => `<span class="tag bad">needs ${m}</span>`),
+      ...r.notes.map(n => `<span class="tag warn">${n}</span>`),
+      r.darknessPenalty ? `<span class="tag warn">darkness -${r.darknessPenalty * 5}% acc/eva</span>` : '',
+      r.kind === 'dungeon' ? `<span class="tag">${r.enemiesPerRun} enemies, ${dur(r.runSeconds / 3600)}/run</span>` : '',
+      r.specials ? `<span class="tag">special attacks</span>` : '',
+    ].join('');
+    const main = `<tr class="mrow" data-id="${r.id}">
+      <td>${r.name}<div class="sub">${r.kind === 'dungeon' ? 'Dungeon' : r.area}${r.slayer ? ' &middot; slayer: ' + r.slayer.master : ''}</div></td>
+      <td class="num gold">${g(r.gp)}</td><td class="num">${fmt(r.combatXpPerHour)}</td>
+      <td class="num">${r.slayer ? fmt(r.slayer.coins) : '<span class="muted">-</span>'}</td>
+      <td class="num">${r.killSeconds.toFixed(1)}</td><td class="num">${pct(r.hitChance)}</td>
+      <td class="num">${num1(r.foodPerHour)}</td><td class="num ${dangerCls}">${fmt(r.worstTurn)} / ${fmt(hp)}</td><td>${notes}</td></tr>`;
+    if (!copen.has(r.id)) return main;
+    const dropRows = r.drops.slice(0, 15).map(d => `<tr><td>${d.name}</td><td class="num">${(d.chance * 100).toFixed(d.chance < 0.01 ? 2 : 1)}%</td><td class="num">${num1(d.perHour)}</td><td class="num">${fmt(d.perHour * d.value)}</td></tr>`).join('');
+    const xp = Object.entries(r.xpPerHour).map(([k, v]) => `${k} ${fmt(v)}`).join(', ');
+    const costs = [r.foodPerHour ? `${num1(r.foodPerHour)} ${p.food?.name}` : '', r.ammoPerHour ? `${fmt(r.ammoPerHour)} ${p.ammo}` : '', ...(r.runesPerHour || []).map(x => `${fmt(x.qty)} ${x.name}`), r.prayerPerHour ? `${fmt(r.prayerPerHour)} prayer points` : ''].filter(Boolean).join(', ');
+    const fightInfo = r.kind === 'dungeon'
+      ? `<div>${r.runsPerHour.toFixed(1)} runs/hr &middot; slowest enemy ${r.slowest?.name} (${r.slowest?.seconds.toFixed(1)} s) &middot; lowest hit chance ${pct(r.hitChance)}</div><div class="sub">Dungeon enemies drop nothing; only the end reward counts.</div>`
+      : `<div>You: hit ${pct(r.hitChance)}, ${r.minHit}-${r.maxHit} dmg (${Math.floor(r.maxHit * (1 - r.enemyRes))} max after its resistance, as the game shows in fight) every ${(r.playerInterval / 1000).toFixed(1)} s</div>
+         <div>Enemy: ${r.hp} HP, hits you ${pct(r.enemyHitChance)}, max hit ${Math.floor(r.enemyMaxHit * (1 - r.playerRes))} after your ${pct(r.playerRes)} resistance, every ${(r.enemyInterval / 1000).toFixed(1)} s</div>
+         <div>${fmt(r.killsPerHour)} kills/hr &middot; ${fmt(r.goldPerHour)} coins/hr &middot; ${fmt(r.takenPerHour)} damage taken/hr</div>
+         ${r.slayer ? `<div>On task: ${fmt(r.slayer.coins)} slayer coins/hr, ${fmt(r.slayer.xp)} Slayer XP/hr</div>` : ''}`;
+    return main + `<tr class="detail"><td colspan="9"><div class="detail-grid">
+      <div>${fightInfo}<div style="margin-top:8px">XP/hr: ${xp || '-'}</div><div>Uses per hour: ${costs || 'nothing'}${r.costPerHour ? ` (${fmt(r.costPerHour)} gold)` : ''}</div></div>
+      <div><b>${r.kind === 'dungeon' ? 'Run reward' : 'Drops'}</b><table><tr><th>Item</th><th class="num">Chance</th><th class="num">Per hour</th><th class="num">Gold/hr</th></tr>${dropRows || '<tr><td class="muted">None</td></tr>'}</table></div>
+      </div></td></tr>`;
+  }).join('') || '<tr><td colspan="9" class="muted">Nothing matches.</td></tr>';
+  document.querySelectorAll('#combatRows tr.mrow').forEach(tr => tr.onclick = () => {
+    const id = tr.dataset.id; copen.has(id) ? copen.delete(id) : copen.add(id); renderCombat();
+  });
+}
+document.querySelectorAll('#ccat button').forEach(b => b.onclick = () => {
+  ccat = b.dataset.c; document.querySelectorAll('#ccat button').forEach(x => x.classList.toggle('on', x === b)); renderCombat();
+});
+document.querySelectorAll('th[data-c]').forEach(th => th.onclick = () => {
+  const k = th.dataset.c; cdir = csort === k ? -cdir : (['name', 'killSeconds', 'foodPerHour', 'danger'].includes(k) ? 1 : -1); csort = k; renderCombat();
+});
+['cnet', 'csafe', 'clocked', 'cquest'].forEach(id => $(id).onchange = renderCombat);
+$('csearch').oninput = renderCombat;
+
+// ---------- Upgrades ----------
+let upg = null, ucat = 'shop', usort = 'gpGain', udir = -1, upgKey = '';
+async function loadUpgrades(force) {
+  const key = save?.modified ?? '';
+  if (!force && key === upgKey && upg) return;
+  upgKey = key;
+  if (!upg) $('urows').innerHTML = '<tr><td class="muted">Working out every upgrade...</td></tr>';
+  const r = await fetch('/api/upgrades').then(r => r.json());
+  if (r.error) { $('urows').innerHTML = `<tr><td class="neg">${r.error}</td></tr>`; return; }
+  upg = r; renderUpgrades();
+}
+function renderUpgrades() {
+  if (!upg) return;
+  const g = n => n > 0.5 ? `<span class="rate">+${fmt(n)}</span>` : '<span class="muted">-</span>';
+  const p = x => x > 0.0005 ? `<span class="rate">+${(x * 100).toFixed(1)}%</span>` : '<span class="muted">-</span>';
+  if (ucat === 'shop') {
+    $('uhead').innerHTML = `<tr><th data-u="name">Upgrade</th><th data-u="gpGain" class="num">Gold/hr gain</th><th data-u="xpPct" class="num">XP gain</th><th data-u="cost" class="num">Cost</th><th data-u="paybackHours" class="num">Payback</th><th>Effect</th></tr>`;
+    let rows = upg.shop.filter(x => ($('uall').checked || x.modelled) && (!$('uafford').checked || x.canAfford));
+    rows.sort((a, b) => ((a[usort] ?? Infinity) > (b[usort] ?? Infinity) ? 1 : (a[usort] ?? Infinity) < (b[usort] ?? Infinity) ? -1 : 0) * udir);
+    $('urows').innerHTML = rows.map(x => `<tr>
+      <td>${x.name}<div class="sub">${x.category}${x.gpMethod && x.gpGain > 0.5 ? ' &middot; best: ' + x.gpMethod : ''}</div></td>
+      <td class="num">${x.modelled ? g(x.gpGain) + (x.gpSkill && x.gpGain > 0.5 ? `<div class="sub">${x.gpSkill}</div>` : '') : '<span class="muted">not estimated</span>'}</td>
+      <td class="num">${x.modelled ? p(x.xpPct) + (x.xpPct > 0.0005 ? `<div class="sub">${x.xpSkill}</div>` : '') : ''}</td>
+      <td class="num">${fmt(x.gold)}${x.other.map(c => `<div class="sub">${fmt(c.qty)} ${c.id.replace(/([a-z])([A-Z])/g, '$1 $2')}</div>`).join('')}${x.items.map(i => `<div class="sub ${i.have < i.qty ? 'neg' : ''}">${fmt(i.qty)} ${i.name} (have ${fmt(i.have)})</div>`).join('')}</td>
+      <td class="num">${x.paybackHours ? dur(x.paybackHours) : '-'}${x.canAfford ? '' : '<div class="sub neg">can\'t afford yet</div>'}</td>
+      <td style="white-space:normal">${x.effects.join('<br>')}</td></tr>`).join('') || '<tr><td class="muted">Nothing to show.</td></tr>';
+  } else {
+    $('uhead').innerHTML = `<tr><th data-u="name">Next rank</th><th data-u="toGo" class="num">Points to go</th><th data-u="gpGain" class="num">Gold/hr gain</th><th data-u="xpPct" class="num">XP gain</th><th>Effect</th></tr>`;
+    let rows = upg.mastery.slice();
+    rows.sort((a, b) => ((a[usort] ?? 0) > (b[usort] ?? 0) ? 1 : (a[usort] ?? 0) < (b[usort] ?? 0) ? -1 : 0) * udir);
+    $('urows').innerHTML = rows.map(x => `<tr>
+      <td>${x.name}<div class="sub">now ${x.rank} &middot; ${x.points} / ${x.need} points</div></td>
+      <td class="num">${x.toGo}</td>
+      <td class="num">${x.modelled ? g(x.gpGain) : '<span class="muted">-</span>'}</td>
+      <td class="num">${p(x.xpPct)}</td>
+      <td style="white-space:normal">${x.noBonus ? '<span class="muted">no bonus yet (coming soon in game)</span>' : x.effects.join('<br>')}</td></tr>`).join('');
+  }
+  document.querySelectorAll('#uhead th[data-u]').forEach(th => th.onclick = () => {
+    const k = th.dataset.u; udir = usort === k ? -udir : (['name', 'cost', 'paybackHours', 'toGo'].includes(k) ? 1 : -1); usort = k; renderUpgrades();
+  });
+}
+document.querySelectorAll('#ucat button').forEach(b => b.onclick = () => {
+  ucat = b.dataset.c; usort = ucat === 'shop' ? 'gpGain' : 'toGo'; udir = ucat === 'shop' ? -1 : 1;
+  document.querySelectorAll('#ucat button').forEach(x => x.classList.toggle('on', x === b)); renderUpgrades();
+});
+['uafford', 'uall'].forEach(id => $(id).onchange = renderUpgrades);
+
+load();
+setInterval(load, 10000);
+</script>
+</body>
+</html>

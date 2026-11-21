@@ -1,0 +1,9 @@
+# Game files: rebuilt locally from your own copy of the game (Extract-Game-Data.cmd, Dump-Game-Assets.cmd)
+data/
+# Notes that name the game's internal classes stay local; the wiki publishes a cleaned copy
+docs/
+node_modules/
+*.log
+# Old experiments
+autopilot*
+Autopilot*

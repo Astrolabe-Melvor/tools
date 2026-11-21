@@ -1,0 +1,1553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Astrolabe Wiki</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@600;700;800&family=Fira+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /* Melvor Idle 2 look: charcoal panels with dark rims, parchment tag labels, green actions, gold coin. */
+  :root {
+    --night:#141a1f; --panel:#262626; --panel2:#2e2e2e; --row:#2a2a2a; --rim:#101010; --line:#3a3a3a;
+    --text:#ecebe6; --dim:#a7a49b; --link:#8ec9ee; --parch:#e9dcbf; --ink:#2b2216; --green:#2f8a2f; --green2:#1e651e;
+    --gold:#f0c348; --red:#c8312b; --bad:#ec7f6c; --good:#8fd46f; --teal:#2f7f86;
+    --head:"Fira Sans Condensed", "Arial Narrow", sans-serif; --body:"Fira Sans", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-padding-top:70px; }
+  body { margin:0; color:var(--text); font:15px/1.5 var(--body);
+    background:radial-gradient(1200px 500px at 70% -100px, #23435a55, transparent), linear-gradient(180deg, #172430 0, var(--night) 520px) fixed; background-color:var(--night); }
+  a { color:var(--link); text-decoration:none; } a:hover { text-decoration:underline; }
+  :focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
+  img.ic { width:20px; height:20px; object-fit:contain; vertical-align:-5px; margin-right:5px; image-rendering:auto; }
+  img.ic-l { width:40px; height:40px; object-fit:contain; vertical-align:middle; }
+  img.ic-xl { width:72px; height:72px; object-fit:contain; }
+  img.ic-hero { width:150px; height:150px; object-fit:contain; display:block; margin:6px auto 2px; }
+
+  /* top bar */
+  .top { position:sticky; top:0; z-index:10; display:flex; align-items:center; gap:18px; height:58px; padding:0 18px; background:#0e0e0e; border-bottom:2px solid #000; box-shadow:0 2px 0 #2b2b2b; }
+  .brand { display:flex; align-items:center; gap:10px; font:800 21px/1 var(--head); color:var(--text); white-space:nowrap; }
+  .brand:hover { text-decoration:none; }
+  .brand .mark { width:32px; height:32px; object-fit:contain; }
+  .topnav a img { width:20px; height:20px; object-fit:contain; vertical-align:-5px; margin-right:5px; }
+  .brand small { font:500 13px var(--body); color:var(--dim); }
+  .topnav { display:flex; gap:2px; }
+  .topnav a { color:var(--text); font:600 15px var(--head); padding:6px 10px; border-radius:3px; }
+  .topnav a:hover { background:#222; text-decoration:none; }
+  #q { flex:1; max-width:440px; margin-left:auto; height:34px; background:#1c1c1c; color:var(--text); border:1px solid #3c3c3c; border-radius:3px; padding:0 12px; font:inherit; }
+  #results { position:fixed; top:56px; right:18px; width:min(560px, 94vw); max-height:70vh; overflow:auto; z-index:20; background:var(--panel); border:2px solid var(--rim); border-radius:4px; box-shadow:0 14px 40px #000c; }
+  #results a { display:flex; align-items:center; gap:8px; padding:6px 12px; border-bottom:1px solid var(--line); color:var(--text); }
+  #results a span:last-child { margin-left:auto; color:var(--dim); font-size:13px; }
+  #results a:hover, #results a.sel { background:#333; text-decoration:none; }
+  .back { color:var(--dim); font-size:14px; white-space:nowrap; }
+  #menuBtn { display:none; background:#222; border:1px solid #444; color:var(--text); border-radius:3px; padding:4px 10px; font:inherit; }
+
+  /* frame */
+  .frame { display:grid; grid-template-columns:220px minmax(0,1fr); gap:0; max-width:1500px; margin:0 auto; }
+  #side { position:sticky; top:60px; align-self:start; height:calc(100vh - 60px); overflow:auto; padding:16px 10px 30px 16px; scrollbar-width:thin; scrollbar-color:#444 transparent; }
+  .sbox { background:var(--panel); border:2px solid var(--rim); box-shadow:inset 0 1px 0 #ffffff0d; border-radius:3px; padding:6px 6px 8px; margin-bottom:12px; }
+  .sbox h4 { margin:-6px -6px 6px; padding:5px 10px; background:#1b1b1b; border-bottom:1px solid #000; font:700 14px var(--head); color:var(--dim); letter-spacing:.2px; }
+  #side a { display:flex; align-items:center; padding:3px 6px; border-radius:2px; color:var(--text); font-size:14.5px; }
+  #side a img.ic { width:18px; height:18px; vertical-align:middle; }
+  #side a:hover { background:#333; text-decoration:none; }
+  #side a.on { background:#3a3a3a; box-shadow:inset 3px 0 0 var(--gold); }
+  #side .lv { margin-left:auto; color:var(--dim); font-size:12.5px; }
+  .col { min-width:0; padding:16px 18px 0 8px; }
+  main { position:relative; background:var(--panel); border:2px solid var(--rim); box-shadow:inset 0 1px 0 #ffffff12, 0 6px 24px #0007; border-radius:3px; padding:24px 30px 36px; min-height:70vh; }
+  main::after { content:""; display:block; clear:both; }
+
+  /* article */
+  .page-title { display:flex; align-items:center; gap:12px; font:800 34px/1.1 var(--head); margin:0 0 6px; }
+  .page-title img { width:44px; height:44px; object-fit:contain; }
+  .crumbs { color:var(--dim); font-size:13.5px; margin:0 0 16px; padding-bottom:10px; border-bottom:1px solid var(--line); }
+  .lead { font-size:16.5px; line-height:1.6; max-width:78ch; margin:0 0 14px; }
+  main p { max-width:84ch; }
+  /* section headings sit on a parchment tag, like the game's panel labels */
+  main h3 { clear:none; margin:34px 0 12px; font:700 17px var(--head); }
+  main h3 > span.tag { display:inline-block; background:var(--parch); color:var(--ink); padding:3px 14px 2px; border-radius:2px; box-shadow:0 2px 0 #0008, inset 0 -2px 0 #c9b88f; }
+  main h3::after { content:""; display:block; height:1px; background:var(--line); margin-top:-12px; position:relative; z-index:-1; }
+  main h4 { font:700 17px var(--head); margin:22px 0 8px; color:var(--parch); }
+  .meta, .note { color:var(--dim); } .note { font-size:13.5px; }
+  .muted { color:var(--dim); } .bad { color:var(--bad); } .good { color:var(--good); } .gold { color:var(--gold); }
+
+  /* infobox */
+  .infobox { float:right; clear:right; width:300px; margin:0 0 18px 24px; background:#1e1e1e; border:2px solid var(--rim); border-radius:3px; font-size:14px; box-shadow:0 4px 14px #0006; }
+  .infobox .ib-title { background:var(--parch); color:var(--ink); font:800 18px/1.2 var(--head); text-align:center; padding:6px 10px; }
+  .infobox .ib-sub { text-align:center; color:var(--dim); font-size:13px; margin:4px 0 2px; }
+  .infobox table { width:100%; border:0; margin:6px 0 0; background:none; }
+  .infobox th, .infobox td { border:0; border-top:1px solid #333; padding:5px 10px; background:none !important; font-size:13.5px; }
+  .infobox th { width:42%; color:var(--dim); font-weight:500; }
+  .infobox .ib-sec td { background:#151515 !important; color:var(--parch); font:700 14px var(--head); text-align:center; }
+
+  /* contents */
+  .toc { display:inline-block; min-width:230px; background:#1e1e1e; border:2px solid var(--rim); border-radius:3px; padding:8px 16px 10px; margin:4px 0 6px; font-size:14.5px; }
+  .toc b { font-family:var(--head); }
+  .toc ol { margin:4px 0 0; padding-left:20px; }
+
+  /* tables */
+  table { border-collapse:collapse; margin:8px 0 14px; background:var(--row); font-size:14.5px; border:2px solid var(--rim); }
+  th, td { border:1px solid #3d3d3d; padding:5px 10px; text-align:left; vertical-align:middle; }
+  th { background:#1a1a1a; color:var(--parch); font:600 14px var(--head); }
+  tr:nth-child(even) td { background:#303030; }
+  tbody tr:hover td, table tr:hover td { background:#373737; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  th.sortable { cursor:pointer; user-select:none; } th.sortable:hover { color:#fff; }
+  td.best { color:var(--gold); font-weight:600; }
+  .wide { width:100%; }
+  td .sub, .sub { color:var(--dim); font-size:12.5px; }
+
+  /* navigation box (main page) */
+  .navbox { width:100%; border:2px solid var(--rim); margin:10px 0 18px; }
+  .navbox .nb-title td { background:var(--parch) !important; color:var(--ink); text-align:center; font:700 15px var(--head); }
+  .navbox th { width:130px; text-align:right; background:#1d1d1d; }
+  .navbox td { background:var(--row) !important; line-height:2; }
+  .navbox a { white-space:nowrap; margin-right:12px; }
+
+  /* cards */
+  .cards { display:grid; grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:8px; margin:8px 0 6px; }
+  .card { display:flex; align-items:center; gap:10px; background:#1e1e1e; border:2px solid var(--rim); border-radius:3px; padding:8px 10px; color:var(--text); box-shadow:inset 0 1px 0 #ffffff0a; }
+  .card:hover { background:#2f2f2f; text-decoration:none; }
+  .card b { display:block; font:700 16px var(--head); }
+  .card span { color:var(--dim); font-size:12.5px; }
+
+  /* filters */
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 10px; }
+  .chips a { background:#1d1d1d; border:2px solid var(--rim); color:var(--text); padding:3px 11px; border-radius:3px; font:600 14px var(--head); }
+  .chips a.on { background:var(--green); border-color:var(--green2); color:#fff; box-shadow:inset 0 -2px 0 #0004; }
+  .chips a:hover { text-decoration:none; filter:brightness(1.15); }
+  .chip { display:inline-block; padding:0 8px; margin:0 6px 4px 0; border:1px solid #444; border-radius:10px; font-size:12.5px; color:var(--dim); }
+  .mine, .ratebox, .calc { overflow:hidden; }
+  .mine { background:#22351f; border:2px solid #14240f; padding:8px 14px; margin:10px 0; border-radius:3px; }
+  .ratebox, .calc { background:#1e1e1e; border:2px solid var(--rim); border-radius:3px; padding:10px 14px; margin:10px 0; }
+  .desc { font-style:italic; color:#d7d2c4; border-left:3px solid var(--parch); padding:2px 0 2px 12px; margin:12px 0; max-width:78ch; }
+  .bonus { margin:1px 0; } .bonus .ctx { color:var(--dim); font-size:12.5px; }
+  .tree { background:#1e1e1e; border:1px solid #111; padding:10px 14px; font-size:13.5px; }
+  .tree .k { color:var(--dim); } .tree ul { margin:0; padding-left:18px; list-style:none; }
+  details summary { cursor:pointer; color:var(--parch); margin:14px 0 6px; font:600 15px var(--head); }
+  input, select { background:#1a1a1a; color:var(--text); border:1px solid #474747; border-radius:3px; padding:3px 8px; font:inherit; font-size:14.5px; }
+  code { background:#1a1a1a; padding:0 5px; border-radius:3px; font-size:13.5px; }
+  .linklist { columns:3 220px; column-gap:28px; margin:6px 0; padding:0; list-style:none; }
+  .linklist li { break-inside:avoid; padding:1px 0; }
+  .linklist .muted { font-size:12.5px; margin-left:4px; }
+  .guide article { max-width:86ch; } .guide article li { margin:3px 0; }
+  .guide article h2 { font:800 24px var(--head); margin:28px 0 10px; padding-bottom:4px; border-bottom:1px solid var(--line); }
+  .guide article h2:first-child { display:none; }
+  .twocol { display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:0 26px; }
+  footer { color:var(--dim); font-size:12.5px; padding:16px 4px 40px; }
+
+  @media (max-width: 960px) {
+    .frame { grid-template-columns:1fr; }
+    #side { display:none; position:fixed; top:58px; left:0; width:250px; z-index:9; background:#141414; border-right:2px solid #000; }
+    body.menu #side { display:block; }
+    #menuBtn { display:block; } .topnav, .brand small, .back { display:none; }
+    .col { padding:10px 6px 0; } main { padding:16px 14px 28px; }
+    .infobox { float:none; width:100%; margin:8px 0 16px; }
+    .page-title { font-size:28px; }
+    main table { display:block; overflow-x:auto; }
+  }
+
+  /* ---- the game's own UI textures (img/Assets/UI/Textures), 9-sliced ---- */
+  body { background:linear-gradient(#0b0f14d9, #0b0f14f2), url(img/Assets/Backgrounds/Bank/Banking_Night.webp) center top / cover fixed, var(--night); }
+  main { border:14px solid transparent; border-image:url(img/Assets/UI/Textures/TEX_Crafting_14.webp) 28 fill / 14px stretch; background:none; box-shadow:none; padding:16px 22px 30px; }
+  .sbox { border:10px solid transparent; border-image:url(img/Assets/UI/Textures/TEX_Crafting_14.webp) 28 fill / 10px stretch; background:none; box-shadow:none; padding:0 2px 4px; }
+  .sbox h4 { margin:0 0 4px; background:none; border:0; padding:2px 4px 4px; border-bottom:1px solid #3a3a3a; color:var(--parch); }
+  main h3 > span.tag { background:none; color:#fff; text-shadow:0 1px 0 #0009; padding:6px 22px 7px; border-radius:0; border:0 solid transparent; border-width:0 16px;
+    border-image:url(img/Assets/UI/Textures/TEX_FrameHeader_1.webp) 0 30 fill / 0 16px stretch; box-shadow:none; }
+  main h3::after { display:none; }
+  .infobox { border:12px solid transparent; border-image:url(img/Assets/UI/Textures/Tooltips/TEX_Tooltip_Dark_Large.webp) 30 fill / 12px stretch; background:none; box-shadow:none; }
+  .infobox .ib-title { background:none; color:#fff; padding:2px 6px 4px; border-bottom:1px solid #444; }
+  .card, .toc, .ratebox, .calc { border:10px solid transparent; border-image:url(img/Assets/UI/Textures/Buttons/TEX_Button_Normal.webp) 20 fill / 10px stretch; background:none; padding:4px 8px; box-shadow:none; }
+  .card:hover { border-image-source:url(img/Assets/UI/Textures/Buttons/TEX_Button_Hover.webp); background:none; }
+  .chips a { border:8px solid transparent; border-image:url(img/Assets/UI/Textures/Buttons/TEX_Button_Normal.webp) 20 fill / 8px stretch; background:none; padding:0 6px; }
+  .chips a.on { border-image-source:url(img/Assets/UI/Textures/Buttons/TEX_ActionButton_Normal.webp); background:none; box-shadow:none; }
+  .chips a:hover { border-image-source:url(img/Assets/UI/Textures/Buttons/TEX_Button_Hover.webp); }
+  .top { background:#0d0d0dee; }
+  .ptree, .ptree ul { list-style:none; margin:4px 0; padding-left:18px; }
+  .ptree { padding-left:0; } .ptree li { margin:3px 0; padding-left:10px; border-left:2px solid #3d3d3d; }
+  .plan { border:10px solid transparent; border-image:url(img/Assets/UI/Textures/Buttons/TEX_Button_Normal.webp) 20 fill / 10px stretch; padding:2px 10px; margin:8px 0; }
+  .btn { border:8px solid transparent; border-image:url(img/Assets/UI/Textures/Buttons/TEX_ActionButton_Normal.webp) 20 fill / 8px stretch; background:none; color:#fff; font:700 15px var(--head); padding:0 10px; cursor:pointer; }
+  .btn:hover { filter:brightness(1.15); }
+  .lvbox summary { margin:6px 0; }
+  .lvgrid { display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:4px 14px; margin:6px 0 10px; }
+  .lvgrid label { display:flex; align-items:center; gap:4px; font-size:14px; } .lvgrid input { width:58px; margin-left:auto; }
+</style>
+</head>
+<body>
+<header class="top">
+  <button id="menuBtn" aria-label="Menu">Menu</button>
+  <a class="brand" href="#/"><img class="mark" src="img/Assets/Icons/GuideBook.webp" alt="">Astrolabe<small>Melvor Idle 2 wiki, unofficial</small></a>
+  <nav class="topnav" aria-label="Main">
+    <a href="#/skills"><img src="img/Assets/Icons/Mastery_Icon_48.webp" alt="">Skills</a><a href="#/items"><img src="img/Assets/Icons/Bank_64.webp" alt="">Items</a><a href="#/monsters"><img src="img/Assets/Attack_32.webp" alt="">Monsters</a><a href="#/shop"><img src="img/Assets/Icons/Shop_64.webp" alt="">Shop</a><a href="#/money"><img src="img/Assets/Icons/StatsIcon_64.webp" alt="">Money</a><a href="#/guides"><img src="img/Assets/Icons/GuideBook.webp" alt="">Guides</a><a href="#/plan"><img src="img/Assets/Icons/Completion_64.webp" alt="">Planner</a>
+  </nav>
+  <input id="q" placeholder="Search the wiki (press /)" autocomplete="off" aria-label="Search">
+  <a class="back" href="/">Astrolabe Tools</a>
+</header>
+<div id="results" hidden></div>
+<div class="frame">
+  <nav id="side" aria-label="Wiki navigation"></nav>
+  <div class="col">
+    <main id="main"><p class="muted">Loading game data...</p></main>
+    <footer id="foot"></footer>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// Game text uses BBCode-style tags: [b], [i], [color=#hex].
+const bb = t => esc(t).replace(/\[color=(#[0-9a-fA-F]{3,8})\]/g, '<span style="color:$1">').replace(/\[\/color\]/g, '</span>').replace(/\[(\/?)(b|i|u)\]/g, '<$1$2>').replace(/\[\/?[a-z]+[^\]]*\]/g, '');
+const fmt = n => typeof n === 'number' ? (Number.isInteger(n) ? n.toLocaleString() : (+n.toFixed(4)).toLocaleString()) : esc(n);
+const bare = s => typeof s === 'string' ? s.replace(/^MelvorBase:/, '') : s;
+const words = s => String(s).replace(/([a-z])([A-Z0-9])/g, '$1 $2').replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
+const pct = x => x == null ? '' : (x * 100 >= 1 ? (x * 100).toFixed(x * 100 < 10 ? 2 : 1) : (x * 100).toPrecision(2)) + '%';
+
+let DB, BANK = null, SKILLS = [], ENTITIES = new Set(), ASTRO = null;
+const R = k => DB.records[k];
+const href = k => '#/r/' + encodeURIComponent(k);
+// Icons come from the game's own art (extracted by dump-assets.js + build); missing ones render nothing.
+const imgBase = () => 'img/';
+const iconPath = r => { const d = r?.d; const p = d && (d.Icon || d.Sprite || d.Media); return typeof p === 'string' ? p : null; };
+function icon(p, cls = 'ic') { if (!p || !DB?.images || /missing_artwork/i.test(p)) return ''; const f = DB.images[String(p).replace(/^res:\/\//, '')]; return f ? `<img class="${cls}" src="${imgBase()}${f}" alt="" loading="lazy">` : ''; }
+const recIcon = (k, cls) => icon(iconPath(R(k)), cls);
+const skillIcon = (sk, cls) => icon(DB?.skillIcons?.[sk], cls);
+const link = k => R(k) ? `<a href="${href(k)}">${recIcon(k)}${esc(R(k).n)}</a>` : esc(bare(k.split(':')[1] || k));
+const itemKey = id => 'Item:' + id;
+const typeLabel = t => words(t);
+
+// Resolve a "MelvorBase:X" reference to a record key, preferring a type matching the field name.
+function refKey(v, field) {
+  const id = bare(v);
+  const cands = DB.byId[id] || [];
+  if (cands.length <= 1) return cands[0];
+  const hint = (field || '').replace(/s$/, '');
+  return cands.find(k => k.startsWith(hint + ':')) || cands.find(k => k.startsWith('Item:') && /Item|Product|Drop|Reward|Cost/.test(field || '')) || cands[0];
+}
+
+// ---------- bonus / modifier text ----------
+// The game ships its own description templates for each stat; use them when one matches.
+function numFmt(v, f) {
+  const [pos, neg] = f.split(';');
+  const pat = v < 0 && neg ? neg : pos;
+  const isPct = pat.includes('%');
+  const x = isPct ? v * 100 : v;
+  const dec = (pat.split('.')[1] || '').replace(/[^0#]/g, '').length;
+  let t = Math.abs(x).toLocaleString(undefined, { maximumFractionDigits: dec, minimumFractionDigits: (pat.split('.')[1] || '').replace(/[^0]/g, '').length });
+  const sign = v < 0 ? '-' : pat.startsWith('+') ? '+' : '';
+  return sign + t + (isPct ? '%' : '');
+}
+const msText = v => { const a = Math.abs(v); return (v < 0 ? '-' : '') + (a >= 60000 ? +(a / 60000).toFixed(2) + ' min' : +(a / 1000).toFixed(3) + 's'); };
+function modTemplate(b) {
+  if (!DB?.mods) return null;
+  if (b.StatGroup || b.Global) return DB.mods.global.find(g => g.StatGroup === (b.StatGroup || b.Global))?.TemplateString || null;
+  const st = b.Stat?.StatsType, nm = b.Stat?.Name;
+  if (!st || !nm) return null;
+  const list = DB.mods.component.filter(m => m.Key.Stat.StatsType === st && m.Key.Stat.Name === nm);
+  if (!list.length) return null;
+  const have = Object.entries(b.LocalContext || {}).filter(([, x]) => x).map(([k]) => k).sort().join(',');
+  const fromOk = m => !!m.Key.FromContextType === !!b.FromContext;
+  return (list.find(m => fromOk(m) && [...m.Key.LocalContextObjectCombination].sort().join(',') === have) || list.find(fromOk) || list[0]).TemplateString;
+}
+function fillTemplate(t, b) {
+  const v = b.Value;
+  return t.replace(/\{([^}]*)\}/g, (_, tok) => {
+    if (tok.startsWith('Value:')) {
+      const f = tok.slice(6);
+      if (f.startsWith('cond:')) { const [neg, pos] = f.slice(5).split('|'); return (v < 0 ? neg.split('?')[1] : pos.split('?')[1]) || ''; }
+      if (f.startsWith('intervaltime') || f.startsWith('numbertime')) return msText(v);
+      return numFmt(v, f);
+    }
+    const m = tok.match(/^(Loc(?:al)?|From)(?:Context)?\.?([A-Za-z]+)/);
+    if (m) {
+      const src = m[1] === 'From' ? (b.FromContext || {}) : (b.LocalContext || {});
+      if (m[2] === 'Component') { const e = src.Component?.Entity; return e ? linkRef(e, 'Entity') : ''; }
+      const x = src[m[2]];
+      return x ? linkRef(x, m[2]) + (tok.endsWith('ResistanceName') ? ' resistance' : '') : '';
+    }
+    return fmt(v);
+  }).replace(/\s{2,}/g, ' ').trim();
+}
+function bonusText(b) {
+  const tpl = modTemplate(b);
+  if (tpl) {
+    const extra = [b.Condition ? 'conditional' : '', b.Scaling ? 'scales' : ''].filter(Boolean).join(' · ');
+    return `<div class="bonus">${fillTemplate(tpl, b)}${extra ? ` <span class="ctx">(${extra})</span>` : ''}</div>`;
+  }
+  return bonusTextRaw(b);
+}
+function bonusTextRaw(b) {
+  const name = b.Stat?.Name || bare(b.Stat) || '?';
+  let v = b.Value;
+  const isPct = /^Percent|Chance$|ChanceOn|DoublingChance|Preservation/.test(name);
+  const isMs = /Interval$/.test(name) && !isPct;
+  const shown = isPct ? (v >= 0 ? '+' : '') + (v * 100).toFixed(Math.abs(v * 100) < 1 ? 3 : 1).replace(/\.0+$/, '') + '%' : isMs ? (v >= 0 ? '+' : '') + v / 1000 + 's' : (v >= 0 ? '+' : '') + fmt(v);
+  const ctx = b.LocalContext ? Object.entries(b.LocalContext).filter(([k, x]) => x && k !== 'Component').map(([k, x]) => `${words(k)}: ${linkRef(x, k)}`).join(', ') : '';
+  const comp = b.LocalContext?.Component ? linkRef(b.LocalContext.Component.Entity, 'Entity') : '';
+  const extra = [comp, ctx, b.Condition ? 'conditional' : '', b.Scaling ? 'scales' : ''].filter(Boolean).join(' · ');
+  return `<div class="bonus"><b>${shown}</b> ${esc(words(name))} ${extra ? `<span class="ctx">(${extra})</span>` : ''}</div>`;
+}
+function bonusesHtml(bon) {
+  if (!bon) return '';
+  const rows = [...(bon.Component || []), ...(bon.Global || []).map(g => ({ StatGroup: g.StatGroup, Stat: { Name: g.StatGroup }, Value: g.Value }))];
+  return rows.map(bonusText).join('');
+}
+function linkRef(v, field) {
+  if (typeof v !== 'string') return esc(JSON.stringify(v));
+  if (v.startsWith('MelvorBase:') && ENTITIES.has(bare(v)) && !/Item|Recipe|Bonfire|Location|Area/.test(field || '')) return `<a href="#/skill/${bare(v)}">${skillIcon(bare(v))}${esc(bare(v))}</a>`;
+  const k = v.startsWith('MelvorBase:') ? refKey(v, field) : null;
+  return k ? link(k) : esc(bare(v));
+}
+
+// ---------- generic JSON tree ----------
+const HIDE = /^(Icon|Media|Sprite|SpriteOffset|CoverBackground|LeafMedia|InvertedMedia|Background|ActionAudio|FailAudio|StepAudio|Audio)$/;
+function tree(v, field, depth = 0) {
+  if (v == null || v === '' || (Array.isArray(v) && !v.length)) return '<span class="muted">none</span>';
+  if (typeof v === 'string') return v.startsWith('res://') ? '<span class="muted">asset</span>' : linkRef(v, field);
+  if (typeof v !== 'object') return `<b>${fmt(v)}</b>`;
+  if (v.Stat && 'Value' in v && (v.LocalContext || v.Stat.Name)) return bonusText(v);
+  if (Array.isArray(v)) {
+    if (v.every(x => typeof x !== 'object')) return v.map(x => tree(x, field, depth + 1)).join(', ');
+    return '<ul>' + v.map(x => `<li>${tree(x, field, depth + 1)}</li>`).join('') + '</ul>';
+  }
+  const entries = Object.entries(v).filter(([k, x]) => !HIDE.test(k) && x != null && x !== '' && !(Array.isArray(x) && !x.length));
+  if (!entries.length) return '<span class="muted">none</span>';
+  if (depth > 6) return '<span class="muted">...</span>';
+  // compact one-liners for {Item, Quantity} style rows
+  if (entries.length <= 4 && entries.every(([, x]) => typeof x !== 'object')) return entries.map(([k, x]) => `<span class="k">${esc(words(k))}:</span> ${tree(x, k, depth + 1)}`).join(' &nbsp; ');
+  return '<ul>' + entries.map(([k, x]) => `<li><span class="k">${esc(words(bare(k)))}:</span> ${tree(x, k, depth + 1)}</li>`).join('') + '</ul>';
+}
+
+// ---------- requirement text ----------
+function reqText(list) {
+  return (list || []).map(q => {
+    const d = q.Data || {}; const t = bare(q.Type);
+    const s = t === 'Level' ? `${linkRef(d.Component?.Entity, 'Entity')} level <b>${d.Level}</b>`
+      : t === 'ToolbeltItemEquipped' ? `${linkRef(d.Item, 'Item')} equipped`
+      : t === 'ShopPurchase' ? `bought ${linkRef(d.ShopPurchase, 'ShopPurchase')}`
+      : `${esc(words(t))}: ${tree(d, '', 5)}`;
+    return (d.IsOr ? 'or ' : '') + s;
+  }).join('<br>');
+}
+function levelReq(rec, skill) {
+  for (const q of rec.d.Requirements || []) if (bare(q.Type) === 'Level' && (!skill || bare(q.Data?.Component?.Entity) === skill)) return q.Data.Level;
+  return rec.d.Level ?? null;
+}
+
+// ---------- item relation tables ----------
+const qty = e => e.min == null ? '' : e.min === e.max ? fmt(e.min) : `${fmt(e.min)}-${fmt(e.max)}`;
+const odds = e => [e.share != null ? pct(e.share) : '', e.chance != null && e.chance !== 1 ? pct(e.chance) : ''].filter(Boolean).join(' × ');
+function relTable(list, cols) {
+  if (!list?.length) return '<p class="muted">None.</p>';
+  const rows = [...list].sort((a, b) => (R(a.from)?.t || '').localeCompare(R(b.from)?.t || '') || (R(a.from)?.n || '').localeCompare(R(b.from)?.n || ''));
+  return `<table><tr><th>${cols}</th><th>Type</th><th>Skill</th><th>Via</th><th class="num">Qty</th><th class="num">Chance</th></tr>` +
+    rows.map(e => { const r = R(e.from); return `<tr><td>${link(e.from)}</td><td class="muted">${typeLabel(r?.t)}</td><td>${r?.o ? `<a href="#/skill/${r.o}">${r.o}</a>` : ''}</td><td class="muted">${esc(words(e.path.split('.')[0]))}</td><td class="num">${qty(e)}</td><td class="num">${odds(e)}</td></tr>`; }).join('') + '</table>';
+}
+
+// ---------- wiki chrome: names, infobox, lead, contents, sidebar ----------
+const TYPE_NAMES = { Item: 'Items', Enemy: 'Monsters', CombatArea: 'Combat areas', Dungeon: 'Dungeons', SlayerMaster: 'Slayer masters', Quest: 'Quests',
+  ShopPurchase: 'Shop', Pet: 'Pets', NPC: 'NPCs', EquipmentSetBonus: 'Equipment sets', MagicSpell: 'Spells', Prayer: 'Prayers', MasteryGuildRank: 'Mastery guild ranks',
+  MasteryGuildTask: 'Mastery guild tasks', AstrologyConstellation: 'Constellations', HuntingAnimal: 'Hunting animals', RanchingAnimal: 'Ranching animals', FarmingRecipe: 'Crops',
+  ThievingRecipe: 'Thieving targets', AgilityCourse: 'Agility courses', Imbuement: 'Imbuements', CombatPassive: 'Monster passives', Attack: 'Monster attacks' };
+const typeName = t => TYPE_NAMES[t] || words(t);
+const SKILL_GROUPS = [
+  ['Combat', ['Attack', 'Strength', 'Defence', 'Hitpoints', 'Ranged', 'Magic', 'Prayer', 'Slayer']],
+  ['Gathering', ['Woodcutting', 'Fishing', 'Mining', 'Hunting', 'Thieving', 'Agility', 'Astrology']],
+  ['Artisan', ['Firemaking', 'Cooking', 'Smithing', 'Fletching', 'Crafting', 'Runecrafting', 'Herblore', 'Beastcrafting']],
+  ['Passive', ['Farming', 'Ranching']],
+];
+const groupOfSkill = sk => SKILL_GROUPS.find(g => g[1].includes(sk))?.[0];
+const an = w => /^[aeiou]/i.test(w) ? 'an' : 'a';
+const listJoin = a => a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1];
+
+function infobox(title, sub, rows) {
+  const body = rows.filter(Boolean).map(r => r[0] === '§' ? `<tr class="ib-sec"><td colspan="2">${r[1]}</td></tr>` : r[1] === '' || r[1] == null ? '' : `<tr><th>${r[0]}</th><td>${r[1]}</td></tr>`).join('');
+  return `<aside class="infobox"><div class="ib-title">${esc(title)}</div>${sub ? `<div class="ib-sub">${sub}</div>` : ''}<table>${body}</table></aside>`;
+}
+const crumbs = parts => `<div class="crumbs">${parts.filter(Boolean).join(' / ')}</div>`;
+const typeLink = t => `<a href="${typeHref(t)}">${esc(typeName(t))}</a>`;
+const skillLink = sk => `<a href="#/skill/${sk}">${skillIcon(sk)}${esc(sk)}</a>`;
+
+function itemKindPhrase(d) {
+  const c = d.Capabilities || {};
+  const eq = c['MelvorBase:Equipment'], tool = c['MelvorBase:Toolbelt'], wp = c['MelvorBase:Weapon'];
+  if (wp) return `${an(words(bare(wp.Type || 'weapon')))} ${esc(words(bare(wp.Type || 'weapon')).toLowerCase())}`;
+  if (eq) return `a piece of ${esc(words(bare(eq.Type)).toLowerCase())} equipment`;
+  if (tool) { const ft = words(bare(tool.FitsInSlot)); return `${an(ft)} ${esc(ft.toLowerCase())} item for the toolbelt`; }
+  if (c['MelvorBase:Food']) return 'a food';
+  if (c['MelvorBase:Openable']) return 'a container you can open';
+  if (c['MelvorBase:HuntingTrap']) return 'a hunting trap';
+  if (c['MelvorBase:Compost']) return 'a compost';
+  if (c['MelvorBase:FishingBait']) return 'a fishing bait';
+  return 'an item';
+}
+
+// Contents box from the page's section headings.
+function addToc() {
+  const hs = [...$('main').querySelectorAll(':scope > h3')];
+  hs.forEach((h, i) => h.id = 's' + i + '-' + h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 40));
+  if (hs.length < 3) return;
+  const box = document.createElement('div');
+  box.className = 'toc';
+  box.innerHTML = `<b>Contents</b><ol>${hs.map(h => `<li><a href="javascript:void(0)" data-to="${h.id}">${esc(h.textContent)}</a></li>`).join('')}</ol>`;
+  box.querySelectorAll('a').forEach(a => a.onclick = () => document.getElementById(a.dataset.to).scrollIntoView());
+  hs[0].before(box);
+}
+
+function markSide() {
+  const h = location.hash || '#/';
+  $('side').querySelectorAll('a').forEach(a => a.classList.toggle('on', a.getAttribute('href') === h));
+}
+
+// ---------- pages ----------
+function pageItem(k) {
+  const r = R(k), d = r.d, rel = DB.itemRel[r.id] || { sources: [], uses: [], requiredBy: [] };
+  const caps = d.Capabilities || {};
+  const price = d.SellsFor ? `${fmt(d.SellsFor.Quantity)} ${linkRef(d.SellsFor.Currency, 'Currency')}` : 'cannot be sold';
+  const have = BANK ? (BANK[r.id] ?? 0) : null;
+  const eqc = caps['MelvorBase:Equipment'], tlc = caps['MelvorBase:Toolbelt'];
+  const tagNames = (d.BankTags || []).map(t => esc(words(bare(t.BankTag))));
+  let h = `<h2>${esc(r.n)}</h2>` + crumbs([typeLink('Item'), tlc ? `<a href="#/gear/${toolSkill(tlc)}">${esc(toolSkill(tlc))} gear</a>` : '', tagNames[0] || '']);
+  h += infobox(r.n, tagNames.join(', '), [
+    recIcon(k, 'ic-hero') && ['§', recIcon(k, 'ic-hero')],
+    ['Sells for', price],
+    ['Kind', esc(Object.keys(caps).map(c => words(bare(c))).join(', ')) || 'Material'],
+    eqc && ['Equip slot', linkRef(eqc.Type, 'EquipmentType')],
+    eqc?.Requirements?.length && ['Requires', reqText(eqc.Requirements)],
+    tlc && ['Toolbelt slot', linkRef(tlc.FitsInSlot, 'ToolbeltSlotType')],
+    tlc?.Requirements?.length && ['Requires', reqText(tlc.Requirements)],
+    ['Sources', fmt(rel.sources.length)], ['Used in', fmt(rel.uses.length)],
+    have !== null && ['In your bank', fmt(have)],
+    ['Item ID', `<span class="muted">${esc(r.id)}</span>`],
+  ]);
+  const srcNames = [...new Set(rel.sources.map(e => R(e.from)?.n).filter(Boolean))];
+  h += `<p class="lead"><b>${esc(r.n)}</b> is ${itemKindPhrase(d)}. ${d.SellsFor ? `It sells for ${fmt(d.SellsFor.Quantity)} ${esc(R('Currency:' + bare(d.SellsFor.Currency))?.n || 'gold')}.` : 'It cannot be sold.'}
+    ${srcNames.length ? `You can get it from ${srcNames.length > 3 ? esc(srcNames.slice(0, 3).join(', ')) + `, and ${srcNames.length - 3} more` : esc(listJoin(srcNames))}.` : 'Nothing in the current game data produces it.'}
+    ${rel.uses.length ? `It is used in ${rel.uses.length} recipe${rel.uses.length > 1 ? 's' : ''} and actions.` : ''}</p>`;
+  if (d.Description) h += `<p class="desc">${bb(d.Description)}</p>`;
+  if (have !== null) h += `<div class="mine">You have <b>${fmt(have)}</b> in your bank${have && d.SellsFor ? ` (worth ${fmt(have * d.SellsFor.Quantity)} gold)` : ''}.</div>`;
+  h += personalItem(r.id);
+  h += `<h3>Fastest way to get it</h3>` + itemPlanHtml(r.id, 1, true) + `<p class="note"><a href="#/plan/item/${r.id}/1">Open in the planner</a> to change the amount or your levels.</p>`;
+  h += makersTable(r.id);
+  const eq = eqc, tool = caps['MelvorBase:Toolbelt'], food = caps['MelvorBase:Food'], weapon = caps['MelvorBase:Weapon'];
+  if (eq) {
+    h += `<h3>Equipment stats</h3><table><tr><th>Slot type</th><td>${linkRef(eq.Type, 'EquipmentType')}${weapon ? ` · ${linkRef(weapon.Type, 'WeaponType')} · ${linkRef(weapon.DamageType, 'DamageType')}` : ''}</td></tr>`;
+    if (eq.Requirements?.length) h += `<tr><th>Requires</th><td>${reqText(eq.Requirements)}</td></tr>`;
+    for (const s of eq.Stats?.Stats || []) h += `<tr><th>${statName(s.Stat)}</th><td>${fmt(s.Value)}</td></tr>`;
+    for (const s of eq.Stats?.PowerRatings || []) h += `<tr><th>Power rating (${esc(bare(s.DamageType))})</th><td>${fmt(s.Value)}</td></tr>`;
+    for (const s of eq.Stats?.ProtectionRatings || []) h += `<tr><th>Protection rating (${esc(bare(s.DamageType))})</th><td>${fmt(s.Value)}</td></tr>`;
+    h += '</table>' + bonusesHtml(eq.Bonuses);
+  }
+  if (tool) h += `<h3>Toolbelt bonuses</h3><div class="meta">Fits ${linkRef(tool.FitsInSlot, 'ToolbeltSlotType')}${tool.ConsumesOn ? ' · uses charges' : ''}${tool.Requirements?.length ? ' · requires ' + reqText(tool.Requirements) : ''}</div>${bonusesHtml(tool.Bonuses) || '<p class="muted">No bonuses.</p>'}`;
+  if (food) h += `<h3>Food</h3><p>Heals <b>${fmt(food.BaseHealing)}</b></p>${bonusesHtml(food.Bonuses)}`;
+  h += `<h3>Where to get it</h3>${rel.sources.length ? relTable(rel.sources, 'From') : '<p class="bad">No source in the current game data. Probably unobtainable in this build.</p>'}`;
+  h += `<h3>Uses</h3>${relTable(rel.uses, 'Used by')}`;
+  if (rel.requiredBy.length) h += `<h3>Required by (${rel.requiredBy.length})</h3>${relTable(rel.requiredBy, 'Required by')}`;
+  return h + refByHtml(r) + rawHtml(r);
+}
+
+function refByHtml(r) {
+  const refs = r.refBy || [];
+  if (!refs.length) return '';
+  const g = {};
+  for (const k of refs) (g[R(k)?.t || '?'] ||= []).push(k);
+  return `<h3>See also</h3>` + Object.entries(g).sort((a, b) => typeName(a[0]).localeCompare(typeName(b[0]))).map(([t, ks]) =>
+    `<p style="margin:4px 0"><span class="muted">${esc(typeName(t))}:</span> ${ks.sort((a, b) => R(a).n.localeCompare(R(b).n)).map(link).join(', ')}</p>`).join('');
+}
+const rawHtml = r => `<details><summary>Raw game data</summary><div class="tree">${tree(r.d, '')}</div></details>`;
+
+const statName = id => { const k = 'CombatStat:' + bare(id); return R(k) ? esc(R(k).n) : esc(words(bare(id))); };
+function dropRows(drops) {
+  const rows = [];
+  for (const x of drops?.FixedItems || []) rows.push({ id: bare(x.Item), min: x.MinQuantity, max: x.MaxQuantity, p: 1 });
+  for (const t of drops?.ItemTables || []) {
+    const total = (t.Table || []).reduce((s, x) => s + x.Weight, 0) || 1;
+    for (const x of t.Table || []) rows.push({ id: bare(x.Item), min: x.MinQuantity, max: x.MaxQuantity, p: t.Chance * x.Weight / total });
+  }
+  return rows;
+}
+function dropTable(drops) {
+  const rows = dropRows(drops);
+  const gold = (drops?.FixedCurrencies || []).filter(c => bare(c.Currency) === 'GoldPieces').reduce((s, c) => s + (c.MinQuantity + c.MaxQuantity) / 2, 0);
+  let total = gold;
+  const body = rows.sort((a, b) => b.p - a.p).map(x => {
+    const price = R(itemKey(x.id))?.d.SellsFor?.Quantity ?? 0, avg = (x.min + x.max) / 2, ev = avg * x.p * price;
+    total += ev;
+    return `<tr><td>${link(itemKey(x.id))}</td><td class="num">${x.min === x.max ? x.min : x.min + '-' + x.max}</td><td class="num">${pct(x.p)}</td><td class="num">${x.p < 1 ? '1 in ' + fmt(Math.round(1 / x.p)) : 'always'}</td><td class="num">${fmt(price)}</td><td class="num">${fmt(Math.round(ev * 100) / 100)}</td></tr>`;
+  }).join('');
+  const cur = (drops?.FixedCurrencies || []).map(c => `${c.MinQuantity}-${c.MaxQuantity} ${linkRef(c.Currency, 'Currency')}`).join(', ');
+  return `${cur ? `<p>Currency: ${cur}</p>` : ''}<table><tr><th>Item</th><th class="num">Qty</th><th class="num">Chance</th><th class="num">Rate</th><th class="num">Sells</th><th class="num">Gold/kill</th></tr>${body}</table><p class="muted">Average value per kill: <b>${fmt(Math.round(total))}</b> gold (items at sell price + coins).</p>`;
+}
+function pageEnemy(k) {
+  const r = R(k), d = r.d;
+  const lv = Object.fromEntries((d.Levels || []).map(x => [bare(x.Key), x.Value]));
+  const stat = Object.fromEntries((d.Stats?.Stats || []).map(x => [bare(x.Stat), x.Value]));
+  const statNames = Object.fromEntries((d.Stats?.Stats || []).map(x => [bare(x.Stat), statName(x.Stat)]));
+  const where = (r.refBy || []).filter(x => /^(CombatArea|Dungeon|SlayerMaster):/.test(x));
+  let h = `<h2>${esc(r.n)}</h2>` + crumbs([typeLink('Enemy'), where[0] ? link(where[0]) : '']);
+  h += infobox(r.n, 'Monster', [
+    recIcon(k, 'ic-hero') && ['§', recIcon(k, 'ic-hero')],
+    ['§', 'Levels'], ...Object.entries(lv).map(([sk, v]) => [esc(sk), fmt(v)]),
+    ['§', 'Combat'], ['Damage type', linkRef(d.DamageType, 'DamageType')], ['Element', linkRef(d.Element, 'Element')],
+    ['Attack speed', `${(stat.AttackInterval ?? 0) / 1000}s`], ['Gold per kill', fmt(Math.round(enemyValue(d.Drops)))],
+    where.length && ['Found in', where.map(link).join('<br>')],
+  ]);
+  h += `<p class="lead"><b>${esc(r.n)}</b> is a monster${where.length ? ` found in ${listJoin(where.map(link))}` : ''}. It deals ${esc(words(bare(d.DamageType || 'Normal')).toLowerCase())} damage, attacks every ${(stat.AttackInterval ?? 0) / 1000} seconds and has Hitpoints level ${fmt(lv.Hitpoints ?? 0)}. Each kill is worth about ${fmt(Math.round(enemyValue(d.Drops)))} gold in coins and drops.</p>`;
+  h += personalEnemy(r.id);
+  h += `<h3>Drops</h3>${dropTable(d.Drops)}`;
+  h += `<h3>Combat stats</h3><table>${Object.entries(stat).map(([s, v]) => `<tr><th>${statNames[s]}</th><td class="num">${fmt(v)}</td></tr>`).join('')}${(d.Stats?.PowerRatings || []).map(x => `<tr><th>Power rating (${esc(bare(x.DamageType))})</th><td class="num">${fmt(x.Value)}</td></tr>`).join('')}${(d.Stats?.ProtectionRatings || []).map(x => `<tr><th>Protection rating (${esc(bare(x.DamageType))})</th><td class="num">${fmt(x.Value)}</td></tr>`).join('')}</table>`;
+  if (d.Stances?.length) h += `<p><b>Stances:</b> ${d.Stances.map(s => linkRef(s.Stance, 'Stance')).join(', ')}</p>`;
+  return h + refByHtml(r) + rawHtml(r);
+}
+
+// ---------- Personal layer (only when Astrolabe Tools is reading your save) ----------
+// Pages never read the save themselves: these panels come from the money and combat APIs.
+let MONEY = null, COMBAT = null, personalLoading = false;
+async function loadPersonal() {
+  if (personalLoading || MONEY) return;
+  personalLoading = true;
+  try {
+    const [m, c] = await Promise.all([fetch('/api/money?hours=8').then(r => r.json()), fetch('/api/combat').then(r => r.json())]);
+    if (!m.error) MONEY = m.results;
+    if (!c.error) COMBAT = c;
+    route(true);
+  } catch {}
+}
+function personalItem(id) {
+  if (!BANK) return '';
+  if (!MONEY) { loadPersonal(); return '<div class="mine muted">Working out your best ways to get this item...</div>'; }
+  const rows = MONEY.map(m => ({ m, o: m.outputs.find(o => o.id === id) })).filter(x => x.o && x.o.perHour > 0 && x.m.unlocked && !x.m.notes.includes('quest only'))
+    .sort((a, b) => b.o.perHour - a.o.perHour).slice(0, 8);
+  if (!rows.length) return '<div class="mine">None of your unlocked methods produce this right now.</div>';
+  return `<h3>Your best ways to get it</h3><table><tr><th>Method</th><th class="num">Per hour</th><th class="num">Gold/hr (whole method)</th><th class="num">XP/hr</th><th>Notes</th></tr>${rows.map(({ m, o }) =>
+    `<tr><td>${esc(m.name)}<div class="muted" style="font-size:12px">${esc(m.skill)}${m.area ? ' · ' + esc(m.area) : ''}</div></td><td class="num">${o.perHour < 10 ? o.perHour.toFixed(2) : fmt(Math.round(o.perHour))}</td><td class="num">${fmt(Math.round(m.gpPerHour))}</td><td class="num">${fmt(Math.round(m.xpPerHour))}</td><td class="muted" style="font-size:12px">${esc(m.notes.slice(0, 3).join('; '))}</td></tr>`).join('')}</table>`;
+}
+function personalEnemy(id) {
+  if (!BANK) return '';
+  if (!COMBAT) { loadPersonal(); return '<div class="mine muted">Simulating this fight with your loadout...</div>'; }
+  const rows = (COMBAT.rows || []).filter(x => x.enemy === id);
+  if (!rows.length) return '';
+  const p = COMBAT.player;
+  return `<h3>You vs this enemy (${esc(p.loadoutName)} loadout)</h3><table><tr><th>Area</th><th class="num">Your hit</th><th class="num">Its hit</th><th class="num">Sec/kill</th><th class="num">Kills/hr</th><th class="num">Gold/hr</th><th class="num">Combat XP/hr</th><th class="num">Food/hr</th><th class="num">Worst turn</th></tr>${rows.map(x =>
+    `<tr><td>${esc(x.area)}${x.missing.length ? ' <span class="bad">(locked)</span>' : ''}</td><td class="num">${pct(x.hitChance)}</td><td class="num">${pct(x.enemyHitChance)}</td><td class="num">${x.stuck ? 'can\'t kill' : x.killSeconds.toFixed(1)}</td><td class="num">${fmt(Math.round(x.killsPerHour))}</td><td class="num">${fmt(Math.round(x.gpPerHour - (x.costPerHour || 0)))}</td><td class="num">${fmt(Math.round(x.combatXpPerHour))}</td><td class="num">${x.foodPerHour ? x.foodPerHour.toFixed(1) : '-'}</td><td class="num ${x.worstTurn >= x.playerHp ? 'bad' : ''}">${fmt(x.worstTurn)} / ${fmt(x.playerHp)}</td></tr>`).join('')}</table>${rows[0].slayer ? `<p class="muted">On a ${esc(rows[0].slayer.master)} task: ${fmt(Math.round(rows[0].slayer.coins))} slayer coins/hr, ${fmt(Math.round(rows[0].slayer.xp))} Slayer XP/hr.</p>` : ''}`;
+}
+
+function pageRecord(k) {
+  if (R(k)?.t === 'Enemy') return pageEnemy(k);
+  if (R(k)?.t === 'AstrologyConstellation' && DB.astro) return pageConstellation(k);
+  const r = R(k);
+  if (!r) return `<h2>Not found</h2><p>${esc(k)}</p>`;
+  if (r.t === 'Item') return pageItem(k);
+  const d = r.d;
+  const lvl = r.o ? levelReq(r, r.o) : null, rate = r.o && rateKey(r.o, r.id);
+  let h = `<h2>${esc(r.n)}</h2>` + crumbs([r.o ? skillLink(r.o) : '', typeLink(r.t)]);
+  h += infobox(r.n, esc(typeName(r.t)), [
+    r.o && ['Skill', skillLink(r.o)], lvl && ['Level', fmt(lvl)],
+    d.BaseExperience != null && ['Base XP', fmt(d.BaseExperience)],
+    rate && ['XP/hr (base)', fmt(rate.xp)], rate && ['Gold/hr (base)', fmt(rate.gp)],
+    ['ID', `<span class="muted">${esc(r.id)}</span>`],
+  ]);
+  h += `<p class="lead"><b>${esc(r.n)}</b> is ${an(typeName(r.t))} ${esc(typeName(r.t).replace(/s$/, '').toLowerCase())}${r.o ? ` in ${skillLink(r.o)}` : ''}${lvl ? `, unlocked at level ${lvl}` : ''}.</p>`;
+  const req = [...(d.Requirements || []), ...(d.UnlockRequirements || []), ...(d.AccessRequirements || [])];
+  if (req.length) h += `<p><b>Requires:</b><br>${reqText(req)}</p>`;
+  if (d.Description) h += `<p class="desc">${bb(typeof d.Description === 'string' ? d.Description : JSON.stringify(d.Description))}</p>`;
+  h += ratesBox(r);
+  return h + `<h3>Details</h3><div class="tree">${tree(d, '')}</div>` + refByHtml(r);
+}
+
+// ---------- reference rates (max level, no gear, no account bonuses) ----------
+const rateKey = (skill, id) => DB.rates?.[skill + ':' + id];
+function ratesBox(r) {
+  const x = r.o && rateKey(r.o, r.id);
+  if (!x) return '';
+  return `<div class="ratebox"><b>Base rates</b> <span class="muted">(no gear or bonuses${x.needs.length ? ', with ' + esc(x.needs.join(', ')) : ''})</span><br>
+    <span class="chip">XP/hr <b>${fmt(x.xp)}</b></span><span class="chip">Gold/hr <b>${fmt(x.gp)}</b></span>${x.sales !== x.gp ? `<span class="chip">Sales/hr <b>${fmt(x.sales)}</b></span>` : ''}<span class="chip">${x.sec}s per ${x.unit || 'action'}</span>${x.success < 1 ? `<span class="chip">Success <b>${pct(x.success)}</b></span>` : ''}
+    ${x.out.length ? `<div class="muted" style="margin-top:4px">Per hour: ${x.out.map(([id, n]) => `${fmt(n)} ${link(itemKey(id))}`).join(', ')}${x.in.length ? ' · uses ' + x.in.map(([id, n]) => `${fmt(n)} ${link(itemKey(id))}`).join(', ') : ''}</div>` : ''}</div>`;
+}
+let rateSort = { k: 'level', d: 1 };
+function ratesTable(skill) {
+  const rows = Object.entries(DB.rates || {}).filter(([, x]) => x.skill === skill);
+  if (!rows.length) return '';
+  const mine = SKILLS.find(x => x.id === skill)?.level;
+  const lvl = +($('calcLvl')?.value || mine || 1);
+  rows.sort(([, a], [, b]) => (typeof a[rateSort.k] === 'string' ? a[rateSort.k].localeCompare(b[rateSort.k]) : a[rateSort.k] - b[rateSort.k]) * rateSort.d || a.level - b.level);
+  const avail = rows.filter(([, x]) => x.level <= lvl && x.area !== 'Quests');
+  const bestXp = avail.reduce((m, [, x]) => Math.max(m, x.xp), 0), bestGp = avail.reduce((m, [, x]) => Math.max(m, x.gp), -Infinity);
+  const th = (k, l, num) => `<th class="${num ? 'num' : ''} sortable" data-rk="${k}">${l}${rateSort.k === k ? (rateSort.d > 0 ? ' ▲' : ' ▼') : ''}</th>`;
+  return `<h4>All actions</h4><div class="meta">Rates at base: no gear, no shop/mastery/astrology bonuses, ingredients counted at sell price. Best at level <input id="calcLvl" type="number" min="1" max="120" value="${lvl}" style="width:60px"> highlighted.</div>
+    <table class="rates"><tr>${th('level', 'Lvl', 1)}${th('name', 'Action')}${th('xp', 'XP/hr', 1)}${th('gp', 'Gold/hr', 1)}${th('sales', 'Sales/hr', 1)}${th('sec', 'Sec', 1)}<th>Needs</th></tr>${rows.map(([id, x]) => {
+      const cls = x.level > lvl ? 'muted' : '';
+      const rk = R(Object.keys(DB.records).find(k => DB.records[k].id === id.split(':').slice(1).join(':') && DB.records[k].o === skill) || '');
+      return `<tr class="${cls}"><td class="num">${x.level}</td><td>${rk ? link(Object.keys(DB.records).find(k => DB.records[k] === rk)) : esc(x.name)}${x.area ? `<div class="muted" style="font-size:12px">${x.area === 'Quests' ? 'Quest only' : esc(x.area)}</div>` : ''}</td>
+        <td class="num ${x.level <= lvl && x.area !== 'Quests' && x.xp === bestXp ? 'best' : ''}">${fmt(x.xp)}</td><td class="num ${x.level <= lvl && x.area !== 'Quests' && x.gp === bestGp ? 'best' : ''} ${x.gp < 0 ? 'bad' : ''}">${fmt(x.gp)}</td><td class="num">${fmt(x.sales)}</td><td class="num">${x.sec}</td><td class="muted">${esc(x.needs.join(', '))}</td></tr>`;
+    }).join('')}</table>`;
+}
+function levelCalc(skill) {
+  const mine = SKILLS.find(x => x.id === skill);
+  const acts = Object.entries(DB.rates || {}).filter(([, x]) => x.skill === skill && x.xp > 0).sort(([, a], [, b]) => a.level - b.level);
+  if (!acts.length) return '';
+  return `<h4>Level calculator</h4><div class="calc">From <input id="lcFrom" type="number" min="1" max="120" value="${mine?.level ?? 1}" style="width:60px"> to <input id="lcTo" type="number" min="2" max="120" value="${Math.min(120, (mine?.level ?? 1) + 10)}" style="width:60px">
+    using <select id="lcAct">${acts.map(([id, x]) => `<option value="${id}">${esc(x.name)} (lvl ${x.level})</option>`).join('')}</select>
+    with <input id="lcBonus" type="number" value="0" style="width:60px">% bonus XP <div id="lcOut" class="mine" style="margin-top:8px"></div></div>`;
+}
+function wireSkillPage(skill) {
+  const lc = () => {
+    if (!$('lcAct')) return;
+    const from = +$('lcFrom').value || 1, to = +$('lcTo').value || 2, x = DB.rates[$('lcAct').value], b = 1 + (+$('lcBonus').value || 0) / 100;
+    const need = Math.max(0, (DB.xpTable[to] ?? 0) - (DB.xpTable[from] ?? 0));
+    const perAct = x.xp * x.sec / 3600 * b;
+    const hrs = need / (x.xp * b);
+    $('lcOut').innerHTML = `<b>${fmt(need)}</b> XP · about <b>${fmt(Math.ceil(need / perAct))}</b> ${(u => /(ch|sh|s)$/.test(u) ? u + 'es' : u + 's')(x.unit || 'action')} · <b>${hrs < 1 ? Math.round(hrs * 60) + ' min' : hrs.toFixed(1) + ' hr'}</b> at ${fmt(Math.round(x.xp * b))} XP/hr${x.gp ? ` · ${fmt(Math.round(x.gp * hrs))} gold over that time` : ''}${x.level > from ? ` <span class="bad">(needs level ${x.level})</span>` : ''}`;
+  };
+  ['lcFrom', 'lcTo', 'lcAct', 'lcBonus'].forEach(id => $(id) && ($(id).oninput = lc));
+  // Default the calculator to the best XP action at the starting level.
+  if ($('lcAct')) { const from = +$('lcFrom').value; const best = [...$('lcAct').options].map(o => [o.value, DB.rates[o.value]]).filter(([, x]) => x.level <= from).sort((a, b) => b[1].xp - a[1].xp)[0]; if (best) $('lcAct').value = best[0]; lc(); }
+  document.querySelectorAll('th[data-rk]').forEach(th => th.onclick = () => { const k = th.dataset.rk; rateSort = { k, d: rateSort.k === k ? -rateSort.d : (k === 'level' || k === 'name' || k === 'sec' ? 1 : -1) }; rerenderRates(skill); });
+  if ($('calcLvl')) $('calcLvl').onchange = () => rerenderRates(skill);
+}
+function rerenderRates(skill) { const el = document.querySelector('table.rates'); if (!el) return; const tmp = document.createElement('div'); tmp.innerHTML = ratesTable(skill); el.previousElementSibling.remove(); el.previousElementSibling.remove(); el.replaceWith(...tmp.children); wireSkillPage(skill); }
+
+// ---------- skill gear browser ----------
+function pageGear(skill) {
+  const types = {};
+  for (const [k, r] of Object.entries(DB.records)) {
+    if (r.t !== 'Item') continue;
+    const t = r.d.Capabilities?.['MelvorBase:Toolbelt'];
+    if (!t?.FitsInSlot) continue;
+    const ft = bare(t.FitsInSlot);
+    if (!ft.startsWith(skill) || !/^[A-Z]/.test(ft.slice(skill.length))) continue;
+    (types[ft] ||= []).push(k);
+  }
+  const slots = Object.values(DB.records).filter(r => r.t === 'ToolbeltSlot' && types[bare(r.d.FitsType)]);
+  const slotInfo = ft => slots.filter(s => bare(s.d.FitsType) === ft).map(s => s.d.UnlockRequirements?.length ? `${esc(s.n)} <span class="muted">(${reqText(s.d.UnlockRequirements).replace(/<br>/g, '; ')})</span>` : esc(s.n)).join(', ');
+  const order = ['Helmet', 'Torso', 'Legs', 'Boots', 'Gloves', 'Cape', 'Tool', 'Utility', 'Potion'];
+  const keys = Object.keys(types).sort((a, b) => ((order.findIndex(o => a.endsWith(o)) + 1) || 99) - ((order.findIndex(o => b.endsWith(o)) + 1) || 99) || a.localeCompare(b));
+  let h = `<h2>${esc(skill)} gear</h2>` + crumbs([skillLink(skill), 'Gear']) + `<p class="lead">Every skill has its own toolbelt. These are all the items that fit ${esc(skill)}'s slots, with what they do, what they need and where they come from.</p>`;
+  for (const ft of keys) {
+    const items = types[ft].sort((a, b) => (lvlOf(R(a)) - lvlOf(R(b))) || R(a).n.localeCompare(R(b).n));
+    h += `<h3>${esc(words(ft.slice(skill.length)) || ft)}</h3><div class="meta">Slots: ${slotInfo(ft) || '-'}</div><table class="wide"><tr><th>Item</th><th>Requires</th><th>Bonuses</th><th>How to get</th>${BANK ? '<th class="num">Have</th>' : ''}</tr>` +
+      items.map(k => { const r = R(k), t = r.d.Capabilities['MelvorBase:Toolbelt'], src = (DB.itemRel[r.id]?.sources || []);
+        return `<tr><td>${link(k)}${t.ConsumesOn ? ' <span class="chip">consumed</span>' : ''}</td><td class="muted">${reqText(t.Requirements) || '-'}</td><td>${bonusesHtml(t.Bonuses) || '<span class="muted">none</span>'}</td><td class="muted">${src.length ? [...new Set(src.map(e => R(e.from) ? `${link(e.from)} <span class="muted">(${esc(R(e.from).o || typeLabel(R(e.from).t))})</span>` : ''))].slice(0, 3).join(', ') + (src.length > 3 ? ` +${src.length - 3}` : '') : '<span class="bad">no source</span>'}</td>${BANK ? `<td class="num">${fmt(BANK[r.id] ?? 0)}</td>` : ''}</tr>`; }).join('') + '</table>';
+  }
+  return h;
+}
+const lvlOf = r => (r.d.Capabilities?.['MelvorBase:Toolbelt']?.Requirements || []).find(q => bare(q.Type) === 'Level')?.Data?.Level ?? 0;
+
+// ---------- guides (markdown) ----------
+function md(src) {
+  const inline = t => esc(t).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\*([^*]+)\*/g, '<i>$1</i>');
+  const out = []; let list = 0;
+  const close = to => { while (list > to) { out.push('</ul>'); list--; } };
+  for (const line of src.split('\n')) {
+    const li = line.match(/^(\s*)[-*] (.*)/);
+    if (li) { const lvl = Math.floor(li[1].length / 2) + 1; while (list < lvl) { out.push('<ul>'); list++; } close(lvl); out.push(`<li>${inline(li[2])}</li>`); continue; }
+    close(0);
+    const hd = line.match(/^(#{1,4}) (.*)/);
+    if (hd) { const id = hd[2].toLowerCase().replace(/[^a-z0-9]+/g, '-'); out.push(`<h${hd[1].length + 1} id="${id}">${inline(hd[2])}</h${hd[1].length + 1}>`); continue; }
+    if (line.trim()) out.push(`<p>${inline(line)}</p>`);
+  }
+  close(0);
+  return out.join('\n');
+}
+function pageGuide(name) {
+  const g = DB.guides?.[name];
+  if (!g) return `<h2>Not found</h2>`;
+  const heads = [...g.matchAll(/^## (.*)/gm)].map(m => m[1]);
+  return `<div class="guide"><nav class="toc">${heads.map(x => `<a href="javascript:void(0)" onclick="document.getElementById('${x.toLowerCase().replace(/[^a-z0-9]+/g, '-')}').scrollIntoView()">${esc(x)}</a>`).join('')}</nav><article>${md(g)}</article></div>`;
+}
+
+const toolSkill = t => { const ft = bare(t.FitsInSlot); return SKILL_GROUPS.flatMap(g => g[1]).concat('Combat').filter(sk => ft.startsWith(sk)).sort((a, b) => b.length - a.length)[0] || ''; };
+function makersTable(id) {
+  const rows = Object.entries(DB.rates || {}).map(([k, x]) => ({ k, x, n: x.out.find(o => o[0] === id)?.[1] })).filter(e => e.n > 0).sort((a, b) => b.n - a.n).slice(0, 15);
+  if (!rows.length) return '';
+  const recKey = (skill, aid) => Object.keys(DB.records).find(k => DB.records[k].id === aid.split(':').slice(1).join(':') && DB.records[k].o === skill);
+  return `<h3>Best ways to make it</h3><table><tr><th>Method</th><th class="num">Lvl</th><th class="num">Per hour</th><th class="num">XP/hr</th><th class="num">Gold/hr (whole method)</th></tr>${rows.map(({ k, x, n }) => { const rk = recKey(x.skill, k);
+    return `<tr><td>${rk ? link(rk) : esc(x.name)}<div class="muted" style="font-size:12px"><a href="#/skill/${x.skill}">${x.skill}</a>${x.area ? ' · ' + (x.area === 'Quests' ? 'Quest only' : esc(x.area)) : ''}</div></td><td class="num">${x.level}</td><td class="num">${n < 10 ? n.toFixed(2) : fmt(Math.round(n))}</td><td class="num">${fmt(x.xp)}</td><td class="num">${fmt(x.gp)}</td></tr>`; }).join('')}</table><p class="muted" style="font-size:12px">No gear or account bonuses. Combat drops are in the Sources table below.</p>`;
+}
+
+// The mechanics guide section for a skill, if there is one.
+function skillMechanics(skill) {
+  const g = DB.guides?.mechanics;
+  if (!g) return '';
+  const parts = g.split(/\n(?=## )/);
+  const sec = parts.find(p => { const t = p.split('\n')[0]; return t.startsWith('## ') && new RegExp('\\b' + skill + '\\b').test(t) && !/money model/.test(t); });
+  return sec ? sec.split('\n').slice(1).filter(l => !/^Sources?: /.test(l)).join('\n').replace(/\s*\(`[A-Z][\w./]*`(?:, `[\w./]+`)*\)/g, '') : '';
+}
+let typeSort = { k: 'n', d: 1 };
+function typeTable(t, keys) {
+  const cols = t === 'Item' ? [
+    ['n', 'Name', r => r.n], ['sell', 'Sells', r => r.d.SellsFor?.Quantity ?? 0, 1],
+    ['kind', 'Kind', r => Object.keys(r.d.Capabilities || {}).map(c => words(bare(c))).join(', ')],
+    ['slot', 'Slot', r => words(bare(r.d.Capabilities?.['MelvorBase:Equipment']?.Type || r.d.Capabilities?.['MelvorBase:Toolbelt']?.FitsInSlot || ''))],
+    ['src', 'Sources', r => DB.itemRel[r.id]?.sources.length ?? 0, 1], ['use', 'Used in', r => DB.itemRel[r.id]?.uses.length ?? 0, 1],
+  ] : [
+    ['n', 'Name', r => r.n],
+    ...['Hitpoints', 'Attack', 'Strength', 'Defence', 'Ranged', 'Magic'].map(s => [s, s.slice(0, 3), r => (r.d.Levels || []).find(x => bare(x.Key) === s)?.Value ?? 0, 1]),
+    ['spd', 'Speed', r => ((r.d.Stats?.Stats || []).find(x => bare(x.Stat) === 'AttackInterval')?.Value ?? 0) / 1000, 1],
+    ['dt', 'Damage', r => bare(r.d.DamageType || '')], ['val', 'Gold/kill', r => enemyValue(r.d.Drops), 1],
+  ];
+  const col = cols.find(c => c[0] === typeSort.k) || cols[0];
+  const rows = keys.map(k => ({ k, r: R(k), v: cols.map(c => c[2](R(k))) }));
+  const i = cols.indexOf(col);
+  rows.sort((a, b) => (typeof a.v[i] === 'string' ? a.v[i].localeCompare(b.v[i]) : a.v[i] - b.v[i]) * typeSort.d);
+  return `<input id="tfilter" placeholder="Filter..." style="margin:4px 0 8px;width:260px" value="${esc(window._tf || '')}"><table class="ttable wide"><tr>${cols.map(c => `<th class="${c[3] ? 'num' : ''} sortable" data-tk="${c[0]}">${c[1]}${c === col ? (typeSort.d > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr>${rows.map(x =>
+    `<tr data-s="${esc((x.r.n + ' ' + x.v.join(' ')).toLowerCase())}">${x.v.map((v, j) => j === 0 ? `<td>${link(x.k)}</td>` : `<td class="${cols[j][3] ? 'num' : 'muted'}">${typeof v === 'number' ? fmt(Math.round(v * 100) / 100) : esc(v)}</td>`).join('')}</tr>`).join('')}</table>`;
+}
+function enemyValue(drops) {
+  const gold = (drops?.FixedCurrencies || []).filter(c => bare(c.Currency) === 'GoldPieces').reduce((s, c) => s + (c.MinQuantity + c.MaxQuantity) / 2, 0);
+  return gold + dropRows(drops).reduce((s, x) => s + (x.min + x.max) / 2 * x.p * (R(itemKey(x.id))?.d.SellsFor?.Quantity ?? 0), 0);
+}
+function wireTypeTable(t) {
+  const filt = () => { const q = ($('tfilter')?.value || '').toLowerCase(); window._tf = q; document.querySelectorAll('.ttable tr[data-s]').forEach(tr => tr.hidden = q && !tr.dataset.s.includes(q)); };
+  if ($('tfilter')) { $('tfilter').oninput = filt; filt(); }
+  document.querySelectorAll('th[data-tk]').forEach(th => th.onclick = () => { const k = th.dataset.tk; typeSort = { k, d: typeSort.k === k ? -typeSort.d : (k === 'n' || k === 'kind' || k === 'slot' || k === 'dt' ? 1 : -1) }; route(true); });
+}
+function pageData() {
+  const hide = /NavigationOption$|^EntityPage$|^MusicTrack$|^Legacy|^Custom|Background$/;
+  const types = Object.entries(DB.types).filter(([t, c]) => c > 0 && !hide.test(t)).sort((a, b) => typeName(a[0]).localeCompare(typeName(b[0])));
+  return `<h2>All data</h2><p class="lead">Every kind of record in the game data, ${Object.keys(DB.records).length.toLocaleString()} in total.</p><ul class="linklist">${types.map(([t, c]) => `<li>${typeLink(t)}<span class="muted">${c}</span></li>`).join('')}</ul>`;
+}
+
+// ---------- search ----------
+let INDEX = [], sel = 0;
+const RANK = { Item: 0, Enemy: 1, Quest: 2, CombatArea: 3, Dungeon: 3, ShopPurchase: 4 };
+function search(q) {
+  q = q.trim().toLowerCase();
+  if (!q) { $('results').hidden = true; return; }
+  const hits = INDEX.filter(x => x.s.includes(q)).sort((a, b) => (b.s.startsWith(q) - a.s.startsWith(q)) || ((RANK[a.t] ?? 9) - (RANK[b.t] ?? 9)) || a.s.length - b.s.length).slice(0, 40);
+  sel = 0;
+  $('results').innerHTML = hits.map((x, i) => `<a href="${href(x.k)}" class="${i ? '' : 'sel'}">${recIcon(x.k)}<span>${esc(x.n)}</span><span>${esc(typeName(x.t))}${x.o ? ', ' + x.o : ''}</span></a>`).join('') || '<a class="muted">No results</a>';
+  $('results').hidden = false;
+}
+$('q').oninput = e => search(e.target.value);
+$('q').onkeydown = e => {
+  const links = [...$('results').querySelectorAll('a[href]')];
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); sel = Math.max(0, Math.min(links.length - 1, sel + (e.key === 'ArrowDown' ? 1 : -1))); links.forEach((a, i) => a.classList.toggle('sel', i === sel)); links[sel]?.scrollIntoView({ block: 'nearest' }); }
+  if (e.key === 'Enter' && links[sel]) { location.hash = links[sel].getAttribute('href'); $('results').hidden = true; $('q').blur(); }
+  if (e.key === 'Escape') { $('results').hidden = true; $('q').blur(); }
+};
+document.addEventListener('click', e => { if (!e.target.closest('#results') && e.target !== $('q')) $('results').hidden = true; });
+$('results').onclick = () => { $('results').hidden = true; $('q').value = ''; };
+document.addEventListener('keydown', e => { if (e.key === '/' && document.activeElement !== $('q')) { e.preventDefault(); $('q').focus(); } });
+
+// The public build (build-wiki.js) sets MI2_STATIC: data comes from wiki.json and there's no save.
+const STATIC = !!window.MI2_STATIC;
+async function init() {
+  DB = await fetch(STATIC ? 'wiki.json' : '/api/wiki').then(r => r.json());
+  if (DB.error) { $('main').innerHTML = `<p class="bad">${esc(DB.error)}</p>`; return; }
+  DB.byId = {};
+  ENTITIES = new Set(DB.entities);
+  DB.skillIcons = {};
+  for (const r of Object.values(DB.records)) if (/SkillNavigationOption$/.test(r.t) && r.d.Entity && r.d.Icon) DB.skillIcons[bare(r.d.Entity)] = r.d.Icon;
+  for (const [k, r] of Object.entries(DB.records)) (DB.byId[r.id] ||= []).push(k);
+  INDEX = Object.entries(DB.records).filter(([, r]) => !/NavigationOption$|^EntityPage$|^MusicTrack$/.test(r.t)).map(([k, r]) => ({ k, n: r.n, t: r.t, o: r.o, s: (r.n + ' ' + r.id).toLowerCase() }));
+  if (!STATIC) try {
+    const s = await fetch('/api/save').then(r => r.json());
+    if (!s.error) { BANK = {}; for (const t of s.bank.tabs) for (const i of t.items) BANK[i.id] = (BANK[i.id] || 0) + i.count; SKILLS = s.skills; ASTRO = s.astrology || {}; }
+  } catch {}
+  $('foot').innerHTML = `Unofficial fan wiki for Melvor Idle 2${DB.gameVersion ? ' ' + esc(DB.gameVersion) : ''}. Not affiliated with Games By Malcs. Data is read from the game's files${DB.built ? ', built ' + esc(DB.built) : ''}; rates are calculated, not official.`;
+  buildSide();
+  $('menuBtn').onclick = () => document.body.classList.toggle('menu');
+  window.onhashchange = () => route();
+  route();
+}
+
+// =====================================================================
+// Structured, human-first pages (override the earlier generic versions)
+// =====================================================================
+const LIST_ROUTE = { Item: '#/items', Enemy: '#/monsters', CombatArea: '#/monsters', Dungeon: '#/monsters', ShopPurchase: '#/shop', Quest: '#/quests', Pet: '#/pets' };
+const typeHref = t => LIST_ROUTE[t] || '#/type/' + t;
+
+// ---- sortable tables ----
+const SORTS = {};
+function dataTable(id, cols, rows, opts = {}) {
+  const st = SORTS[id] || (SORTS[id] = { k: opts.sort ?? cols[0].k, d: opts.dir ?? 1 });
+  const col = cols.find(c => c.k === st.k) || cols[0];
+  const val = r => col.v(r);
+  rows = [...rows].sort((a, b) => { const x = val(a), y = val(b); return (typeof x === 'string' ? String(x).localeCompare(String(y)) : (x ?? -Infinity) - (y ?? -Infinity)) * st.d; });
+  return `<table class="wide"><thead><tr>${cols.map(c => `<th class="${c.num ? 'num ' : ''}${c.v ? 'sortable' : ''}" ${c.v ? `data-tid="${id}" data-sk="${c.k}"` : ''}>${c.l}${c === col ? (st.d > 0 ? ' ▲' : ' ▼') : ''}</th>`).join('')}</tr></thead><tbody>${rows.map(r =>
+    `<tr${opts.rowAttr ? ' ' + opts.rowAttr(r) : ''}>${cols.map(c => `<td class="${c.num ? 'num' : ''}">${c.h ? c.h(r) : fmt(c.v(r))}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+}
+document.addEventListener('click', e => {
+  const th = e.target.closest('th[data-sk]');
+  if (!th) return;
+  const st = SORTS[th.dataset.tid], k = th.dataset.sk;
+  if (st.k === k) st.d = -st.d; else { st.k = k; st.d = /^(n|name|skill|kind|slot|cat|area)$/.test(k) ? 1 : -1; }
+  route(true);
+});
+function filterBox(id, ph) { return `<input class="tfilter" data-for="${id}" placeholder="${ph || 'Filter by name...'}" style="width:260px;margin:4px 0 6px" value="${esc(window['_f_' + id] || '')}">`; }
+function wireFilters() {
+  document.querySelectorAll('input.tfilter').forEach(inp => {
+    const run = () => { const q = inp.value.toLowerCase(); window['_f_' + inp.dataset.for] = q; inp.nextElementSibling?.querySelectorAll('tbody tr').forEach(tr => tr.hidden = q && !tr.textContent.toLowerCase().includes(q)); };
+    inp.oninput = run; run();
+  });
+}
+const chips = (base, list, cur) => `<div class="chips">${list.map(([k, l]) => `<a href="${base}${k}" class="${k === cur ? 'on' : ''}">${l}</a>`).join('')}</div>`;
+const costText = c => [...(c?.Currencies || []).map(x => `${fmt(x.Quantity)} ${linkRef(x.Currency, 'Currency')}`), ...(c?.Items || []).map(x => `${fmt(x.Quantity)} ${linkRef(x.Item, 'Item')}`)].join(', ') || '<span class="muted">free</span>';
+const lvlFor = (r, skill) => { const v = r.o ? levelReq(r, skill || r.o) : null; return v ?? 0; };
+const recsOf = (t, f = () => true) => Object.keys(DB.records).filter(k => DB.records[k].t === t && f(DB.records[k]));
+const entity = sk => DB.entityConfig['MelvorBase:' + sk] || {};
+const keysFromConfig = (sk, field, type) => (entity(sk)[field] || []).map(x => refKey(typeof x === 'string' ? x : x.Id, type)).filter(Boolean);
+
+// ---- sidebar ----
+function buildSide() {
+  const lv = sk => { const x = SKILLS.find(s => s.id === sk); return x ? `<span class="lv">${x.level}</span>` : ''; };
+  const box = (t, html) => `<div class="sbox"><h4>${t}</h4>${html}</div>`;
+  $('side').innerHTML =
+    box('Wiki', `<a href="#/">Main page</a><a href="#/plan">Planner</a><a href="#/guides">Guides</a><a href="#/guide/quests">Quest guide</a><a href="#/guide/completion">Completion guide</a><a href="#/skills">All skills</a><a href="#/money">Money making</a><a href="#/xp">Experience table</a><a href="#/guide/mechanics">Mechanics guide</a>`) +
+    SKILL_GROUPS.map(([g, list]) => box(g + ' skills', list.map(sk => `<a href="#/skill/${sk}">${skillIcon(sk)}${sk}${lv(sk)}</a>`).join(''))).join('') +
+    box('Database', `<a href="#/items">Items</a><a href="#/equipment">Equipment</a><a href="#/monsters">Monsters and areas</a><a href="#/shop">Shop</a><a href="#/quests">Quests</a><a href="#/pets">Pets</a><a href="#/type/MagicSpell">Spells</a><a href="#/type/Prayer">Prayers</a><a href="#/type/EquipmentSetBonus">Equipment sets</a><a href="#/data">All game data</a>`);
+}
+
+// ---- main page ----
+function pageHome() {
+  const n = t => (DB.types[t] ?? 0).toLocaleString();
+  const rates = Object.values(DB.rates || {});
+  const acts = sk => rates.filter(x => x.skill === sk && x.area !== 'Quests').length || (entity(sk).Recipes || []).length;
+  const sub = (sk, g) => acts(sk) ? acts(sk) + ' actions' : g === 'Combat' ? 'trained in combat' : 'see skill page';
+  const sl = list => list.map(sk => `<a href="#/skill/${sk}">${skillIcon(sk)}${sk}</a>`).join(' ');
+  const card = (href, ic, title, sub) => `<a class="card" href="${href}">${ic}<div><b>${title}</b><span>${sub}</span></div></a>`;
+  return `<h2>Melvor Idle 2 Wiki</h2>
+  <p class="lead">Welcome to the unofficial <b>Melvor Idle 2</b> wiki. Everything here is read straight from the game's files (${esc(DB.gameVersion || '')}): every item, monster, recipe and shop upgrade, where things come from, what they are used for, and how much XP and gold each action makes.</p>
+  <table class="navbox">
+    <tr class="nb-title"><td colspan="2">Melvor Idle 2 ${esc(DB.gameVersion || '')}</td></tr>
+    <tr><th>Combat</th><td>${sl(SKILL_GROUPS[0][1])}</td></tr>
+    <tr><th>Skills</th><td>${sl([...SKILL_GROUPS[1][1], ...SKILL_GROUPS[2][1], ...SKILL_GROUPS[3][1]])}</td></tr>
+    <tr><th>Guides</th><td><a href="#/plan">Planner</a> <a href="#/guides">Skill training guides</a> <a href="#/guide/quests">Quest guide</a> <a href="#/guide/completion">Completion guide</a></td></tr>
+    <tr><th>Other</th><td><a href="#/quests">Quests</a> <a href="#/shop">Shop and upgrades</a> <a href="#/pets">Pets</a> <a href="#/money">Money making</a> <a href="#/xp">Experience table</a> <a href="#/guide/mechanics">Mechanics guide</a></td></tr>
+    <tr><th>Reference</th><td><a href="#/items">Items</a> <a href="#/equipment">Equipment</a> <a href="#/monsters">Monsters</a> <a href="#/monsters">Combat areas and dungeons</a> <a href="#/type/MagicSpell">Spells</a> <a href="#/type/Prayer">Prayers</a> <a href="#/type/EquipmentSetBonus">Equipment sets</a></td></tr>
+  </table>
+  ${SKILL_GROUPS.map(([g, list]) => `<h3>${g} skills</h3><div class="cards">${list.map(sk => card('#/skill/' + sk, skillIcon(sk, 'ic-l'), sk, sub(sk, g))).join('')}</div>`).join('')}
+  <h3>Reference tables</h3>
+  <table><tr><th>Topic</th><th class="num">Entries</th></tr>${[['#/items', 'Items', n('Item')], ['#/equipment', 'Equipment', recsOf('Item', r => r.d.Capabilities?.['MelvorBase:Equipment']).length], ['#/monsters', 'Monsters', n('Enemy')], ['#/monsters', 'Combat areas and dungeons', ((DB.types.CombatArea || 0) + (DB.types.Dungeon || 0))], ['#/quests', 'Quests', n('Quest')], ['#/shop', 'Shop and upgrades', n('ShopPurchase')], ['#/pets', 'Pets', n('Pet')], ['#/money', 'Actions with rates', rates.length]].map(([h, l, c]) => `<tr><td><a href="${h}">${l}</a></td><td class="num">${typeof c === 'number' ? c.toLocaleString() : c}</td></tr>`).join('')}</table>`;
+}
+
+function pageSkills() {
+  const rates = Object.values(DB.rates || {});
+  return `<h2>Skills</h2><p class="lead">Melvor Idle 2 has ${SKILL_GROUPS.flatMap(g => g[1]).length} skills. Pick one to see how it works, every action with its XP and gold rates, the gear that boosts it, its shop upgrades and its mastery guild.</p>` +
+    SKILL_GROUPS.map(([g, list]) => `<h3>${g} skills</h3><div class="cards">${list.map(sk => { const c = rates.filter(x => x.skill === sk && x.area !== 'Quests').length || (entity(sk).Recipes || []).length; const me = SKILLS.find(x => x.id === sk);
+      return `<a class="card" href="#/skill/${sk}">${skillIcon(sk, 'ic-l')}<div><b>${sk}</b><span>${c ? c + ' actions' : g === 'Combat' ? 'trained in combat' : 'see skill page'}${me ? ' · level ' + me.level : ''}</span></div></a>`; }).join('')}</div>`).join('');
+}
+
+// ---- mastery task text ----
+const GOAL_VERB = { WoodcuttingCutTree: 'Cut', WoodcuttingDamageTree: 'Hit', WoodcuttingInstantCut: 'Instantly cut', MiningMineRock: 'Mine', MiningEarlyBreak: 'Break early', FiremakingBurnRecipe: 'Burn', FishingFishRecipe: 'Fish at', ArtisanCreateRecipe: 'Make', ArtisanCreateRecipeGoalCategory: 'Make', ArtisanCompleteStep: 'Complete steps of', ArtisanSkipStep: 'Skip steps of', ArtisanPreserveItem: 'Preserve', CookRecipe: 'Cook', PreserveCookingItem: 'Preserve', FarmingHarvestRecipe: 'Harvest', RanchingPetAnimal: 'Pet', HuntingTrapAnimal: 'Trap', HuntingTrapAnimalLocation: 'Trap animals in', ThievingPickpocketTargetType: 'Steal from', ActionGainItem: 'Get', ActionGainItemValue: 'Get value from', HerbloreBrewPotionCategory: 'Brew', HerbloreBrewPotionGroup: 'Brew', PreserveHerbloreItem: 'Preserve', CombatKillEnemy: 'Kill', CombatKillEnemyTime: 'Kill quickly', CombatDamageEnemy: 'Deal damage to', CombatSingleHitDamage: 'Land big hits on', CombatApplyEffect: 'Apply', CombatEvadeAttacks: 'Evade attacks from', CombatDamageNegatedByWard: 'Negate damage from', CombatStealHitpoints: 'Steal hitpoints from', CombatDamageDealtByEffect: 'Deal damage with', CombatHealFromAutoEat: 'Heal with auto eat', SpendPrayerCurrency: 'Spend prayer points' };
+function goalText(g) {
+  if (!g) return '';
+  const t = bare(g.Type), d = g.Data || {};
+  const ref = k => d[k] ? linkRef(d[k], k) : '';
+  const tgt = ['Recipe', 'Item', 'Enemy', 'Animal', 'Species', 'PotionGroup', 'Subcategory', 'Category', 'GoalCategory', 'Location', 'TargetType', 'Pet', 'Course', 'Constellation', 'Technique', 'Event', 'Master', 'Effect', 'CombatEffect'].map(ref).find(Boolean) || '';
+  const n = d.MaxProgress != null ? fmt(d.MaxProgress) : d.Count != null ? fmt(d.Count) : d.Value != null ? fmt(d.Value) : '';
+  if (t === 'Level') return `Reach level ${d.Level} in ${linkRef(d.Component?.Entity, 'Entity')}`;
+  if (t === 'PetUnlocked') return `Find the pet ${ref('Pet')}`;
+  if (GOAL_VERB[t]) return `${GOAL_VERB[t]} ${tgt}${n ? ` <b>× ${n}</b>` : ''}`;
+  if (d.Statistic) return `${esc(words(bare(d.Statistic)))}${tgt ? ' (' + tgt + ')' : ''}${n ? ` <b>${n}</b>` : ''}`;
+  return `${esc(words(t))} ${tgt}${n ? ` <b>${n}</b>` : ''}`;
+}
+const taskText = r => r.d.CustomDescription && !/custom description/i.test(r.d.CustomDescription) ? esc(r.d.CustomDescription)
+  : [goalText(r.d.Goal), goalText(r.d.ConditionGoal), r.d.TriggerGoal ? 'when ' + goalText(r.d.TriggerGoal) : ''].filter(Boolean).join('; ');
+
+function petHow(r) {
+  const tr = r.d.Trigger, d = tr?.Data || {};
+  if (!tr) return r.d.Goal ? goalText(r.d.Goal) : '';
+  if (bare(tr.Type) === 'ChancePerExperience') return `Rare drop while gaining ${linkRef(d.Component?.Entity, 'Entity')} XP`;
+  return `${esc(words(bare(tr.Type)))} ${Object.entries(d).filter(([k, v]) => typeof v === 'string' && v.startsWith('MelvorBase:')).map(([k, v]) => linkRef(v, k)).join(', ')}`;
+}
+
+// ---- skill page ----
+function pageSkill(skill) {
+  const grp = groupOfSkill(skill);
+  const rates = Object.values(DB.rates || {}).filter(x => x.skill === skill && x.area !== 'Quests');
+  const lv = rates.map(x => x.level);
+  const me = SKILLS.find(x => x.id === skill);
+  const bestXp = [...rates].sort((a, b) => b.xp - a.xp)[0], bestGp = [...rates].sort((a, b) => b.gp - a.gp)[0];
+  const ec = entity(skill);
+  const slots = recsOf('ToolbeltSlot', r => bare(r.d.FitsType || '').startsWith(skill) && /^[A-Z]/.test(bare(r.d.FitsType).slice(skill.length)));
+  const pets = keysFromConfig(skill, 'Pets', 'Pet');
+  let h = `<h2>${skillIcon(skill, 'ic-l')}${esc(skill)}</h2>` + crumbs(['<a href="#/skills">Skills</a>', grp]);
+  h += infobox(skill, grp ? grp + ' skill' : 'Skill', [
+    skillIcon(skill, 'ic-hero') && ['§', skillIcon(skill, 'ic-hero')],
+    ['Category', grp || ''], rates.length && ['Actions', fmt(rates.length)], lv.length && ['Unlocks', `level ${Math.min(...lv)} to ${Math.max(...lv)}`],
+    slots.length && ['Toolbelt', `<a href="#/gear/${skill}">${slots.length} slots</a>`],
+    bestXp && ['Best XP/hr', `${esc(bestXp.name)}<div class="sub">${fmt(bestXp.xp)} at level ${bestXp.level}</div>`],
+    bestGp && bestGp.gp > 0 && ['Best gold/hr', `${esc(bestGp.name)}<div class="sub">${fmt(bestGp.gp)} at level ${bestGp.level}</div>`],
+    pets.length && ['Pet', pets.map(link).join(', ')],
+    me && ['Your level', `${me.level} <span class="sub">(${fmt(Math.round(me.xp))} XP)</span>`],
+  ]);
+  h += `<p class="lead"><b>${esc(skill)}</b> is ${grp ? `${an(grp)} ${grp.toLowerCase()} skill` : 'a skill'}${rates.length ? ` with ${rates.length} actions, unlocking from level ${Math.min(...lv)} up to ${Math.max(...lv)}` : grp === 'Combat' ? ' trained by fighting monsters' : ''}.${slots.length ? ` It has its own toolbelt with ${slots.length} slots for gear, tools and potions.` : ''}</p>`;
+  const mech = skillMechanics(skill);
+  if (mech) h += `<h3>How it works</h3><div class="guide"><article>${md(mech)}</article></div>`;
+
+  // Actions: one table with requirements, inputs, outputs and rates.
+  const keys = Object.keys(DB.records).filter(k => DB.records[k].o === skill && /Recipe$|Animal$|Constellation$/.test(DB.records[k].t) && DB.records[k].t !== 'RanchingAnimal' || (skill === 'Ranching' && DB.records[k].t === 'RanchingAnimal'));
+  if (keys.length) {
+    const rows = keys.map(k => { const r = R(k), d = r.d, x = rateKey(skill, r.id);
+      const t = d.BaseInterval ? d.BaseInterval / 1000 : d.BaseMinInterval ? `${d.BaseMinInterval / 1000}-${d.BaseMaxInterval / 1000}` : d.BasePreparingInterval ? (d.BasePreparingInterval + d.BaseHeatingInterval + d.BaseStirringInterval + d.BaseBottlingInterval) / 1000 : '';
+      return { k, r, x, lvl: levelReq(r, skill) ?? x?.level ?? 0, t, quest: x?.area === 'Quests' || /Quest/.test(r.d.Category || '') }; });
+    h += `<h3>Actions</h3><p class="note">Rates are at base: no gear, upgrades or mastery bonuses, with ingredients counted at sell price. Gold/hr is what the products sell for minus what the ingredients would.</p>` + filterBox('act_' + skill, 'Filter actions or items...') + dataTable('act_' + skill, [
+      { k: 'lvl', l: 'Lvl', num: 1, v: o => o.lvl },
+      { k: 'name', l: 'Action', v: o => o.r.n, h: o => `${link(o.k)}${o.quest ? ' <span class="chip">quest</span>' : ''}${o.x?.gate ? ` <span class="chip">needs ${gateText(o.x.gate)}</span>` : ''}${o.x?.area && o.x.area !== 'Quests' ? `<div class="sub">${esc(o.x.area)}</div>` : ''}` },
+      { k: 'xp', l: 'XP', num: 1, v: o => o.r.d.BaseExperience ?? 0, h: o => fmt(o.r.d.BaseExperience ?? '') },
+      { k: 't', l: 'Time', num: 1, v: o => parseFloat(o.t) || 0, h: o => (o.t ? o.t + 's' : '') + (o.r.d.Steps > 1 ? ` ×${o.r.d.Steps}` : '') },
+      { k: 'in', l: 'Uses', h: o => (o.r.d.Ingredients?.Items || []).map(i => `${fmt(i.Quantity)} ${linkRef(i.Item, 'Item')}`).join('<br>') },
+      { k: 'out', l: 'Makes', h: o => [...(o.r.d.Products || []), ...(o.r.d.Product ? [o.r.d.Product] : [])].map(p => `${p.Quantity != null ? fmt(p.Quantity) + ' ' : ''}${linkRef(p.Item, 'Item')}`).join('<br>') || (o.r.d.RandomProducts || []).map(p => linkRef(p.Item, 'Item')).join('<br>') },
+      { k: 'xph', l: 'XP/hr', num: 1, v: o => o.x?.xp ?? 0, h: o => o.x ? fmt(o.x.xp) : '' },
+      { k: 'gph', l: 'Gold/hr', num: 1, v: o => o.x?.gp ?? -1e12, h: o => o.x ? `<span class="${o.x.gp < 0 ? 'bad' : ''}">${fmt(o.x.gp)}</span>` : '' },
+    ], rows, { sort: 'lvl' });
+  }
+  if (skill === 'Astrology') h += astrologySections();
+  if (grp === 'Combat') {
+    h += `<h3>Training</h3><p>${esc(skill)} is trained by fighting. See <a href="#/monsters">monsters and combat areas</a> for every fight with what a kill is worth, and <a href="#/equipment">equipment</a> for gear by slot.</p>`;
+    const extra = { Magic: 'MagicSpell', Prayer: 'Prayer', Slayer: 'SlayerMaster' }[skill];
+    if (extra) h += `<h3>${esc(typeName(extra))}</h3>` + dataTable('extra_' + skill, [
+      { k: 'lvl', l: 'Lvl', num: 1, v: k => lvlFor(R(k), skill) },
+      { k: 'n', l: 'Name', v: k => R(k).n, h: k => link(k) },
+      { k: 'd', l: 'Effect', h: k => { const d = R(k).d; return bonusesHtml(d.Bonuses) || (d.Description ? `<span class="sub">${esc(String(d.Description).slice(0, 180))}</span>` : ''); } },
+    ], recsOf(extra), { sort: 'lvl' });
+  }
+  if (rates.length) h += `<h3>Fastest route to 99</h3><p class="note">From ${SKILLS.length ? 'your level' : 'level 1'}, counting the time to gather ingredients. See the <a href="#/guide/skill/${skill}">${esc(skill)} training guide</a> or the <a href="#/plan/skill/${skill}/99">planner</a> for other targets.</p>` + levelPlanHtml(skill, 99, SKILLS.length ? undefined : 1);
+  if (rates.length) h += `<h3>Level calculator</h3>` + levelCalc(skill).replace(/^<h4>[^<]*<\/h4>/, '');
+
+  // Gear summary
+  if (slots.length) {
+    const byType = {};
+    for (const [k, r] of Object.entries(DB.records)) { const t = r.t === 'Item' && r.d.Capabilities?.['MelvorBase:Toolbelt']; if (t?.FitsInSlot && bare(t.FitsInSlot).startsWith(skill)) (byType[bare(t.FitsInSlot)] ||= []).push(k); }
+    h += `<h3>Gear</h3><p>${esc(skill)} has its own toolbelt. The table lists each slot and what fits in it; the <a href="#/gear/${skill}">${esc(skill)} gear page</a> shows every item with its exact bonuses.</p>` +
+      `<table class="wide"><tr><th>Slot</th><th>Items</th><th>Unlock</th></tr>${slots.sort((a, b) => R(a).n.localeCompare(R(b).n)).map(k => { const s = R(k), items = byType[bare(s.d.FitsType)] || [];
+        return `<tr><td>${esc(s.n.replace(skill + ' ', ''))}</td><td>${items.length ? items.slice(0, 8).map(link).join(', ') + (items.length > 8 ? ` <span class="muted">+${items.length - 8} more</span>` : '') : '<span class="muted">none</span>'}</td><td class="sub">${s.d.UnlockRequirements?.length ? reqText(s.d.UnlockRequirements) : 'always'}</td></tr>`; }).join('')}</table>`;
+  }
+
+  // Shop upgrades for this skill
+  const shop = recsOf('ShopPurchase', r => r.o === skill);
+  if (shop.length) h += `<h3>Shop upgrades</h3>` + dataTable('shop_' + skill, [
+    { k: 'lvl', l: 'Lvl', num: 1, v: k => lvlFor(R(k), skill) },
+    { k: 'name', l: 'Upgrade', v: k => R(k).n, h: k => link(k) },
+    { k: 'cost', l: 'Cost', num: 1, v: k => (R(k).d.Costs?.Currencies || []).reduce((s, c) => s + c.Quantity, 0), h: k => costText(R(k).d.Costs) },
+    { k: 'gives', l: 'Gives', h: k => bonusesHtml(R(k).d.Provides?.Bonuses) + (R(k).d.Provides?.Items || []).map(i => `${fmt(i.Quantity)} ${linkRef(i.Item, 'Item')}`).join(', ') },
+  ], shop, { sort: 'lvl' });
+
+  // Mastery guild
+  const ranks = keysFromConfig(skill, 'MasteryGuildRanks', 'MasteryGuildRank'), tasks = keysFromConfig(skill, 'MasteryGuildTasks', 'MasteryGuildTask'), bonuses = keysFromConfig(skill, 'MasteryGuildBonuses', 'MasteryGuildBonus');
+  if (ranks.length || tasks.length) {
+    const bonusFor = rk => bonuses.filter(b => (R(b).d.Requirements || []).some(q => bare(q.Data?.Rank) === R(rk).id));
+    h += `<h3>Mastery guild</h3><p>Completing ${esc(skill)} tasks earns mastery points. Each rank needs a share of all the points available and unlocks a permanent bonus.</p>` +
+      `<table><tr><th>Rank</th><th class="num">Points needed</th><th>Bonus</th></tr>${ranks.sort((a, b) => R(a).d.PointPercentRequired - R(b).d.PointPercentRequired).map(rk => `<tr><td>${esc(R(rk).n)}</td><td class="num">${pct(R(rk).d.PointPercentRequired)}</td><td>${bonusFor(rk).map(b => bonusesHtml(R(b).d.Rewards?.Bonuses)).join('') || '<span class="muted">none</span>'}</td></tr>`).join('')}</table>`;
+    const cats = {};
+    for (const k of tasks) (cats[bare(R(k).d.Category) || 'Other'] ||= []).push(k);
+    const pts = c => R('MasteryGuildCategory:' + c)?.d.BasePoints;
+    h += Object.entries(cats).sort((a, b) => (pts(a[0]) ?? 99) - (pts(b[0]) ?? 99)).map(([c, list]) => `<details><summary>${esc(c)} tasks (${list.length})${pts(c) ? ` · ${pts(c)} points each` : ''}</summary><table class="wide">${list.map(k => `<tr><td>${taskText(R(k))}</td></tr>`).join('')}</table></details>`).join('');
+  }
+  if (pets.length) h += `<h3>Pet</h3><table><tr><th>Pet</th><th>How to get it</th><th>Bonus</th></tr>${pets.map(k => `<tr><td>${link(k)}</td><td>${petHow(R(k))}</td><td>${bonusesHtml(R(k).d.Bonuses)}</td></tr>`).join('')}</table>`;
+  return h;
+}
+
+// ---- items ----
+const ITEM_CATS = [['all', 'All'], ['equipment', 'Armour'], ['weapons', 'Weapons'], ['toolbelt', 'Skill gear'], ['potions', 'Potions'], ['food', 'Food'], ['containers', 'Containers'], ['traps', 'Traps'], ['materials', 'Materials']];
+function itemCat(d) {
+  const c = d.Capabilities || {}, tool = c['MelvorBase:Toolbelt'];
+  if (c['MelvorBase:Weapon']) return 'weapons';
+  if (c['MelvorBase:Equipment']) return 'equipment';
+  if (tool) return /Potion$/.test(bare(tool.FitsInSlot)) ? 'potions' : 'toolbelt';
+  if (c['MelvorBase:Food']) return 'food';
+  if (c['MelvorBase:Openable']) return 'containers';
+  if (c['MelvorBase:HuntingTrap']) return 'traps';
+  return 'materials';
+}
+function pageItems(cat = 'all') {
+  const keys = recsOf('Item', r => cat === 'all' || itemCat(r.d) === cat);
+  const label = ITEM_CATS.find(c => c[0] === cat)?.[1] || 'All';
+  return `<h2>Items</h2><p class="lead">${DB.types.Item.toLocaleString()} items in the game. Pick a category, filter by name, or click a column to sort.</p>` + chips('#/items/', ITEM_CATS, cat) +
+    `<h3>${esc(label)} (${keys.length.toLocaleString()})</h3>` + filterBox('items') + dataTable('items', [
+      { k: 'n', l: 'Item', v: k => R(k).n, h: k => link(k) },
+      { k: 'kind', l: 'Type', v: k => itemSlotLabel(R(k).d), h: k => `<span class="muted">${esc(itemSlotLabel(R(k).d))}</span>` },
+      { k: 'sell', l: 'Sells for', num: 1, v: k => R(k).d.SellsFor?.Quantity ?? 0 },
+      { k: 'src', l: 'Sources', num: 1, v: k => DB.itemRel[R(k).id]?.sources.length ?? 0 },
+      { k: 'use', l: 'Used in', num: 1, v: k => DB.itemRel[R(k).id]?.uses.length ?? 0 },
+    ], keys);
+}
+function itemSlotLabel(d) {
+  const c = d.Capabilities || {};
+  const eq = c['MelvorBase:Equipment'], tool = c['MelvorBase:Toolbelt'], w = c['MelvorBase:Weapon'];
+  if (w) return words(bare(w.Type || 'Weapon'));
+  if (eq) return words(bare(eq.Type));
+  if (tool) return words(bare(tool.FitsInSlot));
+  if (c['MelvorBase:Food']) return 'Food';
+  if (c['MelvorBase:Openable']) return 'Container';
+  if (c['MelvorBase:HuntingTrap']) return 'Trap';
+  return (d.BankTags || []).map(t => words(bare(t.BankTag)))[0] || 'Material';
+}
+
+// ---- equipment ----
+function pageEquipment(slot) {
+  const eqs = recsOf('Item', r => r.d.Capabilities?.['MelvorBase:Equipment']);
+  const slots = [...new Set(eqs.map(k => bare(R(k).d.Capabilities['MelvorBase:Equipment'].Type)))].sort();
+  slot = slot || slots[0];
+  const keys = eqs.filter(k => bare(R(k).d.Capabilities['MelvorBase:Equipment'].Type) === slot);
+  const statOf = (k, name) => (R(k).d.Capabilities['MelvorBase:Equipment'].Stats?.Stats || []).find(s => bare(s.Stat) === name)?.Value ?? 0;
+  const statNames = [...new Set(keys.flatMap(k => (R(k).d.Capabilities['MelvorBase:Equipment'].Stats?.Stats || []).map(s => bare(s.Stat))))];
+  const top = statNames.map(s => [s, keys.filter(k => statOf(k, s)).length]).sort((a, b) => b[1] - a[1]).slice(0, 5).map(x => x[0]);
+  const req = k => { const q = (R(k).d.Capabilities['MelvorBase:Equipment'].Requirements || []).find(q => bare(q.Type) === 'Level'); return q ? q.Data.Level : 0; };
+  return `<h2>Equipment</h2><p class="lead">Combat equipment by slot, with level requirements and the main stats for that slot. Click an item for every stat and bonus.</p>` +
+    chips('#/equipment/', slots.map(s => [s, words(s)]), slot) + `<h3>${esc(words(slot))} (${keys.length})</h3>` + filterBox('eq_' + slot) + dataTable('eq_' + slot, [
+      { k: 'n', l: 'Item', v: k => R(k).n, h: k => link(k) },
+      { k: 'req', l: 'Level', num: 1, v: req, h: k => { const q = (R(k).d.Capabilities['MelvorBase:Equipment'].Requirements || [])[0]; return q ? `${fmt(q.Data?.Level ?? '')} <span class="sub">${esc(bare(q.Data?.Component?.Entity || ''))}</span>` : ''; } },
+      ...top.map(s => ({ k: s, l: statName(s), num: 1, v: k => statOf(k, s) })),
+      { k: 'sell', l: 'Sells', num: 1, v: k => R(k).d.SellsFor?.Quantity ?? 0 },
+    ], keys, { sort: 'req' });
+}
+
+// ---- monsters and areas ----
+function areaEnemies(r) {
+  const out = [];
+  for (const e of r.d.Enemies || []) {
+    if (typeof e === 'string') out.push(e);
+    else if (e?.Enemies) for (const x of e.Enemies) out.push(typeof x === 'string' ? x : x.Enemy);
+    else if (e?.Enemy) out.push(e.Enemy);
+  }
+  return [...new Set(out.filter(Boolean).map(x => refKey(x, 'Enemy')).filter(k => k?.startsWith('Enemy:')))];
+}
+function monsterTable(id, keys) {
+  const L = (k, s) => (R(k).d.Levels || []).find(x => bare(x.Key) === s)?.Value ?? 0;
+  return dataTable(id, [
+    { k: 'n', l: 'Monster', v: k => R(k).n, h: k => link(k) },
+    ...[['Hitpoints', 'HP'], ['Attack', 'Atk'], ['Strength', 'Str'], ['Defence', 'Def'], ['Ranged', 'Rng'], ['Magic', 'Mag']].map(([s, l]) => ({ k: s, l, num: 1, v: k => L(k, s) })),
+    { k: 'dt', l: 'Damage', v: k => words(bare(R(k).d.DamageType || '')).replace(/ Damage$/, '') },
+    { k: 'val', l: 'Gold/kill', num: 1, v: k => Math.round(enemyValue(R(k).d.Drops)) },
+  ], keys, { sort: 'Hitpoints' });
+}
+function pageMonsters() {
+  const areas = [...recsOf('CombatArea'), ...recsOf('Dungeon')];
+  const byCat = {};
+  for (const k of areas) (byCat[words(bare(R(k).d.Category || (R(k).t === 'Dungeon' ? 'Dungeons' : 'Areas')))] ||= []).push(k);
+  const seen = new Set(areas.flatMap(k => areaEnemies(R(k))));
+  const rest = recsOf('Enemy', r => !seen.has('Enemy:' + r.id));
+  let h = `<h2>Monsters and combat areas</h2><p class="lead">${DB.types.Enemy} monsters across ${areas.length} combat areas and dungeons. Each area lists its monsters with their levels and what a kill is worth in coins and drops.</p>`;
+  for (const [c, list] of Object.entries(byCat)) {
+    h += `<h3 id="cat-${c.replace(/\W/g, '')}">${esc(c)}</h3>`;
+    for (const k of list.sort((a, b) => (areaEnemies(R(a)).map(e => (R(e).d.Levels || [])[0]?.Value || 0).sort((x, y) => x - y)[0] || 0) - (areaEnemies(R(b)).map(e => (R(e).d.Levels || [])[0]?.Value || 0).sort((x, y) => x - y)[0] || 0))) {
+      const r = R(k), en = areaEnemies(r);
+      if (!en.length) continue;
+      h += `<h4>${link(k)} <span class="sub">${esc(words(bare(r.d.Difficulty || '')))}${r.d.Darkness ? ' · darkness ' + r.d.Darkness : ''}${(r.d.UnlockRequirements || []).length ? ' · needs ' + reqText(r.d.UnlockRequirements).replace(/<br>/g, '; ') : ''}</span></h4>` + (en.length ? monsterTable('area_' + r.id, en) : '<p class="muted">No monsters listed.</p>');
+    }
+  }
+  if (rest.length) h += `<h3>Other monsters</h3><p class="note">Quest and event monsters that aren't in a regular area.</p>` + monsterTable('area_rest', rest);
+  return h;
+}
+
+// ---- shop ----
+function pageShop() {
+  const subs = {};
+  for (const k of recsOf('ShopPurchase')) (subs[bare(R(k).d.Subcategory) || 'Other'] ||= []).push(k);
+  const cats = {};
+  for (const s of Object.keys(subs)) { const sr = R('ShopSubcategory:' + s); (cats[sr ? bare(sr.d.Category) : 'Other'] ||= []).push(s); }
+  let h = `<h2>Shop</h2><p class="lead">All ${DB.types.ShopPurchase} shop purchases, grouped the way the game groups them, with costs, requirements and what each one gives.</p>`;
+  for (const [c, list] of Object.entries(cats)) {
+    h += `<h3 id="shop-${c}">${esc(R('ShopCategory:' + c)?.n || words(c))}</h3>`;
+    for (const s of list) h += `<h4>${esc(R('ShopSubcategory:' + s)?.n || words(s))}</h4>` + dataTable('shop_' + s, [
+      { k: 'n', l: 'Purchase', v: k => R(k).n, h: k => link(k) },
+      { k: 'cost', l: 'Cost', num: 1, v: k => (R(k).d.Costs?.Currencies || []).reduce((a, x) => a + x.Quantity, 0), h: k => costText(R(k).d.Costs) },
+      { k: 'req', l: 'Requires', h: k => `<span class="sub">${reqText(R(k).d.Requirements) || '-'}</span>` },
+      { k: 'gives', l: 'Gives', h: k => bonusesHtml(R(k).d.Provides?.Bonuses) + (R(k).d.Provides?.Items || []).map(i => `${fmt(i.Quantity)} ${linkRef(i.Item, 'Item')}`).join(', ') || `<span class="sub">${esc(R(k).d.Description || '')}</span>` },
+    ], subs[s], { sort: 'cost' });
+  }
+  return h;
+}
+
+// ---- quests, pets ----
+function pageQuests() {
+  const keys = recsOf('Quest');
+  return `<h2>Quests</h2><p class="lead">${keys.length} quests. Click one for its steps, dialogue and rewards.</p>` + dataTable('quests', [
+    { k: 'n', l: 'Quest', v: k => R(k).n, h: k => link(k) },
+    { k: 'cat', l: 'Type', v: k => words(bare(R(k).d.Category || '')) },
+    { k: 'steps', l: 'Steps', num: 1, v: k => (R(k).d.Steps || []).length },
+    { k: 'd', l: 'About', h: k => `<span class="sub">${esc(String(R(k).d.Description || '').replace(/^[^-]+ - /, '').slice(0, 170))}${String(R(k).d.Description || '').length > 170 ? '...' : ''}</span>` },
+  ], keys);
+}
+function pagePets() {
+  const keys = recsOf('Pet');
+  return `<h2>Pets</h2><p class="lead">${keys.length} pets. Each one gives a small permanent bonus once found.</p>` + dataTable('pets', [
+    { k: 'n', l: 'Pet', v: k => R(k).n, h: k => link(k) },
+    { k: 'how', l: 'How to get it', h: k => petHow(R(k)) },
+    { k: 'b', l: 'Bonus', h: k => bonusesHtml(R(k).d.Bonuses) },
+  ], keys);
+}
+
+// ---- money making, XP table ----
+function pageMoney(skill = 'all') {
+  const all = Object.entries(DB.rates || {}).filter(([, x]) => x.area !== 'Quests' && (skill === 'all' || x.skill === skill));
+  const skills = [...new Set(Object.values(DB.rates || {}).map(x => x.skill))].sort();
+  const lvl = +(window._moneyLvl || 120);
+  const PR = Object.fromEntries(planRates().map(r => [r.id, r])), SG = {};
+  for (const [id] of all) SG[id] = PR[id] ? selfGp(PR[id], {}) : null;
+  return `<h2>Money making</h2><p class="lead">Every skilling action ranked by gold per hour at base rates (no gear, upgrades or mastery). The first column is gold per hour of your own time when you gather the ingredients yourself; the second treats ingredients as bought or already owned, valued at their sell price. Combat is on the <a href="#/monsters">monster pages</a> (gold per kill).</p>` +
+    chips('#/money/', [['all', 'All skills'], ...skills.map(s => [s, s])], skill) +
+    `<p>Only show actions up to level <input id="moneyLvl" type="number" min="1" max="120" value="${lvl}" style="width:70px"></p>` + filterBox('money') + dataTable('money', [
+      { k: 'name', l: 'Action', v: ([, x]) => x.name, h: ([id, x]) => { const rk = Object.keys(DB.records).find(k => DB.records[k].id === id.split(':').slice(1).join(':') && DB.records[k].o === x.skill); return `${rk ? link(rk) : esc(x.name)}${x.gate ? ` <span class="chip">needs ${gateText(x.gate)}</span>` : ''}${x.area ? `<div class="sub">${esc(x.area)}</div>` : ''}`; } },
+      { k: 'skill', l: 'Skill', v: ([, x]) => x.skill, h: ([, x]) => skillLink(x.skill) },
+      { k: 'level', l: 'Lvl', num: 1, v: ([, x]) => x.level },
+      { k: 'self', l: 'Gold/hr, own ingredients', num: 1, v: ([id]) => SG[id] ?? -1e12, h: ([id]) => SG[id] == null ? '<span class="sub">no source</span>' : `<span class="gold">${fmt(Math.round(SG[id]))}</span>` },
+      { k: 'gp', l: 'Gold/hr, ingredients bought', num: 1, v: ([, x]) => x.gp, h: ([, x]) => `<span class="${x.gp < 0 ? 'bad' : ''}">${fmt(x.gp)}</span>` },
+      { k: 'xp', l: 'XP/hr', num: 1, v: ([, x]) => x.xp },
+      { k: 'needs', l: 'Needs', h: ([, x]) => `<span class="sub">${esc(x.needs.join(', '))}</span>` },
+    ], all.filter(([, x]) => x.level <= lvl), { sort: 'self', dir: -1 });
+}
+function pageXp() {
+  const t = DB.xpTable || [];
+  const rows = [];
+  for (let L = 2; L < t.length; L++) rows.push(`<tr><td class="num">${L}</td><td class="num">${fmt(t[L])}</td><td class="num">${fmt(t[L] - t[L - 1])}</td></tr>`);
+  return `<h2>Experience table</h2><p class="lead">XP needed for every level from 1 to ${t.length - 1}. Level 99 takes ${fmt(t[99] || 0)} XP, the same curve as Melvor Idle 1.</p><div class="twocol">${[0, 1].map(c => `<table><tr><th class="num">Level</th><th class="num">Total XP</th><th class="num">From previous</th></tr>${rows.slice(c * Math.ceil(rows.length / 2), (c + 1) * Math.ceil(rows.length / 2)).join('')}</table>`).join('')}</div>`;
+}
+
+// ---- generic list page (rarely needed now) ----
+function pageType(t) {
+  if (LIST_ROUTE[t]) { location.hash = LIST_ROUTE[t]; return ''; }
+  const keys = recsOf(t);
+  return `<h2>${esc(typeName(t))}</h2>` + crumbs(['<a href="#/data">All game data</a>']) + `<p class="lead">${keys.length.toLocaleString()} ${esc(typeName(t).toLowerCase())}.</p>` + filterBox('type_' + t) + dataTable('type_' + t, [
+    { k: 'n', l: 'Name', v: k => R(k).n, h: k => link(k) },
+    { k: 'skill', l: 'Skill', v: k => R(k).o || '', h: k => R(k).o ? skillLink(R(k).o) : '' },
+    { k: 'd', l: 'Details', h: k => { const d = R(k).d; return d.Bonuses ? bonusesHtml(d.Bonuses) : d.Description ? `<span class="sub">${esc(String(d.Description).slice(0, 160))}</span>` : ''; } },
+  ], keys);
+}
+
+
+// =====================================================================
+// Planner: fastest way to get an item, fastest way to level, guides
+// =====================================================================
+// Everything is measured in hours of active play. Actions use base rates (public wiki) or your own rates with gear,
+// upgrades and mastery when Astrolabe Tools is reading your save. Leveling picks the best XP/hr action at each level;
+// "with gathering" also counts the time to gather an action's ingredients.
+const PLAN = { lv: null, rates: null, costs: null, key: '' };
+const MAXLV = 99;
+const LV_STORE = 'mi2wiki.levels';
+function planLevels() {
+  if (SKILLS.length) return Object.fromEntries(SKILLS.map(s => [s.id, s.level]));
+  if (!PLAN.lv) { try { PLAN.lv = JSON.parse(localStorage.getItem(LV_STORE) || 'null'); } catch {} }
+  return PLAN.lv || {};
+}
+function setPlanLevel(sk, v) { const l = { ...planLevels(), [sk]: Math.max(1, Math.min(MAXLV, +v || 1)) }; PLAN.lv = l; try { localStorage.setItem(LV_STORE, JSON.stringify(l)); } catch {} PLAN.key = ''; }
+const lvOf = (L, sk) => L[sk] ?? 1;
+const owned = id => (BANK && BANK[id]) || 0;
+
+function planRates() {
+  if (!window.MI2_STATIC && BANK && !MONEY) loadPersonal();
+  if (PLAN.rates && PLAN.rates.personal === !!MONEY) return PLAN.rates;
+  const m = {};
+  for (const [id, x] of Object.entries(DB.rates || {})) m[id] = { id, name: x.name, skill: x.skill, area: x.area, level: x.level, xp: x.xp, gp: x.gp, sec: x.sec, unit: x.unit, needs: x.needs || [], out: x.out, in: x.in, quest: x.area === 'Quests', gate: x.gate || null, sales: x.sales ?? x.gp };
+  if (MONEY) for (const a of MONEY) {
+    if (a.passive) continue;
+    const b = m[a.id];
+    if (a.skill === 'Combat' && !a.unlocked) continue;
+    m[a.id] = { id: a.id, name: a.name, skill: a.skill, area: a.area, level: b?.level ?? 1, xp: a.xpPerHour, gp: a.gpPerHour, sales: a.sales ?? a.gpPerHour, sec: a.seconds, unit: a.unit, needs: b?.needs || [], out: a.outputs.map(o => [o.id, o.perHour]), in: a.inputs.map(i => [i.id, i.perHour]), quest: a.notes?.includes('quest only'), personal: true, combat: a.skill === 'Combat', gate: a.unlocked ? null : (b?.gate || null) };
+  }
+  // Bait is optional (it only speeds things up), so the planner doesn't make you produce it.
+  for (const r of Object.values(m)) if (/^(Hunting|Fishing)$/.test(r.skill)) r.in = r.in.filter(([j]) => !/Bait$/.test(j));
+  const list = Object.values(m).filter(r => !r.quest);
+  list.personal = !!MONEY;
+  return PLAN.rates = list;
+}
+
+// Extra sources that aren't timed actions: shop (gold), item upgrades, containers, farming plots.
+function extraSources() {
+  if (PLAN.extra) return PLAN.extra;
+  const ex = [];
+  for (const [k, r] of Object.entries(DB.records)) {
+    if (r.t === 'ShopPurchase') for (const it of r.d.Provides?.Items || []) ex.push({ kind: 'shop', key: k, item: bare(it.Item), qty: it.Quantity || 1, gold: (r.d.Costs?.Currencies || []).filter(c => bare(c.Currency) === 'GoldPieces').reduce((s, c) => s + c.Quantity, 0), other: (r.d.Costs?.Currencies || []).some(c => bare(c.Currency) !== 'GoldPieces'), inputs: (r.d.Costs?.Items || []).map(i => [bare(i.Item), i.Quantity]), req: r.d.Requirements || [] });
+    if (r.t === 'ItemUpgrade' && r.d.UpgradedItem) ex.push({ kind: 'upgrade', key: k, item: bare(r.d.UpgradedItem), qty: r.d.QuantityPerUpgrade || 1, gold: (r.d.Costs?.Currencies || []).reduce((s, c) => s + c.Quantity, 0), inputs: (r.d.Costs?.Items || []).map(i => [bare(i.Item), i.Quantity]), req: r.d.Requirements || [] });
+    if (r.t === 'FarmingRecipe' && r.d.Product) ex.push({ kind: 'farm', key: k, item: bare(r.d.Product.Item), qty: r.d.Product.Quantity || 1, plots: Object.values(DB.records).filter(p => p.t === 'FarmingPlot' && p.d.Category === r.d.Category).length || 1, hours: (r.d.BaseInterval || 0) / 3.6e6, inputs: (r.d.Ingredients?.Items || []).map(i => [bare(i.Item), i.Quantity]), skill: 'Farming', level: levelReq(r, 'Farming') || 1 });
+  }
+  for (const [id, rel] of Object.entries(DB.itemRel)) for (const e of rel.sources) {
+    const from = R(e.from);
+    if (from?.t === 'Item' && (e.path === 'Opened' || e.path.startsWith('Capabilities'))) {
+      const avg = ((e.min ?? 1) + (e.max ?? e.min ?? 1)) / 2 * (e.share ?? 1) * (e.chance ?? 1);
+      if (avg > 0) ex.push({ kind: 'open', key: e.from, item: id, qty: avg, inputs: [[from.id, 1]] });
+    }
+  }
+  return PLAN.extra = ex;
+}
+
+// Hours per unit of every item, given levels (or ignoring levels when any = true).
+function unitCosts(L, any) {
+  const rates = planRates(), ex = extraSources();
+  const cost = {}, via = {};
+  const bestGold = Math.max(1000, ...rates.filter(r => !r.combat && (any || r.level <= lvOf(L, r.skill))).map(r => r.gp || 0));
+  for (let pass = 0; pass < 10; pass++) {
+    let changed = false;
+    const offer = (item, h, src) => { if (h > 0 && isFinite(h) && h < (cost[item] ?? Infinity) - 1e-12) { cost[item] = h; via[item] = src; changed = true; } };
+    const inCost = ins => ins.reduce((s, [j, n]) => s + n * (cost[j] ?? Infinity), 0);
+    for (const r of rates) {
+      if (!any && r.level > lvOf(L, r.skill)) continue;
+      const ic = inCost(r.in);
+      if (!isFinite(ic)) continue;
+      for (const [i, o] of r.out) if (o > 0) offer(i, (1 + ic) / o, { kind: 'action', r });
+    }
+    for (const e of ex) {
+      if (e.kind === 'farm' && !any && e.level > lvOf(L, 'Farming')) continue;
+      const ic = inCost(e.inputs);
+      if (!isFinite(ic)) continue;
+      const base = e.kind === 'shop' ? (e.other ? Infinity : e.gold / bestGold) : e.kind === 'upgrade' ? e.gold / bestGold : e.kind === 'farm' ? e.hours / e.plots : 0;
+      offer(e.item, (base + ic) / e.qty, { kind: e.kind, e });
+    }
+    if (!changed) break;
+  }
+  return { cost, via, bestGold };
+}
+function costsFor(L) {
+  const key = JSON.stringify(L) + '|' + !!MONEY;
+  if (PLAN.key !== key) { PLAN.key = key; PLAN.costs = { now: unitCosts(L, false), any: unitCosts(L, true) }; PLAN.lvCache = {}; }
+  return PLAN.costs;
+}
+
+// Fastest leveling: at each level, the action with the best effective XP/hr.
+// Astrology gates: a major node (needs the constellation's level and 4 minor nodes' worth of knowledge) or an
+// observation (a rare roll while studying the constellation).
+const gateKey = g => g ? (g.node || g.obs) : '';
+function gateDone(g) {
+  if (!g) return true;
+  if (g.node && ASTRO) return Object.values(ASTRO).some(c => c.major?.includes(g.node));
+  return false;
+}
+function gateInfo(g) {
+  const A = DB.astro; if (!A || !g) return null;
+  const con = g.node ? A.cons.find(c => c.majors.some(n => n.id === g.node)) : A.cons.find(c => c.observations.some(o => o.id === g.obs));
+  if (!con) return null;
+  const node = g.node && con.majors.find(n => n.id === g.node);
+  return { con, label: g.node ? `${con.name} ${node?.name || g.node}` : `${con.name} observation`, chance: g.obs ? A.obsChance[g.obs] : null };
+}
+function gateHours(g, L) {
+  if (gateDone(g)) return 0;
+  const gi = gateInfo(g); if (!gi) return Infinity;
+  const c = gi.con, studiesPerHour = 3600000 / c.interval;
+  const lv = levelHours('Astrology', lvOf(L, 'Astrology'), c.level, L);
+  if (g.node) { let h = 0, k = ASTRO?.[c.id]?.knowledge || 0; for (let i = 0; i < c.perMajor; i++) { const need = c.thresholds[i] - k; if (need > 0) { h += need / (studiesPerHour * c.knowledge * (1 + 0.02 * i)); k = c.thresholds[i]; } } return lv + h; }
+  return lv + 1 / (gi.chance * studiesPerHour);
+}
+function gateText(g) { const gi = gateInfo(g); return gi ? `${g.node ? 'unlock' : 'see'} <a href="#/r/AstrologyConstellation:${gi.con.id}">${esc(gi.label)}</a> in ${skillLink('Astrology')}` : ''; }
+function levelPlan(skill, from, to, L, chain) {
+  // Try without astrology gates, then with each gate opened (paying its cost once), keep the fastest.
+  const gates = [...new Set(planRates().filter(r => r.skill === skill && r.gate && !gateDone(r.gate)).map(r => JSON.stringify(r.gate)))].map(x => JSON.parse(x));
+  let best = levelPlanOpen(skill, from, to, L, chain, new Set());
+  if (skill !== 'Astrology') for (const g of gates) {
+    const gh = gateHours(g, L);
+    if (!isFinite(gh) || gh >= best.hours) continue;
+    const p = levelPlanOpen(skill, from, to, L, chain, new Set([gateKey(g)]));
+    if (p.hours + gh < best.hours) best = { ...p, hours: p.hours + gh, gate: g, gateH: gh };
+  }
+  return best;
+}
+function levelPlanOpen(skill, from, to, L, chain, open) {
+  const t = DB.xpTable, C = costsFor(L);
+  const acts = planRates().filter(r => r.skill === skill && r.xp > 0 && !r.combat && (!r.gate || gateDone(r.gate) || open.has(gateKey(r.gate))));
+  const eff = r => { if (!chain || !r.in.length) return r.xp; const ic = r.in.reduce((s, [j, n]) => s + n * Math.max(0, (C.now.cost[j] ?? C.any.cost[j] ?? Infinity)), 0); return isFinite(ic) ? r.xp / (1 + ic) : 0; };
+  const segs = [];
+  let hours = 0;
+  for (let l = Math.max(1, from); l < to; l++) {
+    const best = acts.filter(r => r.level <= l).map(r => ({ r, x: eff(r) })).filter(x => x.x > 0).sort((a, b) => b.x - a.x)[0];
+    if (!best) return { segs, hours: Infinity, stuck: l };
+    const h = (t[l + 1] - t[l]) / best.x;
+    hours += h;
+    const last = segs[segs.length - 1];
+    if (last && last.r === best.r) { last.to = l + 1; last.hours += h; last.xpNeeded += t[l + 1] - t[l]; }
+    else segs.push({ r: best.r, from: l, to: l + 1, hours: h, xph: best.x, xpNeeded: t[l + 1] - t[l] });
+  }
+  return { segs, hours };
+}
+function levelHours(skill, from, to, L) {
+  if (to <= from) return 0;
+  const k = skill + from + '-' + to;
+  PLAN.lvCache ||= {};
+  return PLAN.lvCache[k] ??= levelPlan(skill, from, to, L, true).hours;
+}
+
+// Fastest way to get qty of an item: pick the source with the lowest total (leveling + action time + inputs).
+function planItem(id, qty, L, depth = 0, seen = new Set()) {
+  const C = costsFor(L);
+  const have = depth === 0 ? 0 : Math.min(owned(id), qty);
+  const need = qty - have;
+  const node = { id, qty, have, need, hours: 0, children: [], levels: {}, src: null };
+  if (need <= 0 || depth > 7 || seen.has(id)) { node.src = need <= 0 ? { kind: 'bank' } : null; return node; }
+  seen = new Set(seen).add(id);
+  const cands = [];
+  const inCost = ins => ins.reduce((s, [j, n]) => s + n * (C.now.cost[j] ?? C.any.cost[j] ?? Infinity), 0);
+  for (const r of planRates()) {
+    const o = r.out.find(x => x[0] === id)?.[1];
+    if (!o) continue;
+    const lvH = (r.combat ? 0 : levelHours(r.skill, lvOf(L, r.skill), r.level, L)) + (r.gate ? gateHours(r.gate, L) : 0);
+    const total = lvH + need * (1 + inCost(r.in)) / o;
+    if (isFinite(total)) cands.push({ kind: 'action', r, o, total, lvH, actH: need / o });
+  }
+  for (const e of extraSources().filter(e => e.item === id)) {
+    if (e.kind === 'shop' && e.other) continue;
+    const base = e.kind === 'shop' || e.kind === 'upgrade' ? e.gold / C.now.bestGold : e.kind === 'farm' ? e.hours / e.plots : 0;
+    const lvH = e.kind === 'farm' ? levelHours('Farming', lvOf(L, 'Farming'), e.level, L) : 0;
+    const total = lvH + need * (base + inCost(e.inputs)) / e.qty;
+    if (isFinite(total)) cands.push({ kind: e.kind, e, total, lvH, actH: need * base / e.qty });
+  }
+  cands.sort((a, b) => a.total - b.total);
+  const best = cands[0];
+  node.alts = cands.slice(1, 4);
+  if (!best) return node;
+  node.src = best;
+  node.hours = best.actH;
+  const ins = best.kind === 'action' ? best.r.in.map(([j, n]) => [j, need * n / best.o]) : best.e.inputs.map(([j, n]) => [j, need * n / best.e.qty]);
+  if (best.kind === 'action' && !best.r.combat && best.r.level > lvOf(L, best.r.skill)) node.levels[best.r.skill] = best.r.level;
+  if (best.kind === 'farm' && best.e.level > lvOf(L, 'Farming')) node.levels.Farming = best.e.level;
+  for (const [j, n] of ins) {
+    const ch = planItem(j, Math.ceil(n), L, depth + 1, seen);
+    node.children.push(ch);
+    node.hours += ch.hours;
+    for (const [s, l] of Object.entries(ch.levels)) node.levels[s] = Math.max(node.levels[s] || 0, l);
+  }
+  return node;
+}
+
+// Gold per hour of total effort when you gather the ingredients yourself (sales over action + gathering time).
+function selfGp(r, L) {
+  if (!r.in.length) return r.gp;
+  const C = costsFor(L || planLevels());
+  const ic = r.in.reduce((s, [j, n]) => s + n * (C.any.cost[j] ?? Infinity), 0);
+  return isFinite(ic) ? (r.sales ?? r.gp) / (1 + ic) : null;
+}
+// ---- rendering ----
+const hrs = h => !isFinite(h) ? '<span class="bad">no known way</span>' : h < 1 / 60 ? '< 1 min' : h < 1 ? Math.round(h * 60) + ' min' : h < 100 ? h.toFixed(1) + ' hr' : Math.round(h).toLocaleString() + ' hr';
+function srcText(s) {
+  if (!s) return '<span class="bad">no source found in the game data</span>';
+  if (s.kind === 'bank') return '<span class="good">already in your bank</span>';
+  if (s.kind === 'action') { const r = s.r, rk = Object.keys(DB.records).find(k => DB.records[k].id === r.id.split(':').slice(1).join(':') && DB.records[k].o === r.skill);
+    return `${r.combat ? 'Kill' : skillIcon(r.skill) + esc(r.skill) + ':'} ${rk ? link(rk) : esc(r.name)} <span class="sub">(${r.combat ? '' : 'level ' + r.level + ', '}${fmt(Math.round(s.o * 10) / 10)}/hr${r.personal ? ', your rate' : ''})</span>${r.gate && !gateDone(r.gate) ? ` <span class="chip">needs: ${gateText(r.gate)}</span>` : ''}`; }
+  if (s.kind === 'shop') return `Buy ${link(s.e.key)} <span class="sub">(${fmt(s.e.gold)} gold)</span>`;
+  if (s.kind === 'upgrade') return `Upgrade via ${link(s.e.key)}`;
+  if (s.kind === 'farm') return `${skillIcon('Farming')}Farming: ${link(s.e.key)} <span class="sub">(${hrs(s.e.hours)} per harvest of ${s.e.qty}, counted as ${s.e.plots} plots growing at once)</span>`;
+  if (s.kind === 'open') return `Open ${link(s.e.key)} <span class="sub">(about ${fmt(Math.round(s.e.qty * 1000) / 1000)} per open)</span>`;
+  return '';
+}
+function dropSources(id, need) {
+  return (DB.itemRel[id]?.sources || []).filter(e => e.from.startsWith('Enemy:')).map(e => { const per = ((e.min ?? 1) + (e.max ?? e.min ?? 1)) / 2 * (e.share ?? 1) * (e.chance ?? 1); return { k: e.from, kills: per > 0 ? Math.ceil(need / per) : Infinity }; }).sort((a, b) => a.kills - b.kills);
+}
+function planTree(n, depth = 0) {
+  const name = link(itemKey(n.id));
+  const amt = `${fmt(Math.ceil(n.qty))}${n.have ? ` <span class="good">(${fmt(n.have)} in bank)</span>` : ''}`;
+  const noSrc = !n.src ? ((DB.itemRel[n.id]?.sources || []).length ? `<span class="sub">no timed route; it comes from ${[...new Set(DB.itemRel[n.id].sources.map(e => e.from))].slice(0, 3).map(link).join(', ')}</span>` : '<span class="bad">no source in the game data</span>') : '';
+  return `<li><b>${amt}</b> ${name}: ${noSrc || srcText(n.src)}${n.src && n.src.kind !== 'bank' ? ` <span class="sub">· ${hrs(n.src.actH)}</span>` : ''}${n.children.length ? `<ul>${n.children.map(c => planTree(c, depth + 1)).join('')}</ul>` : ''}</li>`;
+}
+function levelsBox() {
+  if (SKILLS.length) return `<p class="note">Using your levels, bank and rates from your save.</p>`;
+  const L = planLevels(), all = SKILL_GROUPS.flatMap(g => g[1]);
+  return `<details class="lvbox"><summary>Your levels (saved in this browser)</summary><div class="lvgrid">${all.map(sk => `<label>${skillIcon(sk)}${sk}<input type="number" min="1" max="99" value="${lvOf(L, sk)}" data-lv="${sk}"></label>`).join('')}</div></details>`;
+}
+function wireLevels() { document.querySelectorAll('input[data-lv]').forEach(i => i.onchange = () => { setPlanLevel(i.dataset.lv, i.value); route(true); }); }
+
+function itemPlanHtml(id, qty, compact) {
+  const L = planLevels();
+  const p = planItem(id, qty, L);
+  const lvls = Object.entries(p.levels);
+  const lvH = lvls.reduce((s, [sk, l]) => s + levelHours(sk, lvOf(L, sk), l, L), 0);
+  const total = p.hours + lvH;
+  let h = `<div class="plan"><p><b>Estimated time: ${hrs(total)}</b>${lvH ? ` <span class="sub">(${hrs(lvH)} of leveling + ${hrs(p.hours)} of gathering and making)</span>` : ''}</p>`;
+  if (lvls.length) h += `<p>Levels needed first: ${lvls.map(([sk, l]) => `<a href="#/plan/skill/${sk}/${l}">${skillIcon(sk)}${sk} ${lvOf(L, sk)} → ${l}</a> <span class="sub">(${hrs(levelHours(sk, lvOf(L, sk), l, L))})</span>`).join(', ')}</p>`;
+  h += `<ul class="ptree">${planTree(p)}</ul>`;
+  const drops = dropSources(id, qty).slice(0, 4);
+  if (drops.length) h += `<p class="note">Monster drops${MONEY ? '' : ' (time depends on your combat stats)'}: ${drops.map(d => `${link(d.k)} about ${fmt(d.kills)} kill${d.kills === 1 ? '' : 's'}`).join(', ')}.</p>`;
+  if (!compact && p.alts?.length) h += `<p class="note">Other options: ${p.alts.map(a => `${srcText(a)} (${hrs(a.total)})`).join('; ')}</p>`;
+  return h + '</div>';
+}
+
+function pagePlan(kind, a, b) {
+  let h = `<h2>${icon('Assets/Icons/GuideBook.png', 'ic-l')}Planner</h2><p class="lead">Find the fastest way to get any item or reach any level. Times are hours of play, counting the levels you need, the ingredients you have to gather and, for shop items, the time to earn the gold.</p>` + levelsBox();
+  h += `<h3>Get an item</h3><p><input id="planItem" list="planItems" placeholder="Item name" style="width:280px" value="${kind === 'item' ? esc(R(itemKey(a))?.n || a) : ''}"> × <input id="planQty" type="number" min="1" value="${kind === 'item' ? (+b || 1) : 1}" style="width:90px"> <button class="btn" id="planGo">Plan</button></p>
+    <datalist id="planItems">${Object.values(DB.records).filter(r => r.t === 'Item').map(r => `<option value="${esc(r.n)}">`).join('')}</datalist>`;
+  if (kind === 'item' && R(itemKey(a))) h += `<h4>${link(itemKey(a))} × ${fmt(+b || 1)}</h4>` + itemPlanHtml(a, +b || 1);
+  const skills = [...new Set(planRates().filter(r => !r.combat).map(r => r.skill))].sort();
+  h += `<h3>Reach a level</h3><p><select id="planSkill">${skills.map(s => `<option ${kind === 'skill' && a === s ? 'selected' : ''}>${s}</option>`).join('')}</select> to level <input id="planTo" type="number" min="2" max="99" value="${kind === 'skill' ? +b || 99 : 99}" style="width:70px"> <label class="sub"><input type="checkbox" id="planChain" ${window._chain !== false ? 'checked' : ''}> count gathering time for ingredients</label> <button class="btn" id="planLvGo">Plan</button></p>`;
+  if (kind === 'skill' && skills.includes(a)) h += levelPlanHtml(a, +b || 99);
+  return h;
+}
+function levelPlanHtml(skill, to, from, Lx) {
+  const L = Lx || planLevels();
+  from = from ?? lvOf(L, skill);
+  const chain = window._chain !== false;
+  const p = levelPlan(skill, from, to, L, chain);
+  if (to <= from) return `<p class="good">Already level ${from}.</p>`;
+  const gl = p.gate ? `<p class="mine">First ${gateText(p.gate)} (${hrs(p.gateH)}, included). It opens better ${esc(skill)} actions.</p>` : '';
+  return gl + `<p><b>${skillIcon(skill)}${esc(skill)} ${from} → ${to}: ${hrs(p.hours)}</b>${chain ? ' <span class="sub">including gathering ingredients</span>' : ''}${p.stuck ? ` <span class="bad">(no action available at level ${p.stuck})</span>` : ''}</p>
+    <table class="wide"><tr><th>Levels</th><th>Do this</th><th class="num">XP/hr</th><th class="num">Time</th><th>Needs</th></tr>${p.segs.map(s => { const rk = Object.keys(DB.records).find(k => DB.records[k].id === s.r.id.split(':').slice(1).join(':') && DB.records[k].o === skill);
+      return `<tr><td class="num">${s.from} → ${s.to}</td><td>${rk ? link(rk) : esc(s.r.name)}${s.r.area ? `<div class="sub">${esc(s.r.area)}</div>` : ''}</td><td class="num">${fmt(Math.round(s.xph))}${chain && s.r.in.length && Math.round(s.xph) !== Math.round(s.r.xp) ? `<div class="sub">${fmt(Math.round(s.r.xp))} if ingredients are ready</div>` : ''}</td><td class="num">${hrs(s.hours)}</td><td class="sub">${s.r.in.map(([j, n]) => `${fmt(Math.round(n * s.hours))} ${link(itemKey(j))}`).join(', ')}${s.r.needs.length ? ' · equip ' + esc(s.r.needs.join(', ')) : ''}</td></tr>`; }).join('')}</table>`;
+}
+function wirePlan() {
+  const go = () => { const n = $('planItem').value.trim().toLowerCase(); const r = Object.values(DB.records).find(r => r.t === 'Item' && r.n.toLowerCase() === n) || Object.values(DB.records).find(r => r.t === 'Item' && r.n.toLowerCase().includes(n)); if (r) location.hash = `#/plan/item/${r.id}/${Math.max(1, +$('planQty').value || 1)}`; };
+  if ($('planGo')) { $('planGo').onclick = go; $('planItem').onkeydown = e => { if (e.key === 'Enter') go(); }; }
+  if ($('planLvGo')) $('planLvGo').onclick = () => { window._chain = $('planChain').checked; location.hash = `#/plan/skill/${$('planSkill').value}/${$('planTo').value}`; route(true); };
+  if ($('planChain')) $('planChain').onchange = () => { window._chain = $('planChain').checked; route(true); };
+  wireLevels();
+}
+
+// ---- guides ----
+function pageGuides() {
+  const L0 = {};
+  const skills = [...new Set(planRates().filter(r => !r.combat).map(r => r.skill))].sort();
+  return `<h2>${icon('Assets/Icons/GuideBook.png', 'ic-l')}Guides</h2><p class="lead">Progression guides worked out from the game data: the fastest route through every skill, the quests in order with what each one asks for, and a plan for completing everything.</p>
+    <h3>Skill training guides</h3><p>Fastest level 1 to 99 for each skill at base rates, counting the time to gather ingredients. Your own gear and upgrades make every one of these faster.</p>
+    <table><tr><th>Skill</th><th class="num">1 → 99</th><th class="num">If ingredients are bought</th></tr>${skills.map(sk => `<tr><td><a href="#/guide/skill/${sk}">${skillIcon(sk)}${sk}</a></td><td class="num">${hrs(levelPlan(sk, 1, 99, L0, true).hours)}</td><td class="num">${hrs(levelPlan(sk, 1, 99, L0, false).hours)}</td></tr>`).join('')}</table>
+    <h3>Other guides</h3><ul><li><a href="#/guide/quests">Quest guide</a>: every quest in order, with requirements, hand-ins and rewards.</li><li><a href="#/guide/completion">Completion guide</a>: an order and time estimate for maxing every skill and collecting everything.</li><li><a href="#/money">Money making</a>: every action ranked by gold per hour.</li><li><a href="#/guide/mechanics">Mechanics</a>: the formulas behind skills, combat and bonuses.</li><li><a href="#/plan">Planner</a>: the fastest way to any item or level from where you are.</li></ul>`;
+}
+function pageSkillGuide(skill) {
+  const L0 = {};
+  const p = levelPlan(skill, 1, 99, L0, true), q = levelPlan(skill, 1, 99, L0, false);
+  const money = planRates().filter(r => r.skill === skill && !r.combat);
+  const sg = new Map(money.map(r => [r, selfGp(r, L0)]));
+  const brackets = [1, 10, 20, 30, 40, 50, 60, 70, 80, 90].map(l => [l, money.filter(r => r.level <= l && sg.get(r) != null && !r.gate).sort((a, b) => sg.get(b) - sg.get(a))[0]]).filter((x, i, a) => x[1] && (i === 0 || x[1] !== a[i - 1][1]));
+  return `<h2>${skillIcon(skill, 'ic-l')}${esc(skill)} training guide</h2>` + crumbs(['<a href="#/guides">Guides</a>', skillLink(skill)]) +
+    `<p class="lead">The fastest route from level 1 to 99 in ${esc(skill)} takes about <b>${hrs(p.hours)}</b> at base rates when you gather your own ingredients${Math.abs(q.hours - p.hours) > 0.5 ? `, or ${hrs(q.hours)} if the ingredients are already in your bank` : ''}. Gear, shop upgrades and mastery ranks speed this up a lot; the <a href="#/plan/skill/${skill}/99">planner</a> uses your own levels.</p>` +
+    `<h3>Fastest XP</h3>` + levelPlanHtml(skill, 99, 1, L0) +
+    `<h3>Best money by level</h3><p class="note">Gold per hour of your own time, gathering the ingredients yourself and selling what you make. Buying ingredients instead can pay more where they are cheap to buy; see <a href="#/money/${skill}">money making</a>.</p><table><tr><th class="num">From level</th><th>Action</th><th class="num">Gold/hr</th><th class="num">XP/hr</th></tr>${brackets.map(([l, r]) => { const rk = Object.keys(DB.records).find(k => DB.records[k].id === r.id.split(':').slice(1).join(':') && DB.records[k].o === skill); return `<tr><td class="num">${r.level}</td><td>${rk ? link(rk) : esc(r.name)}</td><td class="num gold">${fmt(Math.round(sg.get(r)))}</td><td class="num">${fmt(Math.round(r.xp))}</td></tr>`; }).join('')}</table>`;
+}
+
+function questOrder() {
+  const qs = recsOf('Quest');
+  const deps = k => (R(k).d.Requirements || []).filter(q => bare(q.Type) === 'QuestComplete').map(q => refKey(q.Data?.Quest, 'Quest')).filter(Boolean);
+  const out = [], done = new Set();
+  const visit = k => { if (done.has(k)) return; done.add(k); deps(k).forEach(visit); out.push(k); };
+  qs.sort((a, b) => (R(a).d.Requirements || []).length - (R(b).d.Requirements || []).length).forEach(visit);
+  return out;
+}
+function pageQuestGuide() {
+  const L = planLevels(), order = questOrder();
+  let total = 0;
+  const body = order.map((k, i) => {
+    const q = R(k), d = q.d;
+    const hand = {};
+    const tasks = [];
+    for (const s of d.Steps || []) for (const t of s.TasksInOrder || []) {
+      for (const it of t.Costs?.Items || []) hand[bare(it.Item)] = (hand[bare(it.Item)] || 0) + it.Quantity;
+      for (const g of [...(t.Goals || []), ...(t.ConditionGoals || [])]) tasks.push(goalText(g));
+    }
+    const plans = Object.entries(hand).map(([id, n]) => { const p = planItem(id, n, L); const lv = Object.entries(p.levels).reduce((s, [sk, l]) => s + levelHours(sk, lvOf(L, sk), l, L), 0); return { id, n, h: p.hours + lv }; });
+    const qh = plans.reduce((s, p) => s + (isFinite(p.h) ? p.h : 0), 0);
+    total += qh;
+    const rw = d.Rewards || {};
+    return `<h4>${i + 1}. ${link(k)} <span class="sub">${esc(words(bare(d.Category || '')))}</span></h4>
+      ${(d.Requirements || []).length ? `<p class="sub">Requires: ${reqText(d.Requirements).replace(/<br>/g, '; ')}</p>` : ''}
+      ${tasks.length ? `<p>Do: ${tasks.join('; ')}</p>` : ''}
+      ${plans.length ? `<table><tr><th>Hand in</th><th class="num">Qty</th><th class="num">Fastest</th></tr>${plans.map(p => `<tr><td><a href="#/plan/item/${p.id}/${p.n}">${recIcon(itemKey(p.id))}${esc(R(itemKey(p.id))?.n || p.id)}</a></td><td class="num">${fmt(p.n)}</td><td class="num">${hrs(p.h)}</td></tr>`).join('')}</table>` : ''}
+      <p class="sub">Rewards: ${[...(rw.Currencies || []).map(c => `${fmt(c.Quantity)} ${linkRef(c.Currency, 'Currency')}`), ...(rw.Items || []).map(x => `${fmt(x.Quantity)} ${linkRef(x.Item, 'Item')}`)].join(', ') || 'see quest page'}</p>`;
+  }).join('');
+  return `<h2>${icon('Assets/Icons/Quests.png', 'ic-l')}Quest guide</h2>` + crumbs(['<a href="#/guides">Guides</a>']) + `<p class="lead">All ${order.length} quests in an order that respects their prerequisites. Hand-in items show the fastest way to get them from ${SKILLS.length ? 'your account' : 'the levels you set in the planner'}; gathering every hand-in takes about <b>${hrs(total)}</b> in total.</p>` + levelsBox() + body;
+}
+
+function pageCompletion() {
+  const L0 = {}, rates = planRates().filter(r => !r.combat);
+  const groups = { Gathering: [], Artisan: [], Passive: [], Other: [] };
+  const skills = [...new Set(rates.map(r => r.skill))];
+  const sk = skills.map(s => ({ s, h: levelPlan(s, 1, 99, L0, true).hours, g: groupOfSkill(s) || 'Other' }));
+  for (const x of sk) (groups[x.g] || groups.Other).push(x);
+  const order = [...groups.Gathering.sort((a, b) => a.h - b.h), ...groups.Artisan.sort((a, b) => a.h - b.h), ...groups.Passive, ...groups.Other];
+  const skillH = order.reduce((s, x) => s + (isFinite(x.h) ? x.h : 0), 0);
+  // Items: anything not produced by the training route needs its own trip.
+  const L99 = Object.fromEntries(skills.map(s => [s, 99]));
+  const C = unitCosts(L99, false);
+  const ce = DB.entityConfig['MelvorBase:CompletionLog'] || {};
+  const items = (ce.ItemCompletionOrder || []).map(x => bare(x.Id));
+  const trained = new Set(order.flatMap(x => levelPlan(x.s, 1, 99, L0, true).segs.flatMap(s => s.r.out.map(o => o[0]))));
+  const extra = items.filter(i => !trained.has(i)).map(i => ({ i, h: C.cost[i] ?? Infinity })).sort((a, b) => b.h - a.h);
+  const known = extra.filter(x => isFinite(x.h)), unknown = extra.filter(x => !isFinite(x.h));
+  const itemH = known.reduce((s, x) => s + x.h, 0);
+  const astroH = (DB.astro?.cons || []).reduce((t, c) => t + slotSchedule(c).slice(-1)[0].hours, 0);
+  const pets = recsOf('Pet');
+  const enemies = (ce.EnemyCompletionOrder || []).length || DB.types.Enemy || 0;
+  const bought = order.reduce((s, x) => s + (groups.Artisan.includes(x) ? levelPlan(x.s, 1, 99, L0, false).hours : (isFinite(x.h) ? x.h : 0)), 0);
+  return `<h2>${icon('Assets/Icons/Completion_64.png', 'ic-l')}Completion guide</h2>` + crumbs(['<a href="#/guides">Guides</a>']) +
+    `<p class="lead">A plan for 100%: every skill to 99, every item in the completion log, every monster and every pet. It is an estimate at base rates, so treat the hours as an upper bound; shop upgrades, gear and mastery ranks cut them a lot.</p>
+    <table><tr><th>Part</th><th class="num">Estimate</th></tr><tr><td>Skills to 99 (${order.length} skills)</td><td class="num">${hrs(skillH)}</td></tr><tr><td>Items not picked up while training (${known.length})</td><td class="num">${hrs(itemH)}</td></tr><tr><td>Astrology: all ${(DB.astro?.cons || []).length * 20} nodes (studying for knowledge)</td><td class="num">${hrs(astroH)}</td></tr><tr><td>Combat skills, ${enemies} monsters, dungeons</td><td class="num sub">depends on your combat stats</td></tr><tr><td><b>Total (non-combat)</b></td><td class="num"><b>${hrs(bought + itemH + astroH)} to ${hrs(skillH + itemH + astroH)}</b></td></tr></table>
+    <p class="note">The range: gathering ingredients for artisan skills also trains your gathering skills, so some of that time counts twice in the high number. The low number counts artisan skills as if their ingredients were already gathered.</p>
+    <h3>Order</h3><p>Gathering skills first: they are quick, they feed every artisan skill, and their ingredients make artisan training much faster. Then artisan skills, shortest first. Keep farming and ranching running the whole time, since they are passive.</p>
+    <table class="wide"><tr><th class="num">#</th><th>Skill</th><th>Group</th><th class="num">1 → 99</th><th>Guide</th></tr>${order.map((x, i) => `<tr><td class="num">${i + 1}</td><td>${skillLink(x.s)}</td><td class="sub">${x.g}</td><td class="num">${hrs(x.h)}</td><td><a href="#/guide/skill/${x.s}">route</a></td></tr>`).join('')}</table>
+    <h3>Items to collect separately</h3><p>The completion log has ${items.length} items. Training covers some of them; these are the rest, slowest first, assuming every skill is already 99. ${unknown.length ? `${unknown.length} have no timed source the planner understands (combat drops, quests, events); they are listed last.` : ''}</p>` +
+    filterBox('comp_items') + `<table class="wide"><thead><tr><th>Item</th><th class="num">Time for one</th><th>How</th></tr></thead><tbody>${[...known, ...unknown].map(x => `<tr><td>${link(itemKey(x.i))}</td><td class="num">${hrs(x.h)}</td><td>${isFinite(x.h) ? srcText(C.via[x.i]?.kind === 'action' ? { ...C.via[x.i], o: C.via[x.i].r.out.find(o => o[0] === x.i)?.[1] } : C.via[x.i] ? { ...C.via[x.i] } : null) : `<span class="sub">${(DB.itemRel[x.i]?.sources || []).slice(0, 2).map(e => link(e.from)).join(', ') || 'no source'}</span>`}</td></tr>`).join('')}</tbody></table>
+    <h3>Pets</h3><p>Most pets are a rare roll per XP gained in their skill, scaled so that you find one around the XP needed for level 99 (about ${fmt(DB.xpTable?.[99] || 0)} XP). Expect most of them by the time a skill is maxed, but it is luck.</p>
+    <table><tr><th>Pet</th><th>How</th></tr>${pets.map(k => `<tr><td>${link(k)}</td><td>${petHow(R(k))}</td></tr>`).join('')}</table>`;
+}
+
+
+// ---- Astrology ----
+const STAT_RANK = n => /XP|Xp/.test(n) ? 1 : /Interval/.test(n) ? 2 : /Knowledge/.test(n) ? 2 : /Doubling|Quantity|BreakChance|Shatter|ItemChance/.test(n) ? 3 : /Preservation/.test(n) ? 4 : /Combat|Melee|Ranged|Magic|Accuracy|Evasion|Damage|Armour|Hitpoints|Strength|Defence|Attack/.test(n) ? 6 : 5;
+function nodeRank(n) {
+  const b = n.bonuses || {};
+  const names = [...(b.Component || []).map(m => m.Stat?.Name || ''), ...(b.Global || []).map(g => g.StatGroup || '')];
+  return Math.min(9, ...names.map(STAT_RANK), (b.CombatEffect || []).length ? 6 : 9);
+}
+const nodeBonus = n => bonusesHtml(n.bonuses) + ((n.bonuses?.CombatEffect || []).length ? '<div class="bonus">Combat effect <span class="ctx">(see raw data)</span></div>' : '') + (n.desc ? `<div class="sub">${bb(n.desc)}</div>` : '') || '<span class="muted">none</span>';
+const nodeReq = n => n.req.length ? n.req.map(q => `${skillLink(q.skill)} ${q.level}`).join(' or ') : '<span class="muted">none</span>';
+function minorOrder(con) {
+  const tier = n => n.req[0]?.level || 0;
+  return [...con.minors].sort((a, b) => tier(a) - tier(b) || nodeRank(a) - nodeRank(b) || a.id.localeCompare(b.id));
+}
+function majorOrder(con) {
+  const A = DB.astro;
+  return [...con.majors].sort((a, b) => (A.gates[b.id]?.length || 0) - (A.gates[a.id]?.length || 0) || nodeRank(a) - nodeRank(b));
+}
+// Hours from 0 knowledge to each minor slot at base pace (+2% knowledge per minor node).
+function slotSchedule(con) {
+  const sph = 3600000 / con.interval * con.knowledge;
+  let h = 0, k = 0;
+  return con.thresholds.map((t, i) => { h += (t - k) / (sph * (1 + 0.02 * i)); k = t; return { slot: i + 1, knowledge: t, hours: h }; });
+}
+function pageConstellation(key) {
+  const A = DB.astro, r = R(key), con = A?.cons.find(c => c.id === r.id);
+  if (!con) return `<p class="muted">No constellation data.</p>`;
+  const st = ASTRO?.[con.id];
+  const sph = 3600000 / con.interval;
+  let h = `<h2>${skillIcon('Astrology', 'ic-l')}${esc(con.name)}</h2>` + crumbs([skillLink('Astrology'), 'Constellations']);
+  h += infobox(con.name, 'Constellation', [
+    ['Astrology level', fmt(con.level)], con.secondary.length && ['Also needs', con.secondary.map(q => `${skillLink(q.skill)} ${q.level}`).join(' or ')],
+    ['Boosts', con.entities.map(skillLink).join(', ')], ['XP per study', fmt(con.xp)], ['Base XP/hr', fmt(Math.round(sph * con.xp))], ['Base knowledge/hr', fmt(Math.round(sph * con.knowledge))],
+    ['Nodes', `${con.minors.length} minor, ${con.majors.length} major`],
+    st && ['Your knowledge', fmt(Math.round(st.knowledge))], st && ['Your nodes', `${st.minor.length} minor, ${st.major.length} major`],
+  ]);
+  const sch = slotSchedule(con);
+  h += `<p class="lead"><b>${esc(con.name)}</b> is an Astrology constellation for ${listJoin(con.entities.map(skillLink))}, unlocked at Astrology ${con.level}. Studying it gives ${con.xp} XP and ${con.knowledge} knowledge every ${con.interval / 1000}s. Knowledge never goes down: each time it passes a threshold you get a minor node slot, and every ${con.perMajor} minor nodes give a major node slot. All ${con.minors.length} minor slots take about ${hrs(sch[sch.length - 1].hours)} of studying at base pace.</p>`;
+  if (st) { const next = con.thresholds.find(t => t > st.knowledge); h += `<div class="mine">You have ${fmt(Math.round(st.knowledge))} knowledge, ${st.minor.length}/${con.minors.length} minor and ${st.major.length}/${con.majors.length} major nodes.${next ? ` Next minor slot at ${fmt(next)} knowledge (about ${hrs((next - st.knowledge) / (sph * con.knowledge * (1 + 0.02 * st.minor.length)))} of studying).` : ''} The <a href="/#astrology">Astrology tab in Astrolabe Tools</a> ranks your next picks by what they add to your gold and XP.</div>`; }
+  const mo = minorOrder(con), jo = majorOrder(con);
+  h += `<h3>Suggested order</h3><p>Major nodes that unlock content come first. For minor nodes, take the ones with no level requirement first, favouring XP and speed over doubling, preservation and combat stats, then each higher tier as you reach its level. Pick nodes for the skills you are training if they differ.</p>
+    <table><tr><th class="num">Pick</th><th>Node</th><th>Gives</th><th>Needs</th></tr>${mo.map((n, i) => { const majorHere = (i + 1) % con.perMajor === 0 ? jo[(i + 1) / con.perMajor - 1] : null;
+      return `<tr><td class="num">${i + 1}</td><td>Minor ${esc(n.name)}</td><td>${nodeBonus(n)}</td><td>${nodeReq(n)}</td></tr>` + (majorHere ? `<tr><td class="num gold">M${(i + 1) / con.perMajor}</td><td><b>${esc(majorHere.name)}</b></td><td>${nodeBonus(majorHere)}${(A.gates[majorHere.id] || []).length ? `<div class="good">Unlocks ${A.gates[majorHere.id].map(link).join(', ')}</div>` : ''}</td><td>${nodeReq(majorHere)}</td></tr>` : ''); }).join('')}</table>`;
+  h += `<h3>Node slot schedule</h3><p class="note">Knowledge needed for each minor slot and the study time from zero at base pace, counting the +2% knowledge each minor node adds. Knowledge bonuses from gear and other constellations shorten it.</p>
+    <table><tr><th class="num">Minor slot</th><th class="num">Knowledge</th><th class="num">Studying from 0</th><th>Also opens</th></tr>${sch.map(x => `<tr><td class="num">${x.slot}</td><td class="num">${fmt(x.knowledge)}</td><td class="num">${hrs(x.hours)}</td><td>${x.slot % con.perMajor === 0 ? '<span class="gold">major slot</span>' : ''}</td></tr>`).join('')}</table>`;
+  if (con.observations.length) h += `<h3>Observations</h3><p class="note">Each study has a small chance to make an observation. Some unlock content the first time you see them.</p>
+    <table class="wide"><tr><th>Observation</th><th class="num">Per study</th><th class="num">Expected wait</th><th>Unlocks</th></tr>${con.observations.map(o => `<tr><td class="sub">${esc(o.text)}</td><td class="num">${pct(o.chance)}</td><td class="num">${hrs(1 / (o.chance * sph))}</td><td>${(A.obsGates[o.id] || []).map(link).join(', ') || '<span class="muted">-</span>'}</td></tr>`).join('')}</table>`;
+  return h + rawHtml(r);
+}
+function astrologySections() {
+  const A = DB.astro; if (!A) return '';
+  const L0 = {};
+  const rows = [];
+  for (const c of A.cons) {
+    for (const n of c.majors) if (A.gates[n.id]) rows.push({ g: { node: n.id }, what: A.gates[n.id] });
+    for (const o of c.observations) if (A.obsGates[o.id]) rows.push({ g: { obs: o.id }, what: A.obsGates[o.id].filter(k => !k.startsWith('MasteryGuildTask')) });
+  }
+  return `<h3>What Astrology unlocks</h3><p>Some content stays locked until you pick a specific major node or see a specific observation. These are worth planning around: the Smithing bars and gear behind <b>Iridan Major 2</b> are the biggest. Time is from scratch at base rates (Astrology level plus the study time).</p>
+    <table class="wide"><tr><th>Requirement</th><th>Unlocks</th><th class="num">From scratch</th></tr>${rows.filter(x => x.what.length).map(x => `<tr><td>${gateText(x.g).replace(/^(unlock|see) /, m => m[0].toUpperCase() + m.slice(1))}${x.g.obs ? `<div class="sub">${pct(A.obsChance[x.g.obs])} per study</div>` : ''}</td><td>${x.what.map(link).join(', ')}</td><td class="num">${hrs(gateHours(x.g, L0))}</td></tr>`).join('')}</table>
+    <h3>Constellations</h3><table class="wide"><tr><th class="num">Lvl</th><th>Constellation</th><th>Boosts</th><th class="num">XP/hr</th><th class="num">All minor slots</th>${ASTRO ? '<th>You</th>' : ''}</tr>${A.cons.map(c => { const s = ASTRO?.[c.id]; return `<tr><td class="num">${c.level}</td><td><a href="#/r/AstrologyConstellation:${c.id}">${esc(c.name)}</a></td><td>${c.entities.map(skillLink).join(', ')}</td><td class="num">${fmt(Math.round(3600000 / c.interval * c.xp))}</td><td class="num">${hrs(slotSchedule(c).slice(-1)[0].hours)}</td>${ASTRO ? `<td class="sub">${s ? `${s.minor.length}/16 minor, ${s.major.length}/4 major` : '-'}</td>` : ''}</tr>`; }).join('')}</table>`;
+}
+
+// ---- routing ----
+function route(keepScroll) {
+  const [, kind, ...rest] = decodeURIComponent(location.hash.slice(1) || '/').split('/');
+  const arg = rest.join('/');
+  const pages = { r: () => pageRecord(arg), skill: () => pageSkill(arg), skills: pageSkills, type: () => pageType(arg), gear: () => pageGear(arg), guide: () => rest[0] === 'skill' ? pageSkillGuide(rest[1]) : rest[0] === 'quests' ? pageQuestGuide() : rest[0] === 'completion' ? pageCompletion() : pageGuide(arg), data: pageData,
+    items: () => pageItems(arg || 'all'), equipment: () => pageEquipment(arg), monsters: pageMonsters, areas: pageMonsters, shop: pageShop, quests: pageQuests, pets: pagePets, money: () => pageMoney(arg || 'all'), xp: pageXp, guides: pageGuides,
+    plan: () => pagePlan(rest[0], rest[1], rest[2]) };
+  const html = (pages[kind] || pageHome)();
+  if (!html) return;
+  $('main').innerHTML = html;
+  const t = $('main').querySelector(':scope > h2:first-child');
+  if (t) { const h1 = document.createElement('h1'); h1.className = 'page-title'; h1.innerHTML = t.innerHTML; t.replaceWith(h1); }
+  $('main').querySelectorAll(':scope > h3').forEach(h => { h.innerHTML = `<span class="tag">${h.innerHTML}</span>`; });
+  if (kind) addToc(); markSide(); wireFilters(); document.body.classList.remove('menu');
+  if (kind === 'skill') wireSkillPage(arg);
+  if (kind === 'plan' || kind === 'guide') wirePlan();
+  if ($('moneyLvl')) $('moneyLvl').onchange = () => { window._moneyLvl = $('moneyLvl').value; route(true); };
+  const r = kind === 'r' && R(arg);
+  document.title = (r ? r.n + ' | ' : kind === 'skill' || kind === 'gear' ? arg + ' | ' : '') + 'Astrolabe Wiki';
+  if (keepScroll !== true) window.scrollTo(0, 0);
+}
+
+init();
+</script>
+</body>
+</html>
