@@ -44,6 +44,7 @@ function getSave() {
 // Game data: extracted from Melvor2.exe into data/MelvorBase.json, refreshed when the game updates.
 const DATA_FILE = path.join(__dirname, 'data', 'MelvorBase.json');
 let catalog = null;
+let spyglass = null;
 function getCatalog() {
   if (catalog) return catalog;
   const exe = findGameExe();
@@ -62,10 +63,18 @@ function getCatalog() {
   gearData = buildGearData(data);
   astroData = buildAstroData(data);
   // Wiki database, pre-serialized and gzipped once.
-  wikiGz = zlib.gzipSync(JSON.stringify(enrichDb(buildDb(data), data)));
+  const db = enrichDb(buildDb(data), data);
+  wikiGz = zlib.gzipSync(JSON.stringify(db));
+  // The in-game planner's data (same shape as the wiki's plan.json); /api/plan lays your own rates over it.
+  spyglass = require('./lib/spyglass').buildSpyglass(db);   // the in-game Spyglass lookup
+  planBase = { gameVersion: db.gameVersion, items: {}, rates: {} };
+  for (const r of Object.values(db.records)) if (r.t === 'Item') planBase.items[r.id] = r.n;
+  for (const [id, x] of Object.entries(db.rates || {})) if (x.area !== 'Quests')
+    planBase.rates[id] = { id, skill: x.skill, name: x.name, level: x.level, sec: x.sec, xp: x.xp, out: x.out, in: x.in };
   return catalog;
 }
 let wikiGz = null;
+let planBase = null;
 let combatData = null, bonusData = null, gearData = null, astroData = null;
 
 // Account bonuses (shop, pets, mastery, astrology) per save version.
@@ -331,6 +340,33 @@ http.createServer((req, res) => {
       for (const t of save.bank.tabs) for (const i of t.items) bank[i.id] = (bank[i.id] || 0) + i.count;
       json(res, 200, { modified: save.modified, ...upgrades(getCatalog(), bonusData, { levels, bank, toolbelts: save.toolbelts, acct: getAccount(save), journal: save.journal, farming: save.farming, ranching: save.ranching, wallet: save.bank.wallet }) });
     } catch (e) { json(res, 500, { error: e.message, stack: e.stack }); }
+    return;
+  }
+  if (url.pathname === '/api/spyglass') {
+    // Item sources, uses and unlocks for the in-game Spyglass mod (the same file the wiki publishes).
+    try {
+      getCatalog();
+      json(res, 200, spyglass);
+    } catch (e) { json(res, 500, { error: e.message }); }
+    return;
+  }
+  if (url.pathname === '/api/plan') {
+    // Action rates for the Course planner: base rates with your own (gear, upgrades, mastery, bank) on top.
+    try {
+      getCatalog();
+      const rates = { ...planBase.rates };
+      let personal = false;
+      try {
+        for (const a of moneyFor(getSave(), new URLSearchParams())) {
+          if (a.passive || !rates[a.id]) continue;
+          const b = rates[a.id];
+          rates[a.id] = { ...b, sec: a.seconds ?? b.sec, xp: a.xpPerHour ?? b.xp,
+            out: (a.outputs || []).map(o => [o.id, o.perHour]), in: (a.inputs || []).map(i => [i.id, i.perHour]) };
+          personal = true;
+        }
+      } catch { /* no save yet: base rates */ }
+      json(res, 200, { gameVersion: planBase.gameVersion, personal, items: planBase.items, rates: Object.values(rates) });
+    } catch (e) { json(res, 500, { error: e.message }); }
     return;
   }
   if (url.pathname === '/api/money') {

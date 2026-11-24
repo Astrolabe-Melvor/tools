@@ -12,6 +12,14 @@ Needs [Node.js](https://nodejs.org/) 20 or newer and the game installed.
 
 Nothing is sent anywhere; it reads your save from `%APPDATA%\Games By Malcs` on your own machine.
 
+## Sharing the tools
+
+`Package.cmd` builds `dist\AstrolabeTools-<date>.zip` with a copy of `node.exe` inside, so people can unzip and run `Start-MI2-Tools.cmd` without installing Node.
+
+## With the Course mod
+
+While the tools run, the in-game Course planner reads `http://127.0.0.1:5320/api/plan`: the same action rates as the wiki, but with your gear, upgrades and mastery. Without the tools it uses the wiki's `plan.json`.
+
 ## Publishing the wiki
 
 `Publish-Wiki.cmd` builds the static wiki into a clone of `astrolabe-melvor.github.io` next to this folder and pushes it.

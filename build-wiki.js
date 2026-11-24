@@ -37,7 +37,9 @@ if (!html.includes('MI2_STATIC = true') || html.includes('class="back"')) { cons
 fs.mkdirSync(out, { recursive: true });
 fs.writeFileSync(path.join(out, 'index.html'), html);
 fs.writeFileSync(path.join(out, 'wiki.json'), JSON.stringify(db));
-// plan.json: the small slice the in-game Action Queue planner downloads (item names and per-hour action rates).
+// spyglass.json: item sources, uses and unlocks for the in-game Spyglass lookup.
+fs.writeFileSync(path.join(out, 'spyglass.json'), JSON.stringify(require('./lib/spyglass').buildSpyglass(db)));
+// plan.json: the small slice the in-game Course planner downloads (item names and per-hour action rates).
 {
   const items = {};
   for (const r of Object.values(db.records)) if (r.t === 'Item') items[r.id] = r.n;

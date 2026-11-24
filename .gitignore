@@ -3,6 +3,8 @@ data/
 # Notes that name the game's internal classes stay local; the wiki publishes a cleaned copy
 docs/
 node_modules/
+dist/
+node.exe
 *.log
 # Old experiments
 autopilot*
