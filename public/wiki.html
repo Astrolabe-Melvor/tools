@@ -1462,7 +1462,7 @@ function courseCode(p) {
 // "Send to Course" (local tools only) drops the code in the mod's inbox; Course adds the steps within a few seconds.
 function courseButtons(code, label) {
   return `<p class="course-send">${STATIC ? '' : `<button class="btn" data-aqsend="${esc(code)}" data-label="${esc(label)}">Send to Course</button> `}<button class="btn${STATIC ? '' : ' alt'}" data-aq="${esc(code)}">Copy for Course</button>
-    <span class="sub">${STATIC ? 'Paste it in the game: Course (F6) &gt; Saved and shared &gt; Add steps from a pasted code.' : 'Send adds the steps to your queue in the running game (Course 0.9.2 or later). Copy gives a code to paste or share.'} Needs Astrolabe Loader.</span></p>`;
+    <span class="sub">${STATIC ? 'Paste it in the game: Course (F6) &gt; Saved and shared &gt; Add steps from a pasted code.' : 'Send adds the steps to your queue in the running game (Course 0.9.2 or later). Copy gives a code to paste or share.'} Needs the Course mod.</span></p>`;
 }
 document.addEventListener('click', e => {
   const s = e.target.closest && e.target.closest('[data-aqsend]');
@@ -2158,11 +2158,11 @@ function pageChanges(arg) {
 // ---------- mods (Astrolabe Loader) ----------
 const MOD_REPO = 'Astrolabe-Melvor/loader';
 const MODS = [
-  ['Loader', 'F1', 'Needed by every mod. Adds the Mods menu: each mod\'s window and key, update check and bug reports.'],
-  ['Course', 'F6', 'Queue actions one after another: cut 500 logs, then burn them, then fight until level 40. Plans whole items, takes codes from this wiki\'s planner.'],
+  ['Loader', 'F1', 'Runs the mods. Adds the Mods menu: each mod\'s window and key, update check and bug reports. Already using Melvor Mod Loader? Keep it; the mods run on either.'],
+  ['Course', 'F6', 'Queue actions one after another: cut 500 logs, then burn them, then fight until level 40. Plans whole items, takes codes from this wiki\'s planner, and keeps going while the game is closed. A Queue button on every skill page.'],
   ['Logbook', 'F7', 'XP, items and gold gained this session, with rates per hour, rare drops and past sessions.'],
   ['Beacon', 'F8', 'Sounds, notes, taskbar flash or Discord messages when something needs you: level ups, pets, low food, a full bank, idling.'],
-  ['Hold', 'F9', 'What your bank is worth. Sells what you don\'t need by your rules, and buys shop upgrades when you can afford them.'],
+  ['Hold', 'F9', 'What your bank is worth. Sells what you don\'t need by your rules, buries and opens in one click, and buys shop upgrades when you can afford them.'],
   ['Spyglass', 'F10', 'Look up any item in game: where it comes from, what it is for, and plan it in Course.'],
   ['Anchor', 'F4', 'Save backups on a timer and before risky changes; restore any of them.'],
   ['Deckhand', 'F3', 'Ranching petting and repairs, keeping the grain mill running, and farming warnings.'],
@@ -2193,7 +2193,7 @@ function pageMods() {
     <li>Extract the zip there, so <code>override.cfg</code> sits next to <code>Melvor2.exe</code>. Each mod lands in <code>mods\\&lt;Mod&gt;</code>.</li>
     <li>Start the game. A green Astrolabe tag shows top left; <b>F1</b> opens the Mods menu, and each mod window has a Help and a Tour button.</li>
   </ol>
-  <p>To pick only some mods, download the Loader plus the ones you want below. To update, close the game and extract the new zips over the old ones; your settings are kept. The Mods menu tells you when there is an update.</p>`;
+  <p>To pick only some mods, download the Loader plus the ones you want below. Already using Melvor Mod Loader? Keep it and download only the mods: they run on either loader (install one loader, not both). To update, close the game and extract the new zips over the old ones; your settings are kept. The Mods menu tells you when there is an update.</p>`;
   h += `<h3>The mods</h3><table class="wide"><thead><tr><th>Mod</th><th>What it does</th><th>Key</th><th>Download</th></tr></thead><tbody>${MODS.map(([n, k, d]) => {
     const a = zip(n);
     return `<tr><td><b>${n}</b></td><td>${esc(d)}</td><td>${k}</td><td style="white-space:nowrap">${a ? `<a href="${esc(a.browser_download_url)}">${esc(ver(a))}</a> <span class="sub" style="display:inline">${mb(a).trim()}</span>` : `<a href="${page}" target="_blank" rel="noopener">release page</a>`}</td></tr>`;
