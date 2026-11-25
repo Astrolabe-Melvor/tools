@@ -247,7 +247,7 @@
   <button id="menuBtn" aria-label="Menu">Menu</button>
   <a class="brand" href="#/"><img class="mark" src="img/Assets/Icons/GuideBook.webp" alt="">Astrolabe<small>Melvor Idle 2 wiki, unofficial</small></a>
   <nav class="topnav" aria-label="Main">
-    <a href="#/skills"><img src="img/Assets/Icons/Mastery_Icon_48.webp" alt="">Skills</a><a href="#/items"><img src="img/Assets/Icons/Bank_64.webp" alt="">Items</a><a href="#/monsters"><img src="img/Assets/Attack_32.webp" alt="">Monsters</a><a href="#/shop"><img src="img/Assets/Icons/Shop_64.webp" alt="">Shop</a><a href="#/money"><img src="img/Assets/Icons/StatsIcon_64.webp" alt="">Money</a><a href="#/guides"><img src="img/Assets/Icons/GuideBook.webp" alt="">Guides</a><a href="#/plan"><img src="img/Assets/Icons/Completion_64.webp" alt="">Planner</a>
+    <a href="#/skills"><img src="img/Assets/Icons/Mastery_Icon_48.webp" alt="">Skills</a><a href="#/items"><img src="img/Assets/Icons/Bank_64.webp" alt="">Items</a><a href="#/monsters"><img src="img/Assets/Attack_32.webp" alt="">Monsters</a><a href="#/shop"><img src="img/Assets/Icons/Shop_64.webp" alt="">Shop</a><a href="#/money"><img src="img/Assets/Icons/StatsIcon_64.webp" alt="">Money</a><a href="#/guides"><img src="img/Assets/Icons/GuideBook.webp" alt="">Guides</a><a href="#/plan"><img src="img/Assets/Icons/Completion_64.webp" alt="">Planner</a><a href="#/mods"><img src="img/Assets/Icons/ModManager_64.webp" alt="">Mods</a>
   </nav>
   <input id="q" placeholder="Search the wiki (press /)" autocomplete="off" aria-label="Search">
   <a class="back" href="/">Astrolabe Tools</a>
@@ -883,7 +883,7 @@ function buildSide() {
   const box = (t, html) => `<div class="sbox"><h4>${t}</h4>${html}</div>`;
   $('side').innerHTML =
     box('Wiki', `<a href="#/">Main page</a><a href="#/plan">Planner</a><a href="#/guides">Guides</a><a href="#/guide/quests">Quest guide</a><a href="#/guide/completion">Completion guide</a><a href="#/skills">All skills</a><a href="#/money">Money making</a><a href="#/xp">Experience table</a><a href="#/guide/mechanics">Mechanics guide</a>`) +
-    box('Tools', `<a href="#/calc">Combat calculator</a><a href="#/compare">Gear compare</a><a href="#/astrology">Astrology map</a><a href="#/changes">Game changes</a>`) +
+    box('Tools', `<a href="#/calc">Combat calculator</a><a href="#/compare">Gear compare</a><a href="#/astrology">Astrology map</a><a href="#/changes">Game changes</a><a href="#/mods">Mods</a>`) +
     SKILL_GROUPS.map(([g, list]) => box(g + ' skills', list.map(sk => `<a href="#/skill/${sk}">${skillIcon(sk)}${sk}${lv(sk)}</a>`).join(''))).join('') +
     box('Database', `<a href="#/items">Items</a><a href="#/equipment">Equipment</a><a href="#/monsters">Monsters and areas</a><a href="#/shop">Shop</a><a href="#/quests">Quests</a><a href="#/pets">Pets</a><a href="#/type/MagicSpell">Spells</a><a href="#/type/Prayer">Prayers</a><a href="#/type/EquipmentSetBonus">Equipment sets</a><a href="#/data">All game data</a>`);
 }
@@ -903,7 +903,7 @@ function pageHome() {
     <tr><th>Combat</th><td>${sl(SKILL_GROUPS[0][1])}</td></tr>
     <tr><th>Skills</th><td>${sl([...SKILL_GROUPS[1][1], ...SKILL_GROUPS[2][1], ...SKILL_GROUPS[3][1]])}</td></tr>
     <tr><th>Guides</th><td><a href="#/plan">Planner</a> <a href="#/guides">Skill training guides</a> <a href="#/guide/quests">Quest guide</a> <a href="#/guide/completion">Completion guide</a></td></tr>
-    <tr><th>Tools</th><td><a href="#/calc">Combat calculator</a> <a href="#/compare">Gear compare</a> <a href="#/astrology">Astrology map</a> <a href="#/changes">Game changes</a> <a href="#/plan">Planner</a></td></tr>
+    <tr><th>Tools</th><td><a href="#/calc">Combat calculator</a> <a href="#/compare">Gear compare</a> <a href="#/astrology">Astrology map</a> <a href="#/changes">Game changes</a> <a href="#/plan">Planner</a> <a href="#/mods">Mods</a></td></tr>
     <tr><th>Other</th><td><a href="#/quests">Quests</a> <a href="#/shop">Shop and upgrades</a> <a href="#/pets">Pets</a> <a href="#/money">Money making</a> <a href="#/xp">Experience table</a> <a href="#/guide/mechanics">Mechanics guide</a></td></tr>
     <tr><th>Reference</th><td><a href="#/items">Items</a> <a href="#/equipment">Equipment</a> <a href="#/monsters">Monsters</a> <a href="#/monsters">Combat areas and dungeons</a> <a href="#/type/MagicSpell">Spells</a> <a href="#/type/Prayer">Prayers</a> <a href="#/type/EquipmentSetBonus">Equipment sets</a></td></tr>
   </table>
@@ -1672,6 +1672,7 @@ const TOOL_PAGES = [
   ['#/compare', 'Gear compare', 'tool compare equipment gear stats side by side', 'Icons/Bank_64'],
   ['#/astrology', 'Astrology map', 'tool astrology constellations nodes map star', 'Icons/Mastery_Icon_48'],
   ['#/changes', 'Game changes', 'version update patch diff changes changelog new', 'Icons/GuideBook'],
+  ['#/mods', 'Mods', 'mods mod loader download install course logbook beacon hold spyglass anchor deckhand queue', 'Icons/ModManager_64'],
   ['#/plan', 'Planner', 'tool plan route fastest how to get', 'Icons/Completion_64'],
   ['#/money', 'Money making', 'gold gp money profit', 'Icons/StatsIcon_64'],
   ['#/xp', 'Experience table', 'xp experience levels table', 'Icons/StatsIcon_64'],
@@ -2154,13 +2155,64 @@ function pageChanges(arg) {
   return h;
 }
 
+// ---------- mods (Astrolabe Loader) ----------
+const MOD_REPO = 'Astrolabe-Melvor/loader';
+const MODS = [
+  ['Loader', 'F1', 'Needed by every mod. Adds the Mods menu: each mod\'s window and key, update check and bug reports.'],
+  ['Course', 'F6', 'Queue actions one after another: cut 500 logs, then burn them, then fight until level 40. Plans whole items, takes codes from this wiki\'s planner.'],
+  ['Logbook', 'F7', 'XP, items and gold gained this session, with rates per hour, rare drops and past sessions.'],
+  ['Beacon', 'F8', 'Sounds, notes, taskbar flash or Discord messages when something needs you: level ups, pets, low food, a full bank, idling.'],
+  ['Hold', 'F9', 'What your bank is worth. Sells what you don\'t need by your rules, and buys shop upgrades when you can afford them.'],
+  ['Spyglass', 'F10', 'Look up any item in game: where it comes from, what it is for, and plan it in Course.'],
+  ['Anchor', 'F4', 'Save backups on a timer and before risky changes; restore any of them.'],
+  ['Deckhand', 'F3', 'Ranching petting and repairs, keeping the grain mill running, and farming warnings.'],
+];
+let RELEASE = null;
+function loadRelease() {
+  if (RELEASE) return;
+  RELEASE = 'loading';
+  fetch(`https://api.github.com/repos/${MOD_REPO}/releases/latest`, { headers: { Accept: 'application/vnd.github+json' } })
+    .then(r => r.ok ? r.json() : null).catch(() => null)
+    .then(x => { RELEASE = x || 'failed'; if (location.hash.startsWith('#/mods')) route(true); });
+}
+function pageMods() {
+  loadRelease();
+  const page = `https://github.com/${MOD_REPO}/releases/latest`;
+  const assets = typeof RELEASE === 'object' && RELEASE ? RELEASE.assets || [] : [];
+  const zip = name => assets.find(a => new RegExp(`^Astrolabe${name}-[\\d.]+\\.zip$`).test(a.name));
+  const ver = a => a ? a.name.replace(/^Astrolabe\w+-|\.zip$/g, '') : '';
+  const mb = a => a ? ` (${(a.size / 1048576).toFixed(a.size < 1048576 ? 2 : 1)} MB)` : '';
+  const all = zip('All');
+  let h = `<h2>Mods</h2><p class="lead">Astrolabe's own mods for Melvor Idle 2: a queue for your actions, session stats, alerts, bank rules, item lookup and save backups, all in windows drawn like the game's own. Unofficial; no game files are changed.</p>`;
+  if (RELEASE === 'loading') h += '<p class="muted">Looking up the newest release...</p>';
+  else if (!all) h += `<p>Download from <a href="${page}" target="_blank" rel="noopener">the release page on GitHub</a>.</p>`;
+  else h += `<p class="course-send"><a class="btn" href="${esc(all.browser_download_url)}">Download everything${mb(all)}</a> <span class="muted">${esc(RELEASE.tag_name || '')}, ${esc((RELEASE.published_at || '').slice(0, 10))}. <a href="${page}" target="_blank" rel="noopener">Release notes</a></span></p>`;
+  h += `<h3>Install</h3><ol>
+    <li>Close the game.</li>
+    <li>Open the game folder: in Steam, right-click Melvor Idle 2, then Manage, then Browse local files.</li>
+    <li>Extract the zip there, so <code>override.cfg</code> sits next to <code>Melvor2.exe</code>. Each mod lands in <code>mods\\&lt;Mod&gt;</code>.</li>
+    <li>Start the game. A green Astrolabe tag shows top left; <b>F1</b> opens the Mods menu, and each mod window has a Help and a Tour button.</li>
+  </ol>
+  <p>To pick only some mods, download the Loader plus the ones you want below. To update, close the game and extract the new zips over the old ones; your settings are kept. The Mods menu tells you when there is an update.</p>`;
+  h += `<h3>The mods</h3><table class="wide"><thead><tr><th>Mod</th><th>What it does</th><th>Key</th><th>Download</th></tr></thead><tbody>${MODS.map(([n, k, d]) => {
+    const a = zip(n);
+    return `<tr><td><b>${n}</b></td><td>${esc(d)}</td><td>${k}</td><td style="white-space:nowrap">${a ? `<a href="${esc(a.browser_download_url)}">${esc(ver(a))}</a> <span class="sub" style="display:inline">${mb(a).trim()}</span>` : `<a href="${page}" target="_blank" rel="noopener">release page</a>`}</td></tr>`;
+  }).join('')}</tbody></table>`;
+  h += `<h3>Problems</h3><ul>
+    <li><b>Something isn't working:</b> in game, press <b>F1</b>, then <b>Report a bug</b>. It copies your versions and the log; paste it into <a href="https://github.com/${MOD_REPO}/issues/new" target="_blank" rel="noopener">a new issue</a>.</li>
+    <li><b>The game won't start after a game update:</b> delete <code>override.cfg</code> from the game folder to play without mods, and wait for an updated loader.</li>
+    <li><b>Removing:</b> delete <code>override.cfg</code> and the folder <code>data_MelvorModLoader_windows_x86_64</code>. The <code>mods</code> folder can stay.</li>
+  </ul><p class="muted">Source and older versions: <a href="https://github.com/${MOD_REPO}" target="_blank" rel="noopener">github.com/${MOD_REPO}</a>. Not affiliated with Games by Malcs.</p>`;
+  return h;
+}
+
 // ---- routing ----
 function route(keepScroll) {
   const [, kind, ...rest] = decodeURIComponent(location.hash.slice(1) || '/').split('/');
   const arg = rest.join('/');
   const pages = { r: () => pageRecord(arg), skill: () => pageSkill(arg), skills: pageSkills, type: () => pageType(arg), gear: () => pageGear(arg), guide: () => rest[0] === 'skill' ? pageSkillGuide(rest[1]) : rest[0] === 'quests' ? pageQuestGuide() : rest[0] === 'completion' ? pageCompletion() : pageGuide(arg), data: pageData,
     items: () => pageItems(arg || 'all'), equipment: () => pageEquipment(arg), monsters: pageMonsters, areas: pageMonsters, shop: pageShop, quests: pageQuests, pets: pagePets, money: () => pageMoney(arg || 'all'), xp: pageXp, guides: pageGuides,
-    plan: () => pagePlan(rest[0], rest[1], rest[2]), search: () => pageSearch(arg), compare: () => pageCompare(arg), calc: pageCalc, astrology: pageAstroMap, changes: () => pageChanges(arg) };
+    plan: () => pagePlan(rest[0], rest[1], rest[2]), search: () => pageSearch(arg), compare: () => pageCompare(arg), calc: pageCalc, astrology: pageAstroMap, changes: () => pageChanges(arg), mods: pageMods };
   const html = (pages[kind] || pageHome)();
   if (!html) return;
   $('main').innerHTML = html;
@@ -2176,7 +2228,7 @@ function route(keepScroll) {
   hoverCard.hide();
   if ($('moneyLvl')) $('moneyLvl').onchange = () => { window._moneyLvl = $('moneyLvl').value; route(true); };
   const r = kind === 'r' && R(arg);
-  const TITLES = { calc: 'Combat calculator', compare: 'Gear compare', astrology: 'Astrology map', changes: 'Game changes', search: 'Search' };
+  const TITLES = { calc: 'Combat calculator', compare: 'Gear compare', astrology: 'Astrology map', changes: 'Game changes', search: 'Search', mods: 'Mods' };
   document.title = (r ? r.n + ' | ' : kind === 'skill' || kind === 'gear' ? arg + ' | ' : TITLES[kind] ? TITLES[kind] + ' | ' : '') + 'Astrolabe Wiki';
   if (keepScroll !== true) window.scrollTo(0, 0);
 }

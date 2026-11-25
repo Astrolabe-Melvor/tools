@@ -436,6 +436,12 @@ http.createServer(async (req, res) => {
     } catch (e) { json(res, 500, { error: e.message, stack: e.stack }); }
     return;
   }
+  if (url.pathname === '/api/cleanup-facts') {
+    // The same file the wiki publishes as cleanup.json, for the in-game Hold mod.
+    try { getCatalog(); json(res, 200, require('./lib/cleanup').cleanupFacts(wikiDb)); }
+    catch (e) { json(res, 500, { error: e.message }); }
+    return;
+  }
   if (url.pathname === '/api/cleanup') {
     try { getCatalog(); json(res, 200, require('./lib/cleanup').cleanup(wikiDb, getSave())); }
     catch (e) { json(res, 500, { error: e.message, stack: e.stack }); }

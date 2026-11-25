@@ -51,6 +51,8 @@ fs.writeFileSync(path.join(out, 'wiki.json'), JSON.stringify(db));
 fs.copyFileSync(path.join(__dirname, 'lib', 'combat.js'), path.join(out, 'combat.js'));
 // spyglass.json: item sources, uses and unlocks for the in-game Spyglass lookup.
 fs.writeFileSync(path.join(out, 'spyglass.json'), JSON.stringify(require('./lib/spyglass').buildSpyglass(db)));
+// cleanup.json: what each item is for, so the in-game Hold mod can say what in your bank is safe to sell.
+fs.writeFileSync(path.join(out, 'cleanup.json'), JSON.stringify(require('./lib/cleanup').cleanupFacts(db)));
 // plan.json: the small slice the in-game Course planner downloads (item names and per-hour action rates).
 {
   const items = {};
