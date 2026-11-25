@@ -106,6 +106,15 @@
   .seg { border-bottom:0; gap:4px; }
   .seg button { border:8px solid transparent; border-image:url(img/Assets/UI/Textures/Buttons/TEX_Button_Normal.webp) 20 fill / 8px stretch; margin:0; padding:0 6px; color:var(--text); font:600 15px var(--serif); }
   .seg button.on { border-image-source:url(img/Assets/UI/Textures/Buttons/TEX_ActionButton_Normal.webp); color:#fff; }
+  .seg-btn { border:8px solid transparent; border-image:url(img/Assets/UI/Textures/Buttons/TEX_ActionButton_Normal.webp) 20 fill / 8px stretch; background:none; color:#fff; font:600 15px var(--serif); padding:0 8px; cursor:pointer; }
+  .seg-btn.alt { border-image-source:url(img/Assets/UI/Textures/Buttons/TEX_Button_Normal.webp); }
+  .seg-btn:disabled { opacity:.6; cursor:default; }
+  .gbar { width:220px; height:9px; background:#111; border-radius:5px; overflow:hidden; display:inline-block; vertical-align:middle; }
+  .gbar i { display:block; height:100%; background:var(--gold); }
+  .chart { position:relative; margin:8px 0 14px; }
+  .chart svg { display:block; width:100%; height:auto; overflow:visible; }
+  .chart .tip { position:absolute; pointer-events:none; background:#0d0d0df2; border:1px solid var(--line2); border-radius:3px; padding:4px 8px; font-size:13px; white-space:nowrap; transform:translate(-50%, -110%); }
+  .x { background:none; border:0; color:var(--dim); cursor:pointer; font-size:18px; } .x:hover { color:var(--bad); }
   .seg button:hover { border-image-source:url(img/Assets/UI/Textures/Buttons/TEX_Button_Hover.webp); }
   th { color:#e9dcbf; }
   table { border:2px solid #101010; }
@@ -133,6 +142,10 @@
   <button data-view="astrology">Astrology</button>
   <button data-view="upgrades">Upgrades</button>
   <button data-view="bank">Bank</button>
+  <button data-view="cleanup">Bank cleanup</button>
+  <h4>Progress</h4>
+  <button data-view="goals">Goals</button>
+  <button data-view="history">History</button>
   <h4>More</h4>
   <a href="/wiki.html">Wiki</a>
   <a href="/api/export.xlsx" title="Download everything as an Excel workbook (first export takes ~15 s while combat is simulated)">Export spreadsheet</a>
@@ -254,6 +267,34 @@
     </div>
     <div id="bankBody"></div>
   </section>
+  <section id="cleanup" hidden>
+    <h1 class="page-title">Bank cleanup</h1>
+    <p class="lead">What's safe to sell: spare copies of gear you can only wear one of, gear another piece you own beats on every stat, and items nothing in the game uses. Anything that's an ingredient, upgrade material, quest or task item, bait, food or a potion is left out.</p>
+    <div id="cbody"><p class="muted">Loading...</p></div>
+  </section>
+  <section id="goals" hidden>
+    <h1 class="page-title">Goals</h1>
+    <p class="lead">Targets to work toward, how far along you are, and when you'll get there at your recent pace (the last 7 days of Logbook history). "Plan" opens the wiki planner for the fastest route, where you can send it to Course.</p>
+    <div class="bar" id="goalAdd">
+      <select id="gType"><option value="skill">Skill level</option><option value="total">Total level</option><option value="gp">Gold</option><option value="sc">Slayer coins</option><option value="item">Items in the bank</option></select>
+      <select id="gSkill"></select>
+      <input id="gItem" list="gItems" placeholder="Item name" style="width:220px" hidden><datalist id="gItems"></datalist>
+      <input id="gTarget" type="number" min="1" style="width:130px" placeholder="Target">
+      <button class="seg-btn" id="gAddBtn" type="button">Add goal</button>
+      <span class="sub" id="gMsg"></span>
+    </div>
+    <div id="goalBody"></div>
+  </section>
+  <section id="history" hidden>
+    <h1 class="page-title">History</h1>
+    <p class="lead">How your account has grown. Logbook (0.2 or later) records your levels, XP, gold and bank value every half hour of play; this charts it.</p>
+    <div class="bar">
+      <select id="hMetric"><option value="total">Total level</option><option value="xp">Skill XP</option><option value="gp">Gold</option><option value="sc">Slayer coins</option><option value="bank">Bank value</option></select>
+      <select id="hSkill" hidden></select>
+      <div class="seg" id="hRange" style="width:auto"><button data-d="1">Day</button><button data-d="7" class="on">Week</button><button data-d="30">Month</button><button data-d="0">All</button></div>
+    </div>
+    <div id="hbody"><p class="muted">Loading...</p></div>
+  </section>
 </main>
 </div>
 </div>
@@ -332,7 +373,7 @@ function renderBank() {
   }
 }
 
-function render() { if (!save) return; renderHeader(); renderSkills(); renderBank(); }
+function render() { if (!save) return; renderHeader(); renderSkills(); renderBank(); if (!$('goals').hidden) renderGoals(); }
 
 async function load() {
   try {
@@ -361,9 +402,12 @@ function showView(view) {
   if (view === 'upgrades') loadUpgrades();
   if (view === 'gear') loadGear();
   if (view === 'astrology') loadAstro();
+  if (view === 'cleanup') loadCleanup();
+  if (view === 'goals') { loadHistory().then(renderGoals); }
+  if (view === 'history') loadHistory().then(renderHistory);
 }
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => showView(b.dataset.view));
-setTimeout(() => { if (['bank', 'money', 'combat', 'upgrades', 'gear', 'astrology'].includes(location.hash.slice(1))) showView(location.hash.slice(1)); });
+setTimeout(() => { if (['bank', 'money', 'combat', 'upgrades', 'gear', 'astrology', 'cleanup', 'goals', 'history'].includes(location.hash.slice(1))) showView(location.hash.slice(1)); });
 document.querySelectorAll('#cat button').forEach(b => b.onclick = () => {
   cat = b.dataset.c; document.querySelectorAll('#cat button').forEach(x => x.classList.toggle('on', x === b)); renderSkills();
 });
@@ -651,6 +695,203 @@ document.querySelectorAll('#ucat button').forEach(b => b.onclick = () => {
   document.querySelectorAll('#ucat button').forEach(x => x.classList.toggle('on', x === b)); renderUpgrades();
 });
 ['uafford', 'uall'].forEach(id => $(id).onchange = renderUpgrades);
+
+// ---------- Bank cleanup ----------
+const CLEAN_GROUPS = { spare: ['Spare gear', 'Extra copies of gear you can only wear one of (two for rings). Keeps one.'], outgrown: ['Outgrown gear', 'You own something in the same slot that is at least as good on every stat. Check it isn\'t one you keep for a look or a quest before selling.'], unused: ['Nothing uses it', 'No recipe, shop, upgrade, quest, task or skill uses these.'] };
+let clean = null, cleanOff = new Set();
+async function loadCleanup() {
+  const r = await fetch('/api/cleanup').then(r => r.json()).catch(e => ({ error: e.message }));
+  if (r.error) { $('cbody').innerHTML = `<p class="neg">${r.error}</p>`; return; }
+  clean = r; renderCleanup();
+}
+// "Sell down to N" steps for Course (the same CRS1 codes the wiki planner makes).
+function sellCode(rows) {
+  const steps = rows.map(x => ({ a: '*sell', g: 'UntilStops', n: x.keep, i: x.id }));
+  return 'CRS1:' + btoa(unescape(encodeURIComponent(JSON.stringify({ lanes: 1, loop: false, steps }))));
+}
+function renderCleanup() {
+  if (!clean) return;
+  const picked = clean.rows.filter(x => !cleanOff.has(x.id));
+  const total = picked.reduce((s, x) => s + x.value, 0);
+  let h = `<div class="bar"><b class="gold">${fmt(total)} GP</b><span class="muted">from ${picked.length} of ${clean.rows.length} items</span>
+    <button class="seg-btn" id="cSend" ${picked.length ? '' : 'disabled'}>Send to Course</button><button class="seg-btn alt" id="cCopy" ${picked.length ? '' : 'disabled'}>Copy for Course</button>
+    <span class="sub">Course sells each down to what's kept, in order. Untick anything you want to hold on to.</span></div>`;
+  for (const [g, [title, note]] of Object.entries(CLEAN_GROUPS)) {
+    const rows = clean.rows.filter(x => x.group === g);
+    if (!rows.length) continue;
+    h += `<h2>${title}</h2><p class="note">${note}</p><table><thead><tr><th style="width:28px"></th><th>Item</th><th class="num">Have</th><th class="num">Keep</th><th class="num">Sell</th><th class="num">Each</th><th class="num">Total</th><th>Why</th></tr></thead><tbody>` +
+      rows.map(x => `<tr><td><input type="checkbox" data-cl="${x.id}" ${cleanOff.has(x.id) ? '' : 'checked'}></td><td>${ico('item', x.id)}${x.name}</td><td class="num">${fmt(x.count)}</td><td class="num">${fmt(x.keep)}</td><td class="num">${fmt(x.sell)}</td><td class="num">${fmt(x.price)}</td><td class="num gold">${fmt(x.value)}</td><td class="muted">${x.why}</td></tr>`).join('') + '</tbody></table>';
+  }
+  if (!clean.rows.length) h = '<p class="good">Nothing to clear out. Your bank only holds things that are used or worn.</p>';
+  $('cbody').innerHTML = h;
+  document.querySelectorAll('[data-cl]').forEach(c => c.onchange = () => { c.checked ? cleanOff.delete(c.dataset.cl) : cleanOff.add(c.dataset.cl); renderCleanup(); });
+  const code = () => sellCode(clean.rows.filter(x => !cleanOff.has(x.id)));
+  if ($('cCopy')) $('cCopy').onclick = () => navigator.clipboard.writeText(code()).then(() => $('cCopy').textContent = 'Copied');
+  if ($('cSend')) $('cSend').onclick = () => sendCourse(code(), 'Bank cleanup', $('cSend'));
+}
+async function sendCourse(code, label, btn) {
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    const r = await fetch('/api/course/send', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Astrolabe': '1' }, body: JSON.stringify({ code, label }) }).then(r => r.json());
+    if (r.error) throw new Error(r.error);
+    btn.textContent = 'Sent: check Course (F6)';
+  } catch (e) { btn.disabled = false; btn.textContent = 'Send to Course'; alert("Couldn't send: " + e.message); }
+}
+
+// ---------- History (Logbook's half-hourly points) ----------
+let hist = null, histAt = 0;
+async function loadHistory() {
+  if (hist && Date.now() - histAt < 60000) return hist;
+  const r = await fetch('/api/history').then(r => r.json()).catch(e => ({ error: e.message }));
+  hist = r.error ? { error: r.error, points: [] } : r; histAt = Date.now();
+  hist.points = (hist.points || []).map(p => ({ ...p, time: Date.parse(p.t) })).filter(p => isFinite(p.time)).sort((a, b) => a.time - b.time);
+  return hist;
+}
+const totalLv = p => Object.values(p.lv || {}).reduce((s, x) => s + x, 0);
+const METRICS = {
+  total: { label: 'Total level', v: p => totalLv(p) },
+  xp: { label: sk => `${sk} XP`, v: (p, sk) => p.xp?.[sk] },
+  gp: { label: 'Gold', v: p => p.cur?.GoldPieces },
+  sc: { label: 'Slayer coins', v: p => p.cur?.SlayerCoins },
+  bank: { label: 'Bank value (GP if sold)', v: p => p.bank },
+};
+let hRange = 7;
+function lineChart(points, label) {
+  if (points.length < 2) return '<p class="muted">Not enough points in this range yet. Logbook adds one every half hour of play.</p>';
+  const W = 900, H = 280, L = 64, B = 26, T = 12, Rr = 12;
+  const x0 = points[0].t, x1 = points[points.length - 1].t;
+  let y0 = Math.min(...points.map(p => p.v)), y1 = Math.max(...points.map(p => p.v));
+  if (y0 === y1) { y0 -= 1; y1 += 1; }
+  const pad = (y1 - y0) * 0.08; y0 = Math.max(0, y0 - pad); y1 += pad;
+  const X = t => L + (t - x0) / Math.max(1, x1 - x0) * (W - L - Rr), Y = v => T + (1 - (v - y0) / (y1 - y0)) * (H - T - B);
+  const short = v => v >= 1e9 ? (v / 1e9).toFixed(1) + 'B' : v >= 1e6 ? (v / 1e6).toFixed(1) + 'M' : v >= 1e4 ? (v / 1e3).toFixed(0) + 'K' : fmt(v);
+  const ticks = [0, 0.25, 0.5, 0.75, 1].map(f => y0 + (y1 - y0) * f);
+  const days = (x1 - x0) / 864e5;
+  const dfmt = t => new Date(t).toLocaleString(undefined, days > 2 ? { month: 'short', day: 'numeric' } : { hour: 'numeric', minute: '2-digit' });
+  const xt = [0, 0.33, 0.66, 1].map(f => x0 + (x1 - x0) * f);
+  const path = points.map((p, i) => (i ? 'L' : 'M') + X(p.t).toFixed(1) + ' ' + Y(p.v).toFixed(1)).join('');
+  window._hpts = { points, X, Y, W, label, short };
+  return `<div class="chart" id="hchart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${label} over time">
+    ${ticks.map(v => `<line x1="${L}" x2="${W - Rr}" y1="${Y(v)}" y2="${Y(v)}" stroke="#ffffff14"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end" fill="#a7a49b" font-size="12">${short(v)}</text>`).join('')}
+    ${xt.map(t => `<text x="${X(t)}" y="${H - 6}" text-anchor="middle" fill="#a7a49b" font-size="12">${dfmt(t)}</text>`).join('')}
+    <path d="${path}" fill="none" stroke="#8ec9ee" stroke-width="2" stroke-linejoin="round"/>
+    <line id="hx" y1="${T}" y2="${H - B}" stroke="#ffffff55" visibility="hidden"/><circle id="hdot" r="5" fill="#8ec9ee" stroke="#262626" stroke-width="2" visibility="hidden"/>
+    <rect x="${L}" y="${T}" width="${W - L - Rr}" height="${H - T - B}" fill="transparent" id="hhit"/></svg><div class="tip" id="htip" hidden></div></div>`;
+}
+function wireChart() {
+  const hit = $('hhit'); if (!hit) return;
+  const { points, X, Y, W, short } = window._hpts;
+  const svg = hit.ownerSVGElement;
+  hit.onmousemove = e => {
+    const b = svg.getBoundingClientRect(), sx = (e.clientX - b.left) / b.width * W;
+    let best = points[0]; for (const p of points) if (Math.abs(X(p.t) - sx) < Math.abs(X(best.t) - sx)) best = p;
+    $('hx').setAttribute('x1', X(best.t)); $('hx').setAttribute('x2', X(best.t)); $('hx').setAttribute('visibility', 'visible');
+    $('hdot').setAttribute('cx', X(best.t)); $('hdot').setAttribute('cy', Y(best.v)); $('hdot').setAttribute('visibility', 'visible');
+    const tip = $('htip'); tip.hidden = false;
+    tip.innerHTML = `<b>${fmt(best.v)}</b> <span class="muted">${new Date(best.t).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>`;
+    tip.style.left = (X(best.t) / W * b.width) + 'px'; tip.style.top = (Y(best.v) / 280 * b.height) + 'px';
+  };
+  hit.onmouseleave = () => { $('htip').hidden = true; $('hx').setAttribute('visibility', 'hidden'); $('hdot').setAttribute('visibility', 'hidden'); };
+}
+function renderHistory() {
+  if (!hist) return;
+  if (!$('hSkill').options.length && save) $('hSkill').innerHTML = save.skills.map(s => `<option>${s.id}</option>`).join('');
+  $('hSkill').hidden = $('hMetric').value !== 'xp';
+  if (hist.error) { $('hbody').innerHTML = `<p class="neg">${hist.error}</p>`; return; }
+  if (!hist.points.length) { $('hbody').innerHTML = `<p class="muted">No history yet for ${hist.character || 'this character'}. Install Logbook 0.2 (it comes with this update) and play for half an hour; the first point is written when the game loads.</p>`; return; }
+  const m = METRICS[$('hMetric').value], sk = $('hSkill').value;
+  const since = hRange ? Date.now() - hRange * 864e5 : 0;
+  const pts = hist.points.filter(p => p.time >= since).map(p => ({ t: p.time, v: m.v(p, sk) })).filter(p => p.v != null);
+  const label = typeof m.label === 'function' ? m.label(sk) : m.label;
+  let h = `<h2>${label}</h2>` + lineChart(pts, label);
+  // What moved in this range, per skill.
+  const inRange = hist.points.filter(p => p.time >= since);
+  if (inRange.length >= 2) {
+    const a = inRange[0], b = inRange[inRange.length - 1], hours = (b.time - a.time) / 3.6e6;
+    const rows = Object.keys(b.xp || {}).map(id => ({ id, xp: (b.xp[id] || 0) - (a.xp?.[id] || 0), lv: (b.lv?.[id] || 0) - (a.lv?.[id] || 0), now: b.lv?.[id] || 0 })).filter(r => r.xp > 0).sort((x, y) => y.xp - x.xp);
+    const gp = (b.cur?.GoldPieces || 0) - (a.cur?.GoldPieces || 0), bank = (b.bank || 0) - (a.bank || 0);
+    h += `<h2>In this range</h2><p class="note">${new Date(a.time).toLocaleString()} to ${new Date(b.time).toLocaleString()} (${dur(hours)} of real time).
+      Gold ${gp >= 0 ? '+' : ''}${fmt(gp)}, bank value ${bank >= 0 ? '+' : ''}${fmt(bank)}.</p>` +
+      (rows.length ? `<table><thead><tr><th>Skill</th><th class="num">XP gained</th><th class="num">Levels</th><th class="num">Now</th><th class="num">XP per day</th></tr></thead><tbody>${rows.map(r => `<tr><td>${ico('skill', r.id)}${r.id}</td><td class="num rate">+${fmt(r.xp)}</td><td class="num">${r.lv ? '+' + r.lv : ''}</td><td class="num lvl">${r.now}</td><td class="num">${fmt(r.xp / Math.max(hours / 24, 1 / 24))}</td></tr>`).join('')}</tbody></table>` : '<p class="muted">No XP gained in this range.</p>');
+  }
+  $('hbody').innerHTML = h;
+  wireChart();
+}
+$('hMetric').onchange = renderHistory; $('hSkill').onchange = renderHistory;
+document.querySelectorAll('#hRange button').forEach(b => b.onclick = () => { hRange = +b.dataset.d; document.querySelectorAll('#hRange button').forEach(x => x.classList.toggle('on', x === b)); renderHistory(); });
+
+// ---------- Goals ----------
+const goalKey = () => 'astrolabe.goals.' + (save?.header?.name || '');
+const getGoals = () => { try { return JSON.parse(localStorage.getItem(goalKey()) || '[]'); } catch { return []; } };
+const setGoals = g => localStorage.setItem(goalKey(), JSON.stringify(g));
+let itemList = null;
+async function goalForm() {
+  if (!save) return;
+  if (!$('gSkill').options.length) $('gSkill').innerHTML = save.skills.map(s => `<option>${s.id}</option>`).join('');
+  const t = $('gType').value;
+  $('gSkill').hidden = t !== 'skill'; $('gItem').hidden = t !== 'item';
+  $('gTarget').placeholder = t === 'skill' || t === 'total' ? 'Level' : 'Amount';
+  if (t === 'item' && !itemList) {
+    itemList = (await fetch('/api/plan').then(r => r.json()).catch(() => ({}))).items || {};
+    $('gItems').innerHTML = Object.values(itemList).sort().map(n => `<option value="${n}">`).join('');
+  }
+}
+$('gType').onchange = goalForm;
+$('gAddBtn').onclick = () => {
+  const t = $('gType').value, n = Math.floor(+$('gTarget').value);
+  if (!(n > 0)) { $('gMsg').textContent = 'Enter a target.'; return; }
+  const g = { type: t, target: n };
+  if (t === 'skill') { g.skill = $('gSkill').value; if (n > 120) { $('gMsg').textContent = 'Levels go up to 120.'; return; } }
+  if (t === 'item') {
+    const name = $('gItem').value.trim().toLowerCase(), id = Object.keys(itemList || {}).find(k => itemList[k].toLowerCase() === name);
+    if (!id) { $('gMsg').textContent = 'Pick an item from the list.'; return; }
+    g.item = id; g.name = itemList[id];
+  }
+  g.from = goalNow(g).now;   // progress counts from when the goal was set
+  setGoals([...getGoals(), g]); $('gMsg').textContent = ''; $('gTarget').value = ''; renderGoals();
+};
+const xpFor = lv => xpTable[Math.min(lv, xpTable.length - 1)] || 0;
+function goalNow(g) {
+  if (g.type === 'skill') { const s = save.skills.find(x => x.id === g.skill); return { now: s?.xp || 0, goal: xpFor(g.target), show: `level ${s?.level || 1}`, start: 0 }; }
+  if (g.type === 'total') return { now: save.totalLevel, goal: g.target, show: `level ${save.totalLevel}` };
+  if (g.type === 'gp') { const v = save.bank.wallet.GoldPieces ?? save.header.gp; return { now: v, goal: g.target, show: fmt(v) + ' GP' }; }
+  if (g.type === 'sc') { const v = save.bank.wallet.SlayerCoins ?? save.header.slayerCoins; return { now: v, goal: g.target, show: fmt(v) }; }
+  let have = 0; for (const t of save.bank.tabs) for (const i of t.items) if (i.id === g.item) have += i.count;
+  return { now: have, goal: g.target, show: fmt(have) };
+}
+// Real-time pace over the last 7 days of history (per day), for goals history can measure.
+function goalPace(g) {
+  const pts = (hist?.points || []).filter(p => p.time >= Date.now() - 7 * 864e5);
+  if (pts.length < 2) return null;
+  const v = { skill: p => p.xp?.[g.skill], total: totalLv, gp: p => p.cur?.GoldPieces, sc: p => p.cur?.SlayerCoins }[g.type];
+  if (!v) return null;
+  const a = pts.find(p => v(p) != null), b = pts[pts.length - 1];
+  if (!a || v(b) == null || b.time - a.time < 3.6e6) return null;
+  return (v(b) - v(a)) / ((b.time - a.time) / 864e5);
+}
+function goalTitle(g) {
+  return g.type === 'skill' ? `${ico('skill', g.skill)}${g.skill} level ${g.target}` : g.type === 'total' ? `Total level ${fmt(g.target)}` : g.type === 'gp' ? `${fmt(g.target)} GP` : g.type === 'sc' ? `${fmt(g.target)} slayer coins` : `${ico('item', g.item)}${fmt(g.target)} ${g.name}`;
+}
+function renderGoals() {
+  if (!save) return;
+  goalForm();
+  const goals = getGoals();
+  if (!goals.length) { $('goalBody').innerHTML = '<p class="muted">No goals yet. Add one above: a skill level, total level, an amount of gold or slayer coins, or a number of an item.</p>'; return; }
+  $('goalBody').innerHTML = `<table><thead><tr><th>Goal</th><th>Progress</th><th>Now</th><th class="num">Pace (last 7 days)</th><th class="num">Done in</th><th></th><th></th></tr></thead><tbody>${goals.map((g, i) => {
+    const n = goalNow(g), done = n.now >= n.goal;
+    const from = Math.min(g.from ?? 0, n.now), frac = done ? 1 : (n.now - from) / Math.max(1, n.goal - from);
+    const pace = done ? null : goalPace(g);
+    const left = n.goal - n.now, days = pace > 0 ? left / pace : null;
+    const unit = g.type === 'skill' ? ' XP' : g.type === 'total' ? ' levels' : '';
+    const plan = g.type === 'skill' ? `/wiki.html#/plan/skill/${g.skill}/${g.target}` : g.type === 'item' ? `/wiki.html#/plan/item/${g.item}/${Math.max(1, left)}` : g.type === 'gp' ? '/wiki.html#/money' : '';
+    return `<tr><td>${goalTitle(g)}</td><td><span class="gbar"><i style="width:${(Math.min(1, frac) * 100).toFixed(1)}%"></i></span> <span class="pct">${(Math.min(1, frac) * 100).toFixed(frac < 0.1 ? 1 : 0)}%${g.from != null && !done ? ' since set' : ''}</span></td>
+      <td>${n.show}${done ? ' <span class="tag good">done</span>' : `<div class="sub">${fmt(left)}${unit} to go</div>`}</td>
+      <td class="num">${done ? '' : pace == null ? '<span class="muted">no history</span>' : pace > 0 ? `<span class="rate">+${fmt(pace)}${unit}</span>/day` : '<span class="muted">not moving</span>'}</td>
+      <td class="num">${done ? '' : days ? (days < 1 ? dur(days * 24) : days.toFixed(days < 10 ? 1 : 0) + ' days') + `<div class="sub">${new Date(Date.now() + days * 864e5).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>` : '-'}</td>
+      <td>${plan && !done ? `<a href="${plan}">Plan</a>` : ''}</td><td><button class="x" data-gdel="${i}" title="Remove this goal">×</button></td></tr>`; }).join('')}</tbody></table>
+    <p class="note">Pace is real time, with time away included, so it shows when you'll actually get there if you keep playing like this week. Item goals have no pace yet (Logbook tracks bank value, not each item).</p>`;
+  document.querySelectorAll('[data-gdel]').forEach(b => b.onclick = () => { const g = getGoals(); g.splice(+b.dataset.gdel, 1); setGoals(g); renderGoals(); });
+}
 
 load();
 setInterval(load, 10000);

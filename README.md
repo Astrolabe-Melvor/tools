@@ -29,3 +29,7 @@ The wiki has a combat calculator (`lib/combat.js`, the same formulas as the tool
 ## License
 
 MIT. Not affiliated with Games by Malcs or Jagex. No game files are included.
+
+`Build-App.cmd` makes `dist\Astrolabe.exe`, the tools as a single file to double-click (no Node install needed). It keeps the game data and icons in `astrolabe-data\` next to itself and copies the icons from your game on first start.
+
+The tools also have Bank cleanup (what's safe to sell, sent to Course as sell steps), Goals (progress and an ETA at your recent pace) and History (charts from Logbook's half-hourly records).

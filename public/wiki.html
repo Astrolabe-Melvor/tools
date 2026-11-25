@@ -32,8 +32,8 @@
   .brand .mark { width:32px; height:32px; object-fit:contain; }
   .topnav a img { width:20px; height:20px; object-fit:contain; vertical-align:-5px; margin-right:5px; }
   .brand small { font:500 13px var(--body); color:var(--dim); }
-  .topnav { display:flex; gap:2px; }
-  .topnav a { color:var(--text); font:600 15px var(--head); padding:6px 10px; border-radius:3px; }
+  .topnav { display:flex; gap:2px; min-width:0; overflow:hidden; }
+  .topnav a { color:var(--text); font:600 15px var(--head); padding:6px 10px; border-radius:3px; white-space:nowrap; }
   .topnav a:hover { background:#222; text-decoration:none; }
   #q { flex:1; max-width:440px; margin-left:auto; height:34px; background:#1c1c1c; color:var(--text); border:1px solid #3c3c3c; border-radius:3px; padding:0 12px; font:inherit; }
   #results { position:fixed; top:56px; right:18px; width:min(560px, 94vw); max-height:70vh; overflow:auto; z-index:20; background:var(--panel); border:2px solid var(--rim); border-radius:4px; box-shadow:0 14px 40px #000c; }
@@ -168,6 +168,8 @@
   .plan { border:10px solid transparent; border-image:url(img/Assets/UI/Textures/Buttons/TEX_Button_Normal.webp) 20 fill / 10px stretch; padding:2px 10px; margin:8px 0; }
   .btn { border:8px solid transparent; border-image:url(img/Assets/UI/Textures/Buttons/TEX_ActionButton_Normal.webp) 20 fill / 8px stretch; background:none; color:#fff; font:700 15px var(--head); padding:0 10px; cursor:pointer; }
   .btn:hover { filter:brightness(1.15); }
+  .btn.alt { filter:saturate(.25) brightness(.9); } .btn.alt:hover { filter:saturate(.4); } .btn:disabled { opacity:.6; cursor:default; }
+  .course-send .btn { margin:0 6px 6px 0; }
   .lvbox summary { margin:6px 0; }
   .lvgrid { display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:4px 14px; margin:6px 0 10px; }
   .lvgrid label { display:flex; align-items:center; gap:4px; font-size:14px; } .lvgrid input { width:58px; margin-left:auto; }
@@ -1434,7 +1436,7 @@ function itemPlanHtml(id, qty, compact) {
   if (lvls.length) h += `<p>Levels needed first: ${lvls.map(([sk, l]) => `<a href="#/plan/skill/${sk}/${l}">${skillIcon(sk)}${sk} ${lvOf(L, sk)} → ${l}</a> <span class="sub">(${hrs(levelHours(sk, lvOf(L, sk), l, L))})</span>`).join(', ')}</p>`;
   h += `<ul class="ptree">${planTree(p)}</ul>`;
   const code = courseCode(p);
-  if (code) h += `<p><button class="btn" data-aq="${esc(code)}">Copy for Course</button> <span class="sub">Paste it in the game: Course (F6) &gt; Saved and shared &gt; Add steps from a pasted code. Needs Astrolabe Loader.</span></p>`;
+  if (code) h += courseButtons(code, `Get ${R(itemKey(p.id))?.n || p.id}`);
   const drops = dropSources(id, qty).slice(0, 4);
   if (drops.length) h += `<p class="note">Monster drops${MONEY ? '' : ' (time depends on your combat stats)'}: ${drops.map(d => `${link(d.k)} about ${fmt(d.kills)} kill${d.kills === 1 ? '' : 's'}`).join(', ')}.</p>`;
   if (!compact && p.alts?.length) h += `<p class="note">Other options: ${p.alts.map(a => `${srcText(a)} (${hrs(a.total)})`).join('; ')}</p>`;
@@ -1457,7 +1459,20 @@ function courseCode(p) {
   if (!steps.some(x => x.g === 'MoreItems')) return '';
   return 'CRS1:' + btoa(unescape(encodeURIComponent(JSON.stringify({ lanes: 1, loop: false, steps }))));
 }
+// "Send to Course" (local tools only) drops the code in the mod's inbox; Course adds the steps within a few seconds.
+function courseButtons(code, label) {
+  return `<p class="course-send">${STATIC ? '' : `<button class="btn" data-aqsend="${esc(code)}" data-label="${esc(label)}">Send to Course</button> `}<button class="btn${STATIC ? '' : ' alt'}" data-aq="${esc(code)}">Copy for Course</button>
+    <span class="sub">${STATIC ? 'Paste it in the game: Course (F6) &gt; Saved and shared &gt; Add steps from a pasted code.' : 'Send adds the steps to your queue in the running game (Course 0.9.2 or later). Copy gives a code to paste or share.'} Needs Astrolabe Loader.</span></p>`;
+}
 document.addEventListener('click', e => {
+  const s = e.target.closest && e.target.closest('[data-aqsend]');
+  if (s) {
+    s.disabled = true; s.textContent = 'Sending...';
+    fetch('/api/course/send', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Astrolabe': '1' }, body: JSON.stringify({ code: s.dataset.aqsend, label: s.dataset.label }) })
+      .then(r => r.json()).then(r => { if (r.error) throw new Error(r.error); s.textContent = 'Sent: check Course (F6)'; })
+      .catch(err => { s.disabled = false; s.textContent = 'Send to Course'; alert("Couldn't send: " + err.message); });
+    return;
+  }
   const b = e.target.closest && e.target.closest('[data-aq]');
   if (!b) return;
   navigator.clipboard.writeText(b.dataset.aq).then(() => { b.textContent = 'Copied: paste it in the game'; }, () => { prompt('Copy this code:', b.dataset.aq); });
@@ -1480,9 +1495,10 @@ function levelPlanHtml(skill, to, from, Lx) {
   const p = levelPlan(skill, from, to, L, chain);
   if (to <= from) return `<p class="good">Already level ${from}.</p>`;
   const gl = p.gate ? `<p class="mine">First ${gateText(p.gate)} (${hrs(p.gateH)}, included). It opens better ${esc(skill)} actions.</p>` : '';
+  const code = 'CRS1:' + btoa(unescape(encodeURIComponent(JSON.stringify({ lanes: 1, loop: false, steps: [{ a: `${skill}:*best`, g: 'Level', n: to, s: skill }] }))));
   return gl + `<p><b>${skillIcon(skill)}${esc(skill)} ${from} → ${to}: ${hrs(p.hours)}</b>${chain ? ' <span class="sub">including gathering ingredients</span>' : ''}${p.stuck ? ` <span class="bad">(no action available at level ${p.stuck})</span>` : ''}</p>
     <table class="wide"><tr><th>Levels</th><th>Do this</th><th class="num">XP/hr</th><th class="num">Time</th><th>Needs</th></tr>${p.segs.map(s => { const rk = Object.keys(DB.records).find(k => DB.records[k].id === s.r.id.split(':').slice(1).join(':') && DB.records[k].o === skill);
-      return `<tr><td class="num">${s.from} → ${s.to}</td><td>${rk ? link(rk) : esc(s.r.name)}${s.r.area ? `<div class="sub">${esc(s.r.area)}</div>` : ''}</td><td class="num">${fmt(Math.round(s.xph))}${chain && s.r.in.length && Math.round(s.xph) !== Math.round(s.r.xp) ? `<div class="sub">${fmt(Math.round(s.r.xp))} if ingredients are ready</div>` : ''}</td><td class="num">${hrs(s.hours)}</td><td class="sub">${s.r.in.map(([j, n]) => `${fmt(Math.round(n * s.hours))} ${link(itemKey(j))}`).join(', ')}${s.r.needs.length ? ' · equip ' + esc(s.r.needs.join(', ')) : ''}</td></tr>`; }).join('')}</table>`;
+      return `<tr><td class="num">${s.from} → ${s.to}</td><td>${rk ? link(rk) : esc(s.r.name)}${s.r.area ? `<div class="sub">${esc(s.r.area)}</div>` : ''}</td><td class="num">${fmt(Math.round(s.xph))}${chain && s.r.in.length && Math.round(s.xph) !== Math.round(s.r.xp) ? `<div class="sub">${fmt(Math.round(s.r.xp))} if ingredients are ready</div>` : ''}</td><td class="num">${hrs(s.hours)}</td><td class="sub">${s.r.in.map(([j, n]) => `${fmt(Math.round(n * s.hours))} ${link(itemKey(j))}`).join(', ')}${s.r.needs.length ? ' · equip ' + esc(s.r.needs.join(', ')) : ''}</td></tr>`; }).join('')}</table>` + courseButtons(code, `${skill} to ${to}`);
 }
 function wirePlan() {
   const go = () => { const n = $('planItem').value.trim().toLowerCase(); const r = Object.values(DB.records).find(r => r.t === 'Item' && r.n.toLowerCase() === n) || Object.values(DB.records).find(r => r.t === 'Item' && r.n.toLowerCase().includes(n)); if (r) location.hash = `#/plan/item/${r.id}/${Math.max(1, +$('planQty').value || 1)}`; };

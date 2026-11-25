@@ -65,6 +65,7 @@ function getCatalog() {
   // Wiki database, pre-serialized and gzipped once.
   const db = enrichDb(buildDb(data), data);
   wikiGz = zlib.gzipSync(JSON.stringify(db));
+  wikiDb = db;
   // The in-game planner's data (same shape as the wiki's plan.json); /api/plan lays your own rates over it.
   spyglass = require('./lib/spyglass').buildSpyglass(db);   // the in-game Spyglass lookup
   planBase = { gameVersion: db.gameVersion, items: {}, rates: {} };
@@ -74,6 +75,7 @@ function getCatalog() {
   return catalog;
 }
 let wikiGz = null;
+let wikiDb = null;
 let planBase = null;
 let combatData = null, bonusData = null, gearData = null, astroData = null;
 
@@ -307,8 +309,34 @@ const json = (res, code, body) => { res.writeHead(code, { 'Content-Type': 'appli
 
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.webp': 'image/webp', '.png': 'image/png', '.json': 'application/json' };
 
-http.createServer((req, res) => {
+// Course (the in-game queue mod) picks up share codes dropped in mods\Course\inbox and adds their steps.
+function courseInbox() {
+  const exe = findGameExe();
+  if (!exe) throw new Error("Couldn't find the game. Launch it once so the tools can find its folder.");
+  const course = path.join(path.dirname(exe), 'mods', 'Course');
+  if (!fs.existsSync(course)) throw new Error("Course isn't installed (no mods\\Course folder next to Melvor2.exe).");
+  const inbox = path.join(course, 'inbox');
+  fs.mkdirSync(inbox, { recursive: true });
+  return inbox;
+}
+function readBody(req, limit = 200_000) {
+  return new Promise((ok, fail) => { let b = ''; req.on('data', c => { b += c; if (b.length > limit) { fail(new Error('Too large')); req.destroy(); } }); req.on('end', () => ok(b)); req.on('error', fail); });
+}
+
+http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
+  // Writes need our own header: a web page elsewhere can't add it without the browser asking first, and we never allow that.
+  if (url.pathname === '/api/course/send') {
+    if (req.method !== 'POST' || req.headers['x-astrolabe'] !== '1') { json(res, 403, { error: 'Not allowed' }); return; }
+    try {
+      const { code, label } = JSON.parse(await readBody(req));
+      if (typeof code !== 'string' || !/^(CRS1|AQ1):[A-Za-z0-9+/=]+$/.test(code.trim())) throw new Error('That is not a Course code.');
+      const file = path.join(courseInbox(), `${Date.now()}.crs`);
+      fs.writeFileSync(file, (label ? `# ${String(label).replace(/[\r\n]/g, ' ').slice(0, 120)}\n` : '') + code.trim() + '\n');
+      json(res, 200, { ok: true });
+    } catch (e) { json(res, 400, { error: e.message }); }
+    return;
+  }
   if (url.pathname === '/api/wiki') {
     try {
       getCatalog();
@@ -406,6 +434,23 @@ http.createServer((req, res) => {
       }
       json(res, 200, { modified: save.modified, constellations: astroCache.data, gates: astroData.gates, obsGates: astroData.obsGates, obsChance: astroData.obsChance });
     } catch (e) { json(res, 500, { error: e.message, stack: e.stack }); }
+    return;
+  }
+  if (url.pathname === '/api/cleanup') {
+    try { getCatalog(); json(res, 200, require('./lib/cleanup').cleanup(wikiDb, getSave())); }
+    catch (e) { json(res, 500, { error: e.message, stack: e.stack }); }
+    return;
+  }
+  // Logbook (the in-game mod) writes a line every half hour of play to mods\Logbook\history\<character>.jsonl.
+  if (url.pathname === '/api/history') {
+    try {
+      const save = getSave(), exe = findGameExe();
+      const name = String(save.header?.name || '').replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').trim();
+      const file = exe && path.join(path.dirname(exe), 'mods', 'Logbook', 'history', name + '.jsonl');
+      const points = [];
+      if (file && fs.existsSync(file)) for (const line of fs.readFileSync(file, 'utf8').split('\n')) { try { if (line.trim()) points.push(JSON.parse(line)); } catch {} }
+      json(res, 200, { character: save.header?.name, found: !!(file && fs.existsSync(file)), points: points.slice(-6000) });
+    } catch (e) { json(res, 500, { error: e.message }); }
     return;
   }
   if (url.pathname === '/api/gear') {
