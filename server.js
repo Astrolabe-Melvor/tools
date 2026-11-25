@@ -424,6 +424,14 @@ http.createServer((req, res) => {
     }
     return;
   }
+  // The wiki's combat calculator runs lib/combat.js in the browser; changes.json is written by build-wiki.js.
+  if (url.pathname === '/combat.js' || url.pathname === '/changes.json') {
+    const f = url.pathname === '/combat.js' ? path.join(__dirname, 'lib', 'combat.js') : path.join(__dirname, 'data', 'changes.json');
+    if (!fs.existsSync(f)) { json(res, 200, []); return; }
+    res.writeHead(200, { 'Content-Type': TYPES[path.extname(f)], 'Cache-Control': 'no-store' });
+    fs.createReadStream(f).pipe(res);
+    return;
+  }
   // Game images (data\img, made by unpack-assets.js) are served under /img/.
   const IMG = path.join(__dirname, 'data', 'img');
   const isImg = url.pathname.startsWith('/img/');

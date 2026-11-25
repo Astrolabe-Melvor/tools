@@ -35,8 +35,20 @@ html = html
 if (!html.includes('MI2_STATIC = true') || html.includes('class="back"')) { console.error('wiki.html layout changed; update build-wiki.js'); process.exit(1); }
 
 fs.mkdirSync(out, { recursive: true });
+// changes.json: what changed since the last published build (read before wiki.json is replaced).
+{
+  const read = f => { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch { return null; } };
+  const prev = read(path.join(out, 'wiki.json'));
+  const history = require('./lib/changes').updateHistory(prev, db, read(path.join(out, 'changes.json')) || []);
+  fs.writeFileSync(path.join(out, 'changes.json'), JSON.stringify(history));
+  // The local tools' wiki reads the same history from data/.
+  fs.writeFileSync(path.join(__dirname, 'data', 'changes.json'), JSON.stringify(history));
+  console.log(`  changes.json ${history.length ? `${history.length} update(s), latest ${history[0].from} -> ${history[0].to}: +${history[0].add.length} -${history[0].rem.length} ~${history[0].chg.length}` : 'no changes recorded yet'}`);
+}
 fs.writeFileSync(path.join(out, 'index.html'), html);
 fs.writeFileSync(path.join(out, 'wiki.json'), JSON.stringify(db));
+// combat.js: the combat formulas, shared with the local tools, for the wiki's calculator.
+fs.copyFileSync(path.join(__dirname, 'lib', 'combat.js'), path.join(out, 'combat.js'));
 // spyglass.json: item sources, uses and unlocks for the in-game Spyglass lookup.
 fs.writeFileSync(path.join(out, 'spyglass.json'), JSON.stringify(require('./lib/spyglass').buildSpyglass(db)));
 // plan.json: the small slice the in-game Course planner downloads (item names and per-hour action rates).

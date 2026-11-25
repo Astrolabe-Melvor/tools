@@ -24,6 +24,8 @@ While the tools run, the in-game Course planner reads `http://127.0.0.1:5320/api
 
 `Publish-Wiki.cmd` builds the static wiki into a clone of `astrolabe-melvor.github.io` next to this folder and pushes it.
 
+The wiki has a combat calculator (`lib/combat.js`, the same formulas as the tools, run in the browser), gear compare, an Astrology map, hover cards and stat search. Each publish compares the new game data against the last published `wiki.json` and adds an entry to `changes.json`, shown on the wiki's Game changes page.
+
 ## License
 
 MIT. Not affiliated with Games by Malcs or Jagex. No game files are included.

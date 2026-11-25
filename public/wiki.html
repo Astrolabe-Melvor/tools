@@ -171,6 +171,73 @@
   .lvbox summary { margin:6px 0; }
   .lvgrid { display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:4px 14px; margin:6px 0 10px; }
   .lvgrid label { display:flex; align-items:center; gap:4px; font-size:14px; } .lvgrid input { width:58px; margin-left:auto; }
+  /* search */
+  #results a.all { justify-content:center; color:var(--link); font-weight:600; border-bottom:0; }
+  .hit-why { display:block; color:var(--gold); font-size:12px; line-height:1.2; }
+  /* hover cards */
+  #hcard { position:fixed; z-index:30; width:300px; max-width:calc(100vw - 20px); pointer-events:none; font-size:13.5px; border:12px solid transparent; border-image:url(img/Assets/UI/Textures/Tooltips/TEX_Tooltip_Dark_Large.webp) 30 fill / 12px stretch; padding:2px 4px 4px; box-shadow:0 10px 30px #000a; }
+  #hcard .hc-head { display:flex; gap:10px; align-items:center; margin-bottom:4px; }
+  #hcard .hc-head b { display:block; font:700 16px/1.2 var(--head); } #hcard .hc-head span { color:var(--dim); font-size:12.5px; }
+  #hcard table { width:100%; margin:4px 0; border:0; background:none; font-size:13px; }
+  #hcard th, #hcard td { border:0; border-top:1px solid #3a3a3a; padding:2px 4px; background:none !important; }
+  #hcard th { color:var(--dim); font:500 13px var(--body); }
+  #hcard .hc-extra { border-top:1px solid #3a3a3a; padding-top:4px; } #hcard .desc { margin:4px 0; font-size:13px; }
+  /* compare */
+  .cmp-wrap { overflow-x:auto; }
+  table.cmp { min-width:100%; } table.cmp thead th { vertical-align:top; min-width:170px; font:600 14px var(--body); }
+  table.cmp tbody th { white-space:nowrap; } table.cmp .cmp-sec th { background:#151515; text-align:center; }
+  td.best, table.cmp td.best { color:var(--gold); font-weight:600; }
+  /* calculator */
+  .calc-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(270px, 1fr)); gap:4px 14px; }
+  .calc h4 { margin:2px 0 8px; }
+  .calc-eq { display:grid; gap:5px; } .calc-eq label { display:flex; align-items:center; gap:8px; font-size:14px; }
+  .calc-eq label span { width:64px; color:var(--dim); flex:none; } .calc-eq select { flex:1; min-width:0; width:0; }
+  .calc-lv { grid-template-columns:repeat(auto-fill, minmax(118px, 1fr)); }
+  .calc-pr label { display:flex; align-items:center; gap:6px; font-size:13.5px; padding:1px 0; }
+  .calc-pr { max-height:320px; overflow:auto; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:6px; margin:6px 0 10px; }
+  .stat { background:#1b1b1b; border:1px solid #333; border-radius:3px; padding:6px 10px; }
+  .stat span { display:block; color:var(--dim); font-size:12.5px; } .stat b { font:700 20px var(--head); font-variant-numeric:tabular-nums; }
+  tr.dead td { color:var(--bad); }
+  /* astrology map */
+  .astro-ctl { display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; }
+  .sky { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:10px; margin:10px 0; padding:12px; border-radius:4px;
+    background:radial-gradient(900px 400px at 30% 0, #26345a66, transparent), #0b0f1a; border:2px solid #000; }
+  .con-head { display:flex; justify-content:space-between; align-items:baseline; gap:6px; padding:0 4px; }
+  .con-head img.ic { width:16px; height:16px; margin:0 0 0 2px; vertical-align:-3px; }
+  .con svg { width:100%; height:auto; display:block; }
+  .con line { stroke:#8aa4d855; stroke-width:1.2; }
+  .star circle { fill:#e8eeff; stroke:#9fb6ff; stroke-width:1.5; cursor:pointer; filter:drop-shadow(0 0 3px #9fb6ffaa); transition:opacity .15s; }
+  .star.major circle { fill:var(--gold); stroke:#fff3c4; filter:drop-shadow(0 0 5px #f0c348cc); }
+  .star.dim circle { opacity:.16; filter:none; }
+  .star.owned circle { stroke:var(--good); stroke-width:3; }
+  .star.sel circle, .star:focus-visible circle { stroke:#fff; stroke-width:3.5; } .star:focus { outline:none; }
+  .star:hover circle { stroke:#fff; }
+  #astroPick { position:sticky; bottom:8px; z-index:5; box-shadow:0 -6px 20px #000a; }
+  #astroPick .x { float:right; background:none; border:0; color:var(--dim); font-size:22px; line-height:1; cursor:pointer; padding:0 4px; } #astroPick .x:hover { color:#fff; }
+  table.chg td div { margin:1px 0; word-break:break-word; }
+
+  @media (max-width: 960px) {
+    .top { gap:8px; padding:0 8px; } #q { max-width:none; min-width:0; }
+    #results { top:58px; left:6px; right:6px; width:auto; max-height:75vh; }
+    .brand { font-size:18px; } .brand .mark { width:26px; height:26px; }
+    main { border-width:10px; padding:10px 10px 22px; }
+    .toc { display:block; }
+    .calc-grid { grid-template-columns:1fr; }
+    .stats { grid-template-columns:repeat(2, 1fr); }
+    .sky { grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); padding:6px; gap:4px; }
+    .linklist { columns:2 150px; }
+    .navbox th { width:auto; text-align:left; }
+    table.navbox, table.navbox tbody, table.navbox tr, table.navbox th, table.navbox td { display:block; }
+    input, select { font-size:16px; }   /* stops iOS zooming into fields */
+    .lead { font-size:15.5px; }
+  }
+  @media (max-width: 520px) {
+    .brand span, .brand { gap:6px; } .brand { font-size:0; } .brand .mark { width:30px; height:30px; }
+    .page-title { font-size:24px; } .page-title img { width:34px; height:34px; }
+    main table:not(.infobox table) { font-size:13.5px; }
+    th, td { padding:4px 6px; }
+  }
 </style>
 </head>
 <body>
@@ -287,7 +354,9 @@ function bonusTextRaw(b) {
 }
 function bonusesHtml(bon) {
   if (!bon) return '';
-  const rows = [...(bon.Component || []), ...(bon.Global || []).map(g => ({ StatGroup: g.StatGroup, Stat: { Name: g.StatGroup }, Value: g.Value }))];
+  if (bon.Modifiers !== undefined) return bonusesHtml(bon.Modifiers);   // food: { Component: which skill, Modifiers }
+  const arr = x => Array.isArray(x) ? x : [];
+  const rows = [...arr(bon.Component), ...arr(bon.Global).map(g => ({ StatGroup: g.StatGroup, Stat: { Name: g.StatGroup }, Value: g.Value }))];
   return rows.map(bonusText).join('');
 }
 function linkRef(v, field) {
@@ -320,9 +389,25 @@ function tree(v, field, depth = 0) {
 function reqText(list) {
   return (list || []).map(q => {
     const d = q.Data || {}; const t = bare(q.Type);
+    // Statistic requirements: "MiningItemGained" + Item Coal + 20000 -> "20,000 Coal gained from Mining".
+    const subj = ['Item', 'Course', 'Event', 'Dungeon', 'Master', 'Enemy', 'Animal', 'Currency'].find(f => d[f]);
+    const subjType = { Course: 'AgilityCourse', Event: 'AstrologyEvent', Master: 'SlayerMaster', Animal: R('RanchingAnimal:' + bare(d.Animal || '')) ? 'RanchingAnimal' : 'HuntingAnimal' };
+    const stat = x => { const m = bare(x || '').match(/^(Woodcutting|Fishing|Mining|Thieving|Farming|Hunting|Cooking|Firemaking|Ranching|Agility|Astrology|Bank|Combat|Slayer|Enemy|Smithing|Crafting|Fletching|Herblore|Runecrafting|Beastcrafting)?(.*)$/);
+      const what = words(m[2].replace(/Statistic$/, '')).toLowerCase(); return m[1] && !/^(Enemy|Bank|Combat|Slayer)$/.test(m[1]) ? `${what} (${m[1]})` : what; };
     const s = t === 'Level' ? `${linkRef(d.Component?.Entity, 'Entity')} level <b>${d.Level}</b>`
-      : t === 'ToolbeltItemEquipped' ? `${linkRef(d.Item, 'Item')} equipped`
+      : t === 'ToolbeltItemEquipped' || t === 'EquipmentItemEquipped' ? `${linkRef(d.Item, 'Item')} equipped`
       : t === 'ShopPurchase' ? `bought ${linkRef(d.ShopPurchase, 'ShopPurchase')}`
+      : t === 'QuestComplete' ? `finished ${linkRef(d.Quest, 'Quest')}`
+      : t === 'QuestStepActive' ? `on step ${(d.Step ?? 0) + 1} of ${linkRef(d.Quest, 'Quest')}`
+      : t === 'QuestTaskGoalActive' ? `on ${linkRef(d.Quest, 'Quest')} step ${(d.Step ?? 0) + 1}, task ${(d.Task ?? 0) + 1}`
+      : t === 'PetUnlocked' ? `found the pet ${linkRef(d.Pet, 'Pet')}`
+      : t === 'AgilityTechniqueLevel' ? `${linkRef(d.Technique, 'AgilityTechnique')} technique level <b>${d.Level}</b>`
+      : t === 'AgilityNumTechniquesLevel' ? `${d.NumTechniques} agility techniques at level <b>${d.Level}</b>`
+      : t === 'AstrologyMajorNodeUnlocked' ? `unlocked ${linkRef(d.MajorNode, 'AstrologyNode')}`
+      : t === 'HuntingMaxLevelAnimals' ? `${d.Count} hunting animal${d.Count > 1 ? 's' : ''} at journal level <b>${d.Level}</b>`
+      : t === 'EquipmentSlotEquipped' ? `something in the ${esc(words(bare(d.Slot)))} slot`
+      : t === 'ItemStatistic' && /ItemGained$/.test(bare(d.Statistic || '')) ? `<b>${fmt(d.Value)}</b> ${linkRef(d.Item, 'Item')} gained from ${esc(bare(d.Statistic).replace(/ItemGained$/, '') || 'actions')}`
+      : /Statistic$/.test(t) && d.Value != null ? `<b>${fmt(d.Value)}</b> ${esc(stat(d.Statistic))}${subj ? ': ' + linkRef(d[subj], subjType[subj] || subj) : ''}`
       : `${esc(words(t))}: ${tree(d, '', 5)}`;
     return (d.IsOr ? 'or ' : '') + s;
   }).join('<br>');
@@ -398,6 +483,12 @@ function markSide() {
 }
 
 // ---------- pages ----------
+// Equipment sets an item belongs to (the game moved this out of item descriptions in v0.11.7).
+let SETS_BY_ITEM = null;
+function setsOf(id) {
+  if (!SETS_BY_ITEM) { SETS_BY_ITEM = {}; for (const k of recsOf('EquipmentSetBonus')) for (const i of R(k).d.Items || []) (SETS_BY_ITEM[bare(i)] ||= []).push(k); }
+  return SETS_BY_ITEM[id] || [];
+}
 function pageItem(k) {
   const r = R(k), d = r.d, rel = DB.itemRel[r.id] || { sources: [], uses: [], requiredBy: [] };
   const caps = d.Capabilities || {};
@@ -417,6 +508,7 @@ function pageItem(k) {
     ['Sources', fmt(rel.sources.length)], ['Used in', fmt(rel.uses.length)],
     have !== null && ['In your bank', fmt(have)],
     ['Item ID', `<span class="muted">${esc(r.id)}</span>`],
+    comparable(r) && ['Compare', `<a href="${compareAddHref(k)}">Compare with other gear</a>`],
   ]);
   const srcNames = [...new Set(rel.sources.map(e => R(e.from)?.n).filter(Boolean))];
   h += `<p class="lead"><b>${esc(r.n)}</b> is ${itemKindPhrase(d)}. ${d.SellsFor ? `It sells for ${fmt(d.SellsFor.Quantity)} ${esc(R('Currency:' + bare(d.SellsFor.Currency))?.n || 'gold')}.` : 'It cannot be sold.'}
@@ -438,6 +530,11 @@ function pageItem(k) {
   }
   if (tool) h += `<h3>Toolbelt bonuses</h3><div class="meta">Fits ${linkRef(tool.FitsInSlot, 'ToolbeltSlotType')}${tool.ConsumesOn ? ' · uses charges' : ''}${tool.Requirements?.length ? ' · requires ' + reqText(tool.Requirements) : ''}</div>${bonusesHtml(tool.Bonuses) || '<p class="muted">No bonuses.</p>'}`;
   if (food) h += `<h3>Food</h3><p>Heals <b>${fmt(food.BaseHealing)}</b></p>${bonusesHtml(food.Bonuses)}`;
+  for (const sk of setsOf(r.id)) {
+    const set = R(sk).d;
+    h += `<h3>Set bonus: ${link(sk)}</h3><p class="meta">Pieces: ${set.Items.map(i => linkRef(i, 'Item')).join(', ')}</p>` +
+      (set.Bonuses || []).map(b => `<div class="meta">With <b>${b.ItemCount}</b> pieces</div>${bonusesHtml(b.Modifiers)}`).join('');
+  }
   h += `<h3>Where to get it</h3>${rel.sources.length ? relTable(rel.sources, 'From') : '<p class="bad">No source in the current game data. Probably unobtainable in this build.</p>'}`;
   h += `<h3>Uses</h3>${relTable(rel.uses, 'Used by')}`;
   if (rel.requiredBy.length) h += `<h3>Required by (${rel.requiredBy.length})</h3>${relTable(rel.requiredBy, 'Required by')}`;
@@ -708,15 +805,6 @@ function pageData() {
 
 // ---------- search ----------
 let INDEX = [], sel = 0;
-const RANK = { Item: 0, Enemy: 1, Quest: 2, CombatArea: 3, Dungeon: 3, ShopPurchase: 4 };
-function search(q) {
-  q = q.trim().toLowerCase();
-  if (!q) { $('results').hidden = true; return; }
-  const hits = INDEX.filter(x => x.s.includes(q)).sort((a, b) => (b.s.startsWith(q) - a.s.startsWith(q)) || ((RANK[a.t] ?? 9) - (RANK[b.t] ?? 9)) || a.s.length - b.s.length).slice(0, 40);
-  sel = 0;
-  $('results').innerHTML = hits.map((x, i) => `<a href="${href(x.k)}" class="${i ? '' : 'sel'}">${recIcon(x.k)}<span>${esc(x.n)}</span><span>${esc(typeName(x.t))}${x.o ? ', ' + x.o : ''}</span></a>`).join('') || '<a class="muted">No results</a>';
-  $('results').hidden = false;
-}
 $('q').oninput = e => search(e.target.value);
 $('q').onkeydown = e => {
   const links = [...$('results').querySelectorAll('a[href]')];
@@ -725,7 +813,7 @@ $('q').onkeydown = e => {
   if (e.key === 'Escape') { $('results').hidden = true; $('q').blur(); }
 };
 document.addEventListener('click', e => { if (!e.target.closest('#results') && e.target !== $('q')) $('results').hidden = true; });
-$('results').onclick = () => { $('results').hidden = true; $('q').value = ''; };
+$('results').onclick = e => { $('results').hidden = true; if (!e.target.closest('a.all')) $('q').value = ''; };
 document.addEventListener('keydown', e => { if (e.key === '/' && document.activeElement !== $('q')) { e.preventDefault(); $('q').focus(); } });
 
 // The public build (build-wiki.js) sets MI2_STATIC: data comes from wiki.json and there's no save.
@@ -738,7 +826,7 @@ async function init() {
   DB.skillIcons = {};
   for (const r of Object.values(DB.records)) if (/SkillNavigationOption$/.test(r.t) && r.d.Entity && r.d.Icon) DB.skillIcons[bare(r.d.Entity)] = r.d.Icon;
   for (const [k, r] of Object.entries(DB.records)) (DB.byId[r.id] ||= []).push(k);
-  INDEX = Object.entries(DB.records).filter(([, r]) => !/NavigationOption$|^EntityPage$|^MusicTrack$/.test(r.t)).map(([k, r]) => ({ k, n: r.n, t: r.t, o: r.o, s: (r.n + ' ' + r.id).toLowerCase() }));
+  buildIndex();
   if (!STATIC) try {
     const s = await fetch('/api/save').then(r => r.json());
     if (!s.error) { BANK = {}; for (const t of s.bank.tabs) for (const i of t.items) BANK[i.id] = (BANK[i.id] || 0) + i.count; SKILLS = s.skills; ASTRO = s.astrology || {}; }
@@ -793,6 +881,7 @@ function buildSide() {
   const box = (t, html) => `<div class="sbox"><h4>${t}</h4>${html}</div>`;
   $('side').innerHTML =
     box('Wiki', `<a href="#/">Main page</a><a href="#/plan">Planner</a><a href="#/guides">Guides</a><a href="#/guide/quests">Quest guide</a><a href="#/guide/completion">Completion guide</a><a href="#/skills">All skills</a><a href="#/money">Money making</a><a href="#/xp">Experience table</a><a href="#/guide/mechanics">Mechanics guide</a>`) +
+    box('Tools', `<a href="#/calc">Combat calculator</a><a href="#/compare">Gear compare</a><a href="#/astrology">Astrology map</a><a href="#/changes">Game changes</a>`) +
     SKILL_GROUPS.map(([g, list]) => box(g + ' skills', list.map(sk => `<a href="#/skill/${sk}">${skillIcon(sk)}${sk}${lv(sk)}</a>`).join(''))).join('') +
     box('Database', `<a href="#/items">Items</a><a href="#/equipment">Equipment</a><a href="#/monsters">Monsters and areas</a><a href="#/shop">Shop</a><a href="#/quests">Quests</a><a href="#/pets">Pets</a><a href="#/type/MagicSpell">Spells</a><a href="#/type/Prayer">Prayers</a><a href="#/type/EquipmentSetBonus">Equipment sets</a><a href="#/data">All game data</a>`);
 }
@@ -812,6 +901,7 @@ function pageHome() {
     <tr><th>Combat</th><td>${sl(SKILL_GROUPS[0][1])}</td></tr>
     <tr><th>Skills</th><td>${sl([...SKILL_GROUPS[1][1], ...SKILL_GROUPS[2][1], ...SKILL_GROUPS[3][1]])}</td></tr>
     <tr><th>Guides</th><td><a href="#/plan">Planner</a> <a href="#/guides">Skill training guides</a> <a href="#/guide/quests">Quest guide</a> <a href="#/guide/completion">Completion guide</a></td></tr>
+    <tr><th>Tools</th><td><a href="#/calc">Combat calculator</a> <a href="#/compare">Gear compare</a> <a href="#/astrology">Astrology map</a> <a href="#/changes">Game changes</a> <a href="#/plan">Planner</a></td></tr>
     <tr><th>Other</th><td><a href="#/quests">Quests</a> <a href="#/shop">Shop and upgrades</a> <a href="#/pets">Pets</a> <a href="#/money">Money making</a> <a href="#/xp">Experience table</a> <a href="#/guide/mechanics">Mechanics guide</a></td></tr>
     <tr><th>Reference</th><td><a href="#/items">Items</a> <a href="#/equipment">Equipment</a> <a href="#/monsters">Monsters</a> <a href="#/monsters">Combat areas and dungeons</a> <a href="#/type/MagicSpell">Spells</a> <a href="#/type/Prayer">Prayers</a> <a href="#/type/EquipmentSetBonus">Equipment sets</a></td></tr>
   </table>
@@ -892,7 +982,7 @@ function pageSkill(skill) {
       { k: 'gph', l: 'Gold/hr', num: 1, v: o => o.x?.gp ?? -1e12, h: o => o.x ? `<span class="${o.x.gp < 0 ? 'bad' : ''}">${fmt(o.x.gp)}</span>` : '' },
     ], rows, { sort: 'lvl' });
   }
-  if (skill === 'Astrology') h += astrologySections();
+  if (skill === 'Astrology') h += `<p class="note">See every node at once on the <a href="#/astrology">Astrology map</a>, filtered by skill or bonus.</p>` + astrologySections();
   if (grp === 'Combat') {
     h += `<h3>Training</h3><p>${esc(skill)} is trained by fighting. See <a href="#/monsters">monsters and combat areas</a> for every fight with what a kill is worth, and <a href="#/equipment">equipment</a> for gear by slot.</p>`;
     const extra = { Magic: 'MagicSpell', Prayer: 'Prayer', Slayer: 'SlayerMaster' }[skill];
@@ -990,6 +1080,7 @@ function pageEquipment(slot) {
       { k: 'req', l: 'Level', num: 1, v: req, h: k => { const q = (R(k).d.Capabilities['MelvorBase:Equipment'].Requirements || [])[0]; return q ? `${fmt(q.Data?.Level ?? '')} <span class="sub">${esc(bare(q.Data?.Component?.Entity || ''))}</span>` : ''; } },
       ...top.map(s => ({ k: s, l: statName(s), num: 1, v: k => statOf(k, s) })),
       { k: 'sell', l: 'Sells', num: 1, v: k => R(k).d.SellsFor?.Quantity ?? 0 },
+      { k: 'cmp', l: '', h: k => `<a href="${compareAddHref(k)}" class="sub">compare</a>` },
     ], keys, { sort: 'req' });
 }
 
@@ -1549,13 +1640,511 @@ function astrologySections() {
     <h3>Constellations</h3><table class="wide"><tr><th class="num">Lvl</th><th>Constellation</th><th>Boosts</th><th class="num">XP/hr</th><th class="num">All minor slots</th>${ASTRO ? '<th>You</th>' : ''}</tr>${A.cons.map(c => { const s = ASTRO?.[c.id]; return `<tr><td class="num">${c.level}</td><td><a href="#/r/AstrologyConstellation:${c.id}">${esc(c.name)}</a></td><td>${c.entities.map(skillLink).join(', ')}</td><td class="num">${fmt(Math.round(3600000 / c.interval * c.xp))}</td><td class="num">${hrs(slotSchedule(c).slice(-1)[0].hours)}</td>${ASTRO ? `<td class="sub">${s ? `${s.minor.length}/16 minor, ${s.major.length}/4 major` : '-'}</td>` : ''}</tr>`; }).join('')}</table>`;
 }
 
+// =====================================================================
+// Search, hover cards, gear compare, combat calculator, astrology map, game changes
+// =====================================================================
+const plain = h => String(h ?? '').replace(/<[^>]*>/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/\s+/g, ' ').trim();
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+const eqOf = r => r?.d?.Capabilities?.['MelvorBase:Equipment'];
+const toolOf = r => r?.d?.Capabilities?.['MelvorBase:Toolbelt'];
+const rateOf = r => r?.o ? DB.rates?.[r.o + ':' + r.id] : null;
+
+// ---------- search ----------
+// Each entry: name words, other names (id, type, skill) and what it does (stats and bonuses), scored by where a word matches.
+const TOOL_PAGES = [
+  ['#/calc', 'Combat calculator', 'tool calculator dps kill time hit chance max hit accuracy', 'Attack_32'],
+  ['#/compare', 'Gear compare', 'tool compare equipment gear stats side by side', 'Icons/Bank_64'],
+  ['#/astrology', 'Astrology map', 'tool astrology constellations nodes map star', 'Icons/Mastery_Icon_48'],
+  ['#/changes', 'Game changes', 'version update patch diff changes changelog new', 'Icons/GuideBook'],
+  ['#/plan', 'Planner', 'tool plan route fastest how to get', 'Icons/Completion_64'],
+  ['#/money', 'Money making', 'gold gp money profit', 'Icons/StatsIcon_64'],
+  ['#/xp', 'Experience table', 'xp experience levels table', 'Icons/StatsIcon_64'],
+  ['#/guides', 'Skill training guides', 'guide training', 'Icons/GuideBook'],
+  ['#/guide/quests', 'Quest guide', 'guide quests', 'Icons/GuideBook'],
+  ['#/guide/completion', 'Completion guide', 'guide completion 100%', 'Icons/GuideBook'],
+  ['#/guide/mechanics', 'Mechanics guide', 'guide mechanics formulas', 'Icons/GuideBook'],
+  ['#/equipment', 'Equipment', 'gear armour weapons slots', 'Icons/Bank_64'],
+  ['#/monsters', 'Monsters and areas', 'combat areas dungeons enemies', 'Attack_32'],
+  ['#/shop', 'Shop', 'buy upgrades', 'Icons/Shop_64'],
+];
+function statWords(r) {
+  const out = [];
+  const arr = x => Array.isArray(x) ? x : [];
+  const bon = b => { if (Array.isArray(b)) return b.forEach(bon); for (const m of arr(b?.Component)) out.push(words(m.Stat?.Name || ''), bare(m.LocalContext?.Component?.Entity || '')); for (const g of arr(b?.Global)) out.push(words(g.StatGroup || '')); };
+  const c = r.d?.Capabilities || {};
+  for (const cap of Object.values(c)) {
+    for (const s of cap?.Stats?.Stats || []) out.push(words(bare(s.Stat)));
+    if (cap?.Stats?.PowerRatings?.length) out.push('power rating');
+    if (cap?.Stats?.ProtectionRatings?.length) out.push('protection rating');
+    bon(cap?.Bonuses); bon(cap?.Bonuses?.Modifiers);
+  }
+  bon(r.d?.Bonuses); bon(r.d?.Provides?.Bonuses);
+  if (c['MelvorBase:Food']) out.push('food heals healing');
+  return out.join(' ').toLowerCase();
+}
+function buildIndex() {
+  INDEX = Object.entries(DB.records).filter(([, r]) => !/NavigationOption$|^EntityPage$|^MusicTrack$|^Legacy|^Custom|Background$/.test(r.t)).map(([k, r]) => ({
+    k, href: href(k), n: r.n, t: r.t, o: r.o, name: String(r.n).toLowerCase(),
+    alt: `${r.id} ${words(r.id)} ${typeName(r.t)} ${r.o || ''} ${r.t === 'Item' ? itemSlotLabel(r.d) : ''}`.toLowerCase(),
+    stat: r.t === 'Item' || r.t === 'ShopPurchase' || r.t === 'Prayer' || r.t === 'AstrologyNode' || r.t === 'Pet' ? statWords(r) : '',
+  }));
+  for (const sk of DB.entities || []) if (DB.skillIcons[sk]) INDEX.push({ k: null, href: '#/skill/' + sk, n: sk, t: 'Skill', icon: skillIcon(sk), name: sk.toLowerCase(), alt: 'skill', stat: '' });
+  for (const [h, n, alt, ic] of TOOL_PAGES) INDEX.push({ k: null, href: h, n, t: 'Page', icon: `<img class="ic" src="img/Assets/${ic}.webp" alt="">`, name: n.toLowerCase(), alt, stat: '' });
+}
+// Edit distance up to 1 (typos like "bronz", "dagegr").
+function near(a, b) {
+  if (Math.abs(a.length - b.length) > 1 || b.length < 4) return false;
+  let i = 0, j = 0, e = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) { i++; j++; continue; }
+    if (++e > 1) return false;
+    if (a.length > b.length) i++; else if (b.length > a.length) j++; else if (a[i + 1] === b[j] && a[i] === b[j + 1]) { i += 2; j += 2; } else { i++; j++; }
+  }
+  return e + (a.length - i) + (b.length - j) <= 1;
+}
+const SEARCH_RANK = { Page: -2, Skill: -1, Item: 0, Enemy: 1, Quest: 2, CombatArea: 3, Dungeon: 3, ShopPurchase: 4, Pet: 4 };
+function searchHits(q) {
+  const toks = q.toLowerCase().replace(/[+%]/g, ' ').split(/\s+/).filter(Boolean);
+  if (!toks.length) return [];
+  const full = toks.join(' ');
+  const hits = [];
+  for (const x of INDEX) {
+    let score = 0, why = '';
+    const nw = x.name.split(/[^a-z0-9']+/);
+    for (const t of toks) {
+      let s = 0;
+      if (nw.includes(t)) s = 90; else if (nw.some(w => w.startsWith(t))) s = 70; else if (x.name.includes(t)) s = 45;
+      else if (x.alt.includes(t)) s = 25;
+      else if (x.stat.includes(stem(t))) { s = 18; why = 'stat'; }
+      else if (t.length >= 4 && nw.some(w => near(w, t))) { s = 30; why = why || 'typo'; }
+      if (!s) { score = 0; break; }
+      score += s;
+    }
+    if (!score) continue;
+    if (x.name === full) score += 400; else if (x.name.startsWith(full)) score += 150;
+    hits.push({ x, score: score - (SEARCH_RANK[x.t] ?? 6) * 4 - x.name.length * 0.3, why });
+  }
+  return hits.sort((a, b) => b.score - a.score);
+}
+// What part of an item matched a stat search, shown next to the result.
+function statMatch(x, q) {
+  const r = x.k && R(x.k); if (!r) return '';
+  const toks = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const lines = [];
+  for (const cap of Object.values(r.d?.Capabilities || {})) {
+    for (const s of cap?.Stats?.Stats || []) lines.push(`${fmt(s.Value)} ${plain(statName(s.Stat))}`);
+    if (cap?.Bonuses) lines.push(...plain(bonusesHtml(cap.Bonuses)).split(/(?=[+-]\d)/));
+  }
+  if (r.d?.Bonuses) lines.push(...plain(bonusesHtml(r.d.Bonuses)).split(/(?=[+-]\d)/));
+  if (r.d?.Provides?.Bonuses) lines.push(...plain(bonusesHtml(r.d.Provides.Bonuses)).split(/(?=[+-]\d)/));
+  return lines.find(l => toks.some(t => l.toLowerCase().includes(stem(t)))) || '';
+}
+const clip = (t, n) => t.length > n ? t.slice(0, n - 1).trim() + '...' : t;
+const hitIcon = x => x.icon || (x.k ? recIcon(x.k) : '');
+const ONE = { Enemy: 'Monster', ShopPurchase: 'Shop purchase', CombatArea: 'Combat area', AstrologyNode: 'Astrology node', AstrologyConstellation: 'Constellation' };
+const hitType = x => x.t === 'Page' ? 'Page' : x.t === 'Skill' ? 'Skill' : esc(ONE[x.t] || words(x.t)) + (x.o ? ', ' + esc(x.o) : '');
+function search(q) {
+  q = q.trim();
+  if (!q) { $('results').hidden = true; return; }
+  const hits = searchHits(q);
+  sel = 0;
+  const shown = hits.slice(0, 14);
+  $('results').innerHTML = (shown.map((h, i) => { const m = h.why === 'stat' ? statMatch(h.x, q) : '';
+    return `<a href="${h.x.href}" class="${i ? '' : 'sel'}">${hitIcon(h.x)}<span>${esc(h.x.n)}${m ? `<span class="hit-why">${esc(clip(m, 70))}</span>` : ''}</span><span>${hitType(h.x)}</span></a>`; }).join('') ||
+    `<a class="muted">Nothing matches "${esc(q)}". Try fewer words or a stat like "stealth".</a>`) +
+    (hits.length ? `<a href="#/search/${encodeURIComponent(q)}" class="all">All ${hits.length.toLocaleString()} results for "${esc(q)}"</a>` : '');
+  $('results').hidden = false;
+}
+const SEARCH_GROUPS = [['all', 'All'], ['Item', 'Items'], ['Enemy', 'Monsters'], ['places', 'Areas'], ['actions', 'Actions'], ['Page', 'Pages and skills'], ['other', 'Other']];
+function searchGroup(x) {
+  if (x.t === 'Page' || x.t === 'Skill') return 'Page';
+  if (x.t === 'Item' || x.t === 'Enemy') return x.t;
+  if (/CombatArea|Dungeon|SlayerArea/.test(x.t)) return 'places';
+  if (x.o) return 'actions';
+  return 'other';
+}
+function pageSearch(arg) {
+  const [q, grp = 'all'] = arg.split('/~');
+  const hits = searchHits(q);
+  const counts = {}; for (const h of hits) counts[searchGroup(h.x)] = (counts[searchGroup(h.x)] || 0) + 1;
+  const list = hits.filter(h => grp === 'all' || searchGroup(h.x) === grp).slice(0, 400);
+  setTimeout(() => { $('q').value = q; }, 0);
+  return `<h2>Search: ${esc(q)}</h2><p class="lead">${hits.length.toLocaleString()} results. Names match first, then IDs and skills, then stats and bonuses: search "stealth", "double chance" or "fire damage" to find gear and upgrades by what they do.</p>` +
+    `<div class="chips">${SEARCH_GROUPS.filter(([k]) => k === 'all' || counts[k]).map(([k, l]) => `<a href="#/search/${encodeURIComponent(q)}${k === 'all' ? '' : '/~' + k}" class="${k === grp ? 'on' : ''}">${l} <span class="sub">${k === 'all' ? hits.length : counts[k]}</span></a>`).join('')}</div>` +
+    (list.length ? `<table class="wide"><thead><tr><th>Result</th><th>Matched</th></tr></thead><tbody>${list.map(h => `<tr><td><a href="${h.x.href}">${hitIcon(h.x)}${esc(h.x.n)}</a><div class="sub">${hitType(h.x)}</div></td><td class="sub">${h.why === 'stat' ? esc(clip(statMatch(h.x, q), 90)) : h.why === 'typo' ? 'similar spelling' : ''}</td></tr>`).join('')}</tbody></table>` : '<p class="muted">Nothing matches. Check the spelling, use fewer words, or search a stat or skill name.</p>') +
+    (hits.length > list.length && grp === 'all' ? `<p class="note">Showing the first ${list.length}. Pick a group above to narrow it down.</p>` : '');
+}
+
+// ---------- hover cards ----------
+function cardBody(k) {
+  const r = R(k); if (!r) return '';
+  const d = r.d || {}, rows = [];
+  const row = (a, b) => b !== '' && b != null && rows.push(`<tr><th>${a}</th><td>${b}</td></tr>`);
+  let extra = '';
+  if (r.t === 'Item') {
+    const eq = eqOf(r), tool = toolOf(r), food = d.Capabilities?.['MelvorBase:Food'];
+    row('Kind', esc(itemSlotLabel(d)));
+    row('Sells for', d.SellsFor ? fmt(d.SellsFor.Quantity) + ' GP' : 'cannot be sold');
+    const req = eq?.Requirements?.length ? eq.Requirements : tool?.Requirements;
+    if (req?.length) row('Requires', reqText(req));
+    for (const s of (eq?.Stats?.Stats || []).slice(0, 8)) row(plain(statName(s.Stat)), fmt(s.Stat === 'MelvorBase:AttackInterval' ? s.Value / 1000 : s.Value) + (s.Stat === 'MelvorBase:AttackInterval' ? 's' : ''));
+    for (const s of eq?.Stats?.PowerRatings || []) row(`Power (${esc(bare(s.DamageType))})`, fmt(s.Value));
+    for (const s of eq?.Stats?.ProtectionRatings || []) row(`Protection (${esc(bare(s.DamageType))})`, fmt(s.Value));
+    if (food) row('Heals', fmt(food.BaseHealing));
+    extra = bonusesHtml(eq?.Bonuses) + bonusesHtml(tool?.Bonuses) + bonusesHtml(food?.Bonuses);
+    const sets = setsOf(r.id); if (sets.length) row('Set', sets.map(x => esc(R(x).n)).join(', '));
+    if (!extra && d.Description) extra = `<div class="desc">${bb(d.Description)}</div>`;
+  } else if (r.t === 'Enemy') {
+    const lv = Object.fromEntries((d.Levels || []).map(x => [bare(x.Key), x.Value]));
+    const st = Object.fromEntries((d.Stats?.Stats || []).map(x => [bare(x.Stat), x.Value]));
+    row('Hitpoints', fmt((lv.Hitpoints || 1) * 10));
+    row('Levels', ['Attack', 'Strength', 'Defence', 'Ranged', 'Magic'].map(s => `${s.slice(0, 3)} ${lv[s] || 1}`).join(', '));
+    row('Attacks every', ((st.AttackInterval || 0) / 1000) + 's');
+    row('Damage', esc(words(bare(d.DamageType || 'Normal'))));
+    row('Worth per kill', fmt(Math.round(enemyValue(d.Drops))) + ' GP');
+    const where = (r.refBy || []).filter(x => /^(CombatArea|Dungeon):/.test(x)).slice(0, 3);
+    if (where.length) row('Found in', where.map(x => esc(R(x)?.n || x)).join(', '));
+  } else if (r.t === 'ShopPurchase') {
+    row('Costs', costText(d.Costs));
+    extra = bonusesHtml(d.Provides?.Bonuses) || (d.Description ? `<div class="desc">${bb(d.Description)}</div>` : '');
+  } else if (r.t === 'AstrologyNode') {
+    extra = bonusesHtml(d.Bonuses) + (d.Description ? `<div class="sub">${bb(d.Description)}</div>` : '');
+  } else if (r.t === 'CombatArea' || r.t === 'Dungeon') {
+    const en = areaEnemies(r).map(k => R(k)?.n).filter(Boolean);
+    row(r.t === 'Dungeon' ? 'Enemies' : 'Monsters', esc(en.slice(0, 6).join(', ')) + (en.length > 6 ? `, +${en.length - 6} more` : ''));
+    if (d.UnlockRequirements?.length) row('Requires', reqText(d.UnlockRequirements));
+  } else {
+    const rate = rateOf(r);
+    if (rate) { row('Level', fmt(rate.level)); row('Action time', fmt(rate.sec) + 's'); row('XP/hr (base)', fmt(Math.round(rate.xp))); if (rate.gp) row('GP/hr (base)', fmt(Math.round(rate.gp))); }
+    else if (r.o) { const l = levelReq(r, r.o); if (l) row('Level', fmt(l)); }
+    if (d.Description) extra = `<div class="desc">${bb(d.Description)}</div>`;
+    else if (d.Bonuses) extra = bonusesHtml(d.Bonuses);
+  }
+  if (!rows.length && !extra) return '';
+  return `<div class="hc-head">${recIcon(k, 'ic-l')}<div><b>${esc(r.n)}</b><span>${esc(ONE[r.t] || words(r.t))}${r.o ? ' · ' + esc(r.o) : ''}</span></div></div>${rows.length ? `<table>${rows.join('')}</table>` : ''}${extra ? `<div class="hc-extra">${extra}</div>` : ''}`;
+}
+const hoverCard = (() => {
+  let timer = 0, cur = null;
+  const el = document.createElement('div'); el.id = 'hcard'; el.hidden = true; document.body.append(el);
+  const hide = () => { clearTimeout(timer); cur = null; el.hidden = true; };
+  const canHover = () => matchMedia('(hover: hover) and (pointer: fine)').matches;
+  document.addEventListener('mouseover', e => {
+    const a = e.target.closest?.('a[href^="#/r/"]');
+    if (!a || a === cur) return;
+    if (a.closest('#results, #hcard, .infobox, .hc-off') || !canHover()) return;
+    hide(); cur = a;
+    timer = setTimeout(() => {
+      const html = cardBody(decodeURIComponent(a.getAttribute('href').slice(4)));
+      if (!html || cur !== a) return;
+      el.innerHTML = html; el.hidden = false;
+      const b = a.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
+      let x = Math.min(innerWidth - w - 10, Math.max(10, b.left)), y = b.bottom + 6;
+      if (y + h > innerHeight - 10) y = Math.max(10, b.top - h - 6);
+      el.style.left = x + 'px'; el.style.top = y + 'px';
+    }, 280);
+  });
+  document.addEventListener('mouseout', e => { const a = e.target.closest?.('a[href^="#/r/"]'); if (a && a === cur && !a.contains(e.relatedTarget)) hide(); });
+  addEventListener('scroll', hide, { passive: true });
+  addEventListener('hashchange', () => { hide(); $('results').hidden = true; });
+  return { hide };
+})();
+
+// ---------- gear compare ----------
+const CMP_KEY = 'astrolabe.compare';
+const compareSet = () => store.get(CMP_KEY, []).filter(k => R(k));
+const comparable = r => r?.t === 'Item' && (eqOf(r) || toolOf(r));
+function compareAddHref(k) { const s = compareSet().filter(x => x !== k); return '#/compare/' + [...s.slice(-3), k].map(encodeURIComponent).join(','); }
+// Bonus rows match on the stat and its context, so "+5% Woodcutting XP" lines up across items.
+function bonusRows(list) {
+  const rows = new Map();
+  list.forEach((b, i) => { for (const m of [...(b?.Component || []), ...(b?.Global || []).map(g => ({ StatGroup: g.StatGroup, Stat: { Name: g.StatGroup }, Value: g.Value }))]) {
+    const key = (m.Stat?.Name || m.StatGroup) + JSON.stringify(m.LocalContext || {}) + (m.Condition ? 'c' : '');
+    if (!rows.has(key)) rows.set(key, { label: plain(bonusText({ ...m, Value: 0 })).replace(/[+-]?0(\.0+)?(%|s\b)?\s*/, '').replace(/\(conditional\)|\(scales\)/g, '').trim() || words(m.Stat?.Name || ''), vals: [] });
+    rows.get(key).vals[i] = { v: m.Value, h: bonusText(m) };
+  } });
+  return [...rows.values()];
+}
+function pageCompare(arg) {
+  let keys = (arg || '').split(',').map(s => decodeURIComponent(s)).filter(k => R(k));
+  if (!arg && !keys.length) keys = compareSet();
+  keys = [...new Set(keys)].slice(0, 4);
+  store.set(CMP_KEY, keys);
+  const recs = keys.map(R);
+  const rm = k => '#/compare/' + keys.filter(x => x !== k).map(encodeURIComponent).join(',');
+  let h = `<h2>Gear compare</h2><p class="lead">Put up to four pieces of equipment or toolbelt gear side by side. The best value in each row is gold; numbers under the first item show the difference from it. Hover a name for its card, or use "Compare" on any item page.</p>`;
+  h += `<div class="calc"><label>Add an item <input id="cmpAdd" list="cmpList" placeholder="Type a name..." style="width:280px"></label> <span class="sub">${keys.length}/4</span>
+    <datalist id="cmpList">${recsOf('Item', comparable).map(k => `<option value="${esc(R(k).n)}">${esc(itemSlotLabel(R(k).d))}</option>`).join('')}</datalist>
+    ${keys.length ? ` <a href="#/compare/" class="sub" style="margin-left:10px" id="cmpClear">Clear all</a>` : ''}</div>`;
+  if (!keys.length) return h + `<p class="muted">Nothing picked yet. Start with an item above, or open the <a href="#/equipment">equipment list</a>.</p>`;
+  const lower = /Interval/;
+  const numRow = (label, vals, opt = {}) => {
+    if (vals.every(v => v == null || v === 0) && !opt.always) return '';
+    const nums = vals.map(v => v ?? 0);
+    const best = (opt.lowBest ? Math.min : Math.max)(...nums);
+    const tie = nums.every(n => n === nums[0]);
+    return `<tr><th>${label}</th>${nums.map((n, i) => `<td class="num${!tie && n === best ? ' best' : ''}">${opt.f ? opt.f(n) : fmt(n)}${i && !tie && n !== nums[0] ? ` <span class="${(opt.lowBest ? n < nums[0] : n > nums[0]) ? 'good' : 'bad'} sub">${n > nums[0] ? '+' : ''}${opt.f ? opt.f(n - nums[0]) : fmt(+(n - nums[0]).toFixed(3))}</span>` : ''}</td>`).join('')}</tr>`;
+  };
+  const statIds = [...new Set(recs.flatMap(r => (eqOf(r)?.Stats?.Stats || []).map(s => s.Stat)))];
+  const stat = (r, id) => (eqOf(r)?.Stats?.Stats || []).find(s => s.Stat === id)?.Value;
+  const rating = (r, f, dt) => (eqOf(r)?.Stats?.[f] || []).find(s => s.DamageType === dt)?.Value;
+  const dts = f => [...new Set(recs.flatMap(r => (eqOf(r)?.Stats?.[f] || []).map(s => s.DamageType)))];
+  const reqLv = r => Math.max(0, ...((eqOf(r)?.Requirements || toolOf(r)?.Requirements || []).map(q => q.Data?.Level || 0)));
+  h += `<div class="cmp-wrap"><table class="cmp"><thead><tr><th></th>${recs.map((r, i) => `<th>${link(keys[i])}<div class="sub">${esc(itemSlotLabel(r.d))} · <a href="${rm(keys[i])}">remove</a></div></th>`).join('')}</tr></thead><tbody>`;
+  h += `<tr><th>Requires</th>${recs.map(r => { const q = eqOf(r)?.Requirements?.length ? eqOf(r).Requirements : toolOf(r)?.Requirements; return `<td>${q?.length ? reqText(q) : '<span class="muted">nothing</span>'}</td>`; }).join('')}</tr>`;
+  const wp = recs.map(r => r.d.Capabilities?.['MelvorBase:Weapon']);
+  if (wp.some(Boolean)) h += `<tr><th>Weapon</th>${wp.map(w => `<td>${w ? `${esc(words(bare(w.Type)))}, ${esc(words(bare(w.DamageType || 'Normal')))}${(w.Elements || []).length ? ', ' + w.Elements.map(e => esc(bare(e))).join('/') : ''}` : '<span class="muted">-</span>'}</td>`).join('')}</tr>`;
+  for (const id of statIds) h += numRow(statName(id), recs.map(r => stat(r, id)), id === 'MelvorBase:AttackInterval' ? { lowBest: true, f: n => (n / 1000).toFixed(2).replace(/\.?0+$/, '') + 's' } : lower.test(id) ? { lowBest: true } : {});
+  for (const dt of dts('PowerRatings')) h += numRow(`Power rating (${esc(bare(dt))})`, recs.map(r => rating(r, 'PowerRatings', dt)));
+  for (const dt of dts('ProtectionRatings')) h += numRow(`Protection rating (${esc(bare(dt))})`, recs.map(r => rating(r, 'ProtectionRatings', dt)));
+  const br = bonusRows(recs.map(r => eqOf(r)?.Bonuses || toolOf(r)?.Bonuses));
+  if (br.length) h += `<tr class="cmp-sec"><th colspan="${recs.length + 1}">Bonuses</th></tr>` + br.map(b => { const nums = recs.map((_, i) => b.vals[i]?.v ?? 0); const best = Math.max(...nums), tie = nums.every(n => n === nums[0]);
+    return `<tr><th class="sub">${esc(b.label)}</th>${recs.map((_, i) => `<td class="${!tie && nums[i] === best && nums[i] ? 'best' : ''}">${b.vals[i] ? b.vals[i].h : '<span class="muted">-</span>'}</td>`).join('')}</tr>`; }).join('');
+  h += `<tr class="cmp-sec"><th colspan="${recs.length + 1}">Other</th></tr>`;
+  h += numRow('Sells for', recs.map(r => r.d.SellsFor?.Quantity), { always: true });
+  h += `<tr><th>Level needed</th>${recs.map(r => `<td class="num">${reqLv(r) || '-'}</td>`).join('')}</tr>`;
+  h += `</tbody></table></div>`;
+  const slot = r => bare(eqOf(r)?.Type || toolOf(r)?.FitsInSlot || '');
+  const same = recs.every(r => slot(r) === slot(recs[0]));
+  if (!same) h += `<p class="note">These fit different slots, so they don't compete with each other.</p>`;
+  return h;
+}
+function wireCompare() {
+  const inp = $('cmpAdd'); if (!inp) return;
+  const go = () => { const v = inp.value.trim().toLowerCase(); const k = recsOf('Item', comparable).find(k => R(k).n.toLowerCase() === v); if (k) location.hash = compareAddHref(k); };
+  inp.onchange = go; inp.onkeydown = e => { if (e.key === 'Enter') go(); };
+  if ($('cmpClear')) $('cmpClear').onclick = () => store.set(CMP_KEY, []);
+}
+
+// ---------- combat calculator ----------
+let CD = null;
+function combatData() {
+  if (CD || !window.Combat) return CD;
+  const Objects = {};
+  for (const r of Object.values(DB.records)) (Objects[r.t] ||= []).push(r.d);
+  return CD = Combat.buildCombatData({ Objects, EntityConfig: DB.entityConfig });
+}
+function loadCombatLib() {
+  if (window.Combat || document.querySelector('script[data-combat]')) return;
+  const s = document.createElement('script'); s.src = STATIC ? 'combat.js' : '/combat.js'; s.dataset.combat = 1;
+  s.onload = () => { if (location.hash.startsWith('#/calc')) route(true); };
+  s.onerror = () => { const m = $('calcOut'); if (m) m.innerHTML = '<p class="bad">The combat formulas failed to load. Reload the page.</p>'; };
+  document.head.append(s);
+}
+const CALC_KEY = 'astrolabe.calc';
+const CALC_SKILLS = ['Attack', 'Strength', 'Defence', 'Hitpoints', 'Ranged', 'Magic', 'Prayer', 'Slayer'];
+const CALC_SLOTS = [['Weapon', 'Weapon'], ['Offhand', 'Offhand'], ['Helmet', 'Helmet'], ['Torso', 'Torso'], ['Legs', 'Legs'], ['Gloves', 'Gloves'], ['Boots', 'Boots'], ['Cape', 'Cape'], ['Amulet', 'Amulet'], ['RingSlot1', 'Ring'], ['RingSlot2', 'Ring'], ['Ammo', 'Ammo']];
+// Combat toolbelt: a potion and two utility items (the second needs Slayer > Extended Toolbelt in the shop).
+const CALC_BELT = [['Potion', 'CombatPotion'], ['Utility', 'CombatUtility'], ['Utility 2', 'CombatUtility']];
+const beltItems = slot => recsOf('Item', r => bare(toolOf(r)?.FitsInSlot || '') === slot).sort((a, b) => R(a).n.localeCompare(R(b).n));
+const calcDefault = () => ({ lv: Object.fromEntries(CALC_SKILLS.map(s => [s, s === 'Hitpoints' ? 10 : 1])), eq: {}, belt: [], stance: '', spell: '', prayers: [], food: '', area: 'all' });
+function calcState() { const s = { ...calcDefault(), ...store.get(CALC_KEY, {}) }; s.belt = Array.isArray(s.belt) ? s.belt : []; s.lv = { ...calcDefault().lv, ...s.lv }; return s; }
+const eqLevel = r => Math.max(0, ...((eqOf(r)?.Requirements || []).map(q => q.Data?.Level || 0)));
+function slotItems(type) {
+  return recsOf('Item', r => bare(eqOf(r)?.Type || '') === type).sort((a, b) => eqLevel(R(a)) - eqLevel(R(b)) || R(a).n.localeCompare(R(b).n));
+}
+function calcStances(st) {
+  const w = R('Item:' + st.eq.Weapon)?.d.Capabilities?.['MelvorBase:Weapon'];
+  const wt = R('WeaponType:' + bare(w?.Type || 'Melee'));
+  return (wt?.d.Stances || ['MelvorBase:Stab', 'MelvorBase:Slash', 'MelvorBase:Crush', 'MelvorBase:Block']).map(bare);
+}
+function calcStyle(stance) { return bare(R('AttackStance:' + stance)?.d.CombatStyle || 'Melee'); }
+function pageCalc() {
+  loadCombatLib();
+  const st = calcState();
+  const stances = calcStances(st); if (!stances.includes(st.stance)) st.stance = stances[0];
+  const magic = calcStyle(st.stance) === 'Magic';
+  const opt = (v, l, cur) => `<option value="${esc(v)}"${v === cur ? ' selected' : ''}>${esc(l)}</option>`;
+  const levelOpt = k => { const l = eqLevel(R(k)); return R(k).n + (l ? ` (${l})` : ''); };
+  const spells = recsOf('MagicSpell').sort((a, b) => (levelReq(R(a), 'Magic') || 0) - (levelReq(R(b), 'Magic') || 0));
+  const foods = recsOf('Item', r => r.d.Capabilities?.['MelvorBase:Food']).sort((a, b) => R(a).d.Capabilities['MelvorBase:Food'].BaseHealing - R(b).d.Capabilities['MelvorBase:Food'].BaseHealing);
+  const prayers = recsOf('Prayer').sort((a, b) => (levelReq(R(a), 'Prayer') || 0) - (levelReq(R(b), 'Prayer') || 0));
+  const cats = [...new Set(recsOf('CombatArea').map(k => bare(R(k).d.Category || '')).filter(Boolean))];
+  let h = `<h2>${icon('res://Assets/Attack_32.png', 'ic-l')}Combat calculator</h2><p class="lead">Set your levels and gear to see your hit chance, kill time, XP, gold and damage taken against every monster and dungeon. It uses the game's own combat formulas and simulates each fight, like the Astrolabe Tools combat tab. Toolbelt potions count as always active. Shop upgrades, pets, mastery ranks and astrology bonuses are not counted here.</p>`;
+  h += `<div class="calc-grid"><div class="calc"><h4>Levels</h4><div class="lvgrid calc-lv">${CALC_SKILLS.map(s => `<label>${skillIcon(s)}${s}<input type="number" min="1" max="120" data-clv="${s}" value="${st.lv[s]}"></label>`).join('')}</div>${STATIC ? '' : '<button class="btn" id="calcMine" type="button">Use my save</button>'}</div>
+    <div class="calc"><h4>Equipment</h4><div class="calc-eq">${CALC_SLOTS.map(([slot, type]) => `<label><span>${esc(words(slot.replace(/Slot\d/, '')))}</span><select data-ceq="${slot}"><option value="">(empty)</option>${slotItems(type).map(k => opt(R(k).id, levelOpt(k), st.eq[slot])).join('')}</select></label>`).join('')}</div>
+    <h4 style="margin-top:12px">Toolbelt</h4><div class="calc-eq">${CALC_BELT.map(([label, slot], i) => `<label><span>${label}</span><select data-cbelt="${i}"><option value="">(empty)</option>${beltItems(slot).map(k => opt(R(k).id, R(k).n, st.belt[i])).join('')}</select></label>`).join('')}</div></div>
+    <div class="calc"><h4>Style</h4><div class="calc-eq">
+      <label><span>Stance</span><select id="cStance">${stances.map(s => opt(s, R('AttackStance:' + s)?.n || s, st.stance)).join('')}</select></label>
+      ${magic ? `<label><span>Spell</span><select id="cSpell"><option value="">(none)</option>${spells.map(k => opt(R(k).id, `${R(k).n} (${levelReq(R(k), 'Magic') || 1})`, st.spell)).join('')}</select></label>` : ''}
+      <label><span>Food</span><select id="cFood"><option value="">(none)</option>${foods.map(k => opt(R(k).id, `${R(k).n} (heals ${R(k).d.Capabilities['MelvorBase:Food'].BaseHealing})`, st.food)).join('')}</select></label>
+      <label><span>Fights in</span><select id="cArea">${opt('all', 'All areas', st.area)}${cats.map(c => opt(c, words(c), st.area)).join('')}${opt('dungeons', 'Dungeons', st.area)}</select></label>
+      </div><details class="calc-pr"><summary>Prayers (${st.prayers.length})</summary>${prayers.map(k => `<label><input type="checkbox" data-cpr="${R(k).id}"${st.prayers.includes(R(k).id) ? ' checked' : ''}>${recIcon(k)}${esc(R(k).n)} <span class="sub">${levelReq(R(k), 'Prayer') || 1}</span></label>`).join('')}</details>
+      <p><a href="#/calc" id="calcReset" class="sub">Reset everything</a></p></div></div>`;
+  h += `<div id="calcOut">${window.Combat ? '<p class="muted">Calculating...</p>' : '<p class="muted">Loading the combat formulas...</p>'}</div>`;
+  return h;
+}
+function calcSave(st) {
+  const lo = { id: 'Calc', name: 'Calculator', active: true, equipment: {}, stance: st.stance, prayers: st.prayers, spells: st.spell ? [st.spell] : [], toolbelt: st.belt.filter(Boolean) };
+  for (const [slot] of CALC_SLOTS) if (st.eq[slot]) lo.equipment[slot] = { item: st.eq[slot], qty: 1 };
+  return { skills: CALC_SKILLS.map(id => ({ id, level: +st.lv[id] || 1 })), combat: { activeLoadout: 'Calc', loadouts: { Calc: lo }, food: st.food ? [st.food] : [] }, bank: { wallet: { PrayerPoints: 1 } } };
+}
+let calcTimer = 0;
+function runCalc() {
+  const out = $('calcOut'); if (!out || !window.Combat) return;
+  const st = calcState();
+  const stances = calcStances(st); if (!stances.includes(st.stance)) st.stance = stances[0];
+  out.innerHTML = '<p class="muted">Calculating...</p>';
+  clearTimeout(calcTimer);
+  const key = JSON.stringify(st);
+  if (window._calc && window._calcKey === key) { out.innerHTML = calcResults(window._calc, st); wireFilters(); return; }
+  calcTimer = setTimeout(() => {
+    let res;
+    try { res = Combat.evaluateCombat(combatData(), calcSave(st), { sims: 120 }); } catch (e) { out.innerHTML = `<p class="bad">Calculation failed: ${esc(e.message)}</p>`; return; }
+    window._calcKey = key;
+    if (res.error) { out.innerHTML = `<p class="bad">${esc(res.error)}</p>`; return; }
+    window._calc = res; out.innerHTML = calcResults(res, st); wireFilters();
+  }, 30);
+}
+const secs = s => !isFinite(s) ? '<span class="bad">never</span>' : s < 60 ? s.toFixed(1) + 's' : (s / 60).toFixed(1) + ' min';
+function calcResults(res, st) {
+  const p = res.player;
+  const big = (l, v) => `<div class="stat"><span>${l}</span><b>${v}</b></div>`;
+  let h = `<h3>Your stats</h3><div class="stats">${big('Max hit', fmt(p.maxHit))}${big('Min hit', fmt(p.minHit))}${big('Accuracy', fmt(p.accuracy))}${big('Attack speed', (p.interval / 1000).toFixed(2) + 's')}${big('Hitpoints', fmt(p.hp))}${big('Armour', fmt(p.armour))}${big('Melee evasion', fmt(p.evasion.melee))}${big('Ranged evasion', fmt(p.evasion.ranged))}${big('Magic evasion', fmt(p.evasion.magic))}</div>`;
+  const warn = [...p.notes, p.style === 'Magic' && !p.spell ? 'pick a spell to attack with magic' : ''].filter(Boolean);
+  if (warn.length) h += `<p class="bad">${esc(warn.join('; '))}</p>`;
+  let rows = res.rows.filter(r => r.kind === (st.area === 'dungeons' ? 'dungeon' : 'enemy') && (st.area === 'all' || st.area === 'dungeons' || r.category === st.area));
+  if (st.area === 'all') rows = res.rows;
+  const xp = r => r.combatXpPerHour || 0;
+  h += `<h3>${st.area === 'dungeons' ? 'Dungeons' : 'Monsters'} (${rows.length})</h3><p class="note">Kill time includes the 3s respawn. Damage taken assumes you auto-eat and never die; "worst hit" is the most one enemy turn can do. Rows in red can't be killed with this setup.</p>` + filterBox('calc', 'Filter by monster or area...') + dataTable('calc', [
+    { k: 'n', l: 'Monster', v: r => r.name, h: r => `${r.kind === 'dungeon' ? link('Dungeon:' + r.id) : link('Enemy:' + r.enemy)}<div class="sub">${esc(r.area)}</div>` },
+    { k: 'hit', l: 'Your hit', num: 1, v: r => r.hitChance, h: r => pct(r.hitChance) },
+    { k: 'ehit', l: 'Its hit', num: 1, v: r => r.enemyHitChance ?? 0, h: r => r.enemyHitChance == null ? '' : pct(r.enemyHitChance) },
+    { k: 'kill', l: 'Kill time', num: 1, v: r => r.stuck ? 1e9 : r.killSeconds, h: r => r.stuck ? '<span class="bad">no kill</span>' : secs(r.killSeconds) },
+    { k: 'xp', l: 'Combat XP/hr', num: 1, v: xp, h: r => fmt(Math.round(xp(r))) },
+    { k: 'gp', l: 'GP/hr', num: 1, v: r => r.gpPerHour, h: r => fmt(Math.round(r.gpPerHour)) },
+    { k: 'dmg', l: 'Damage taken/hr', num: 1, v: r => r.takenPerHour, h: r => fmt(Math.round(r.takenPerHour)) + (r.foodPerHour != null ? `<div class="sub">${fmt(Math.ceil(r.foodPerHour))} food</div>` : '') },
+    { k: 'worst', l: 'Worst hit', num: 1, v: r => r.worstTurn, h: r => `<span class="${p.hp && r.worstTurn >= p.hp ? 'bad' : ''}">${fmt(r.worstTurn)}</span>` },
+  ], rows, { sort: 'xp', dir: -1, rowAttr: r => r.stuck ? 'class="dead"' : '' });
+  return h;
+}
+function wireCalc() {
+  if (!$('calcOut')) return;
+  const save = st => { store.set(CALC_KEY, st); };
+  const st = calcState();
+  document.querySelectorAll('[data-clv]').forEach(i => i.onchange = () => { st.lv[i.dataset.clv] = Math.max(1, Math.min(120, +i.value || 1)); save(st); runCalc(); });
+  document.querySelectorAll('[data-cbelt]').forEach(s => s.onchange = () => { st.belt[+s.dataset.cbelt] = s.value; save(st); runCalc(); });
+  document.querySelectorAll('[data-ceq]').forEach(s => s.onchange = () => { st.eq[s.dataset.ceq] = s.value; save(st); s.dataset.ceq === 'Weapon' ? route(true) : runCalc(); });
+  const on = (id, f) => { if ($(id)) $(id).onchange = () => { f($(id).value); save(st); id === 'cStance' ? route(true) : runCalc(); }; };
+  on('cStance', v => st.stance = v); on('cSpell', v => st.spell = v); on('cFood', v => st.food = v); on('cArea', v => st.area = v);
+  document.querySelectorAll('[data-cpr]').forEach(c => c.onchange = () => { st.prayers = [...document.querySelectorAll('[data-cpr]:checked')].map(x => x.dataset.cpr); save(st); document.querySelector('.calc-pr summary').textContent = `Prayers (${st.prayers.length})`; runCalc(); });
+  if ($('calcReset')) $('calcReset').onclick = e => { e.preventDefault(); store.set(CALC_KEY, calcDefault()); route(true); };
+  if ($('calcMine')) $('calcMine').onclick = async () => {
+    try {
+      const s = await fetch('/api/save').then(r => r.json());
+      if (s.error) throw new Error(s.error);
+      for (const x of s.skills || []) if (CALC_SKILLS.includes(x.id)) st.lv[x.id] = x.level;
+      const lo = s.combat?.loadouts?.[s.combat.activeLoadout] || Object.values(s.combat?.loadouts || {})[0];
+      if (lo) {
+        st.eq = {}; for (const [slot, e] of Object.entries(lo.equipment || {})) if (e.qty >= 0 && R('Item:' + e.item)) st.eq[slot] = e.item;
+        const wt = bare(R('Item:' + st.eq.Weapon)?.d.Capabilities?.['MelvorBase:Weapon']?.Type || 'Melee');
+        st.belt = ['', '', ''];
+        for (const t of lo.toolbelt || []) { const slot = bare(toolOf(R('Item:' + t))?.FitsInSlot || '');
+          if (slot === 'CombatPotion') st.belt[0] = t; else if (slot === 'CombatUtility') st.belt[st.belt[1] ? 2 : 1] = t; }
+        st.stance = lo.stance || lo.stanceMap?.[wt] || ''; st.prayers = lo.prayers || []; st.spell = (lo.spells || []).slice(-1)[0] || '';
+      }
+      st.food = (s.combat?.food || []).find(f => R('Item:' + f)?.d.Capabilities?.['MelvorBase:Food']) || '';
+      save(st); route(true);
+    } catch (e) { $('calcOut').innerHTML = `<p class="bad">Couldn't read your save: ${esc(e.message)}</p>`; }
+  };
+  runCalc();
+}
+
+// ---------- astrology map ----------
+function nodeSkills(con, n) {
+  const s = new Set();
+  for (const m of n.bonuses?.Component || []) { const e = bare(m.LocalContext?.Component?.Entity || ''); if (e && DB.skillIcons[e]) s.add(e); }
+  return s.size ? [...s] : con.entities;
+}
+const nodeText = n => plain(nodeBonus(n)).toLowerCase();
+// "double" finds "doubling", "preserve" finds "preservation".
+const stem = w => w.length > 4 ? w.replace(/(ing|ion|es|e|s)$/, '') : w;
+const textHas = (text, q) => q.toLowerCase().split(/\s+/).filter(Boolean).every(w => text.includes(stem(w)));
+function astroFilter() { return store.get('astrolabe.astro', { skill: 'all', q: '' }); }
+function pageAstroMap() {
+  const A = DB.astro;
+  if (!A) return '<h2>Astrology map</h2><p class="muted">No astrology data in this build.</p>';
+  const f = astroFilter();
+  const skills = [...new Set(A.cons.flatMap(c => [...c.minors, ...c.majors].flatMap(n => nodeSkills(c, n))))].sort();
+  const match = (c, n) => (f.skill === 'all' || nodeSkills(c, n).includes(f.skill)) && (!f.q || textHas(nodeText(n), f.q) || n.name.toLowerCase().includes(f.q.toLowerCase()));
+  const filtering = f.skill !== 'all' || f.q;
+  let h = `<h2>${skillIcon('Astrology', 'ic-l')}Astrology map</h2><p class="lead">All ${A.cons.length} constellations and their ${A.cons.reduce((s, c) => s + c.minors.length + c.majors.length, 0)} nodes on one page. Pick a skill or search a bonus ("double", "XP", "stealth") to light up every node that gives it; click a star for its details. The outer ring is the minor nodes, the inner stars are the majors.</p>`;
+  h += `<div class="calc astro-ctl"><label>Skill <select id="aSkill"><option value="all">Any skill</option>${skills.map(s => `<option${s === f.skill ? ' selected' : ''}>${s}</option>`).join('')}</select></label>
+    <label>Bonus <input id="aQ" value="${esc(f.q)}" placeholder="e.g. double, xp, preservation" style="width:230px"></label>${filtering ? ' <a href="javascript:void(0)" id="aClear" class="sub">clear</a>' : ''}</div>`;
+  let hits = [];
+  h += `<div class="sky">${A.cons.map(c => {
+    const mine = ASTRO?.[c.id];
+    const minors = c.minors.slice().sort((a, b) => a.id.localeCompare(b.id)), majors = c.majors;
+    const R0 = 92, R1 = 40, cx = 120, cy = 120;
+    const pos = [], lines = [];
+    minors.forEach((n, i) => { const a = (i / minors.length) * Math.PI * 2 - Math.PI / 2 + Math.PI / minors.length; pos.push({ n, x: cx + R0 * Math.cos(a), y: cy + R0 * Math.sin(a), major: false }); });
+    majors.forEach((n, i) => { const a = (i / majors.length) * Math.PI * 2 - Math.PI / 4; pos.push({ n, x: cx + R1 * Math.cos(a), y: cy + R1 * Math.sin(a), major: true }); });
+    for (let i = 0; i < minors.length; i++) lines.push([pos[i], pos[(i + 1) % minors.length]]);
+    majors.forEach((_, j) => { const m = pos[minors.length + j]; const q = Math.floor(minors.length / majors.length); for (let i = 0; i < q; i++) if (i === 0 || i === q - 1) lines.push([m, pos[(j * q + i + 1) % minors.length]]); });
+    const stars = pos.map(p => {
+      const on = !filtering || match(c, p.n); if (filtering && on) hits.push({ c, n: p.n, major: p.major });
+      const owned = mine && (p.major ? mine.major : mine.minor)?.includes(p.n.id);
+      return `<g class="star${p.major ? ' major' : ''}${on ? '' : ' dim'}${owned ? ' owned' : ''}" data-node="${c.id}|${p.n.id}" tabindex="0"><title>${esc((p.major ? '' : 'Minor ') + p.n.name)}: ${esc(plain(nodeBonus(p.n)))}</title><circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${p.major ? 9 : 5.5}"/></g>`;
+    }).join('');
+    const art = DB.images['Assets/Skills/Astrology/' + c.id + '.png'];
+    return `<div class="con"><div class="con-head"><a href="#/r/AstrologyConstellation:${c.id}"><b>${esc(c.name)}</b></a><span class="sub">Level ${c.level} · ${c.entities.map(s => skillIcon(s)).join('')}</span></div>
+      <svg viewBox="0 0 240 240" role="img" aria-label="${esc(c.name)} nodes">${art ? `<image href="${imgBase()}${art}" x="70" y="70" width="100" height="100" opacity=".13"/>` : ''}${lines.map(([a, b]) => `<line x1="${a.x.toFixed(1)}" y1="${a.y.toFixed(1)}" x2="${b.x.toFixed(1)}" y2="${b.y.toFixed(1)}"/>`).join('')}${stars}</svg>
+      ${mine ? `<div class="sub" style="text-align:center">You: ${mine.minor.length}/${c.minors.length} minor, ${mine.major.length}/${c.majors.length} major</div>` : ''}</div>`;
+  }).join('')}</div>`;
+  h += `<div id="astroPick" class="calc" hidden></div>`;
+  if (filtering) h += `<h3>Matching nodes (${hits.length})</h3>` + (hits.length ? `<table class="wide"><tr><th>Constellation</th><th>Node</th><th>Gives</th><th>Needs</th></tr>${hits.map(x => `<tr><td><a href="#/r/AstrologyConstellation:${x.c.id}">${esc(x.c.name)}</a> <span class="sub">${x.c.level}</span></td><td>${x.major ? '<b class="gold">' + esc(x.n.name) + '</b>' : 'Minor ' + esc(x.n.name)}</td><td>${nodeBonus(x.n)}</td><td>${nodeReq(x.n)}</td></tr>`).join('')}</table>` : '<p class="muted">No node gives that. Try a shorter word.</p>');
+  return h;
+}
+function wireAstroMap() {
+  if (!$('aSkill')) return;
+  const f = astroFilter();
+  $('aSkill').onchange = () => { f.skill = $('aSkill').value; store.set('astrolabe.astro', f); route(true); };
+  let t = 0; $('aQ').oninput = () => { clearTimeout(t); t = setTimeout(() => { f.q = $('aQ').value.trim(); store.set('astrolabe.astro', f); route(true); $('aQ').focus(); $('aQ').setSelectionRange(99, 99); }, 350); };
+  if ($('aClear')) $('aClear').onclick = () => { store.set('astrolabe.astro', { skill: 'all', q: '' }); route(true); };
+  const show = g => {
+    const [cid, nid] = g.dataset.node.split('|');
+    const c = DB.astro.cons.find(x => x.id === cid), n = [...c.minors, ...c.majors].find(x => x.id === nid), major = c.majors.includes(n);
+    const gates = DB.astro.gates?.[n.id] || [];
+    const box = $('astroPick'); box.hidden = false;
+    box.innerHTML = `<button class="x" type="button" aria-label="Close">×</button><b>${esc(c.name)}: ${major ? esc(n.name) : 'Minor ' + esc(n.name)}</b> <span class="sub">${major ? 'major node' : 'minor node'}</span>${nodeBonus(n)}<div class="sub">Needs: ${nodeReq(n)}</div>${gates.length ? `<div class="good">Unlocks ${gates.map(link).join(', ')}</div>` : ''}<div class="sub"><a href="#/r/AstrologyConstellation:${c.id}">${esc(c.name)} page</a></div>`;
+    box.querySelector('.x').onclick = () => { box.hidden = true; g.classList.remove('sel'); };
+    document.querySelectorAll('.star.sel').forEach(x => x.classList.remove('sel')); g.classList.add('sel');
+    if (box.getBoundingClientRect().top > innerHeight) box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  };
+  document.querySelectorAll('.star').forEach(g => { g.onclick = () => show(g); g.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(g); } }; });
+}
+
+// ---------- game changes ----------
+let CHANGES = null;
+function loadChanges() {
+  if (CHANGES) return;
+  CHANGES = 'loading';
+  fetch(STATIC ? 'changes.json' : '/changes.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []).then(x => { CHANGES = Array.isArray(x) ? x : []; if (location.hash.startsWith('#/changes')) route(true); });
+}
+function pageChanges(arg) {
+  loadChanges();
+  let h = `<h2>Game changes</h2><p class="lead">What changed in the game data between wiki builds: new and removed items, monsters, actions and everything else, plus every changed number. A new entry appears whenever the wiki is rebuilt after a game update.</p>`;
+  if (CHANGES === 'loading' || !CHANGES) return h + '<p class="muted">Loading...</p>';
+  if (!CHANGES.length) return h + `<p class="muted">No changes recorded yet. The first entry appears after the next game update${DB.gameVersion ? ` (this build is ${esc(DB.gameVersion)})` : ''}.</p>`;
+  const i = Math.max(0, Math.min(CHANGES.length - 1, +(arg || 0) || 0)), c = CHANGES[i];
+  const label = x => `${x.from === x.to ? esc(x.to) + ' (data update)' : `${esc(x.from || '?')} to ${esc(x.to)}`}, ${esc(x.built)}`;
+  if (CHANGES.length > 1) h += `<div class="chips">${CHANGES.map((x, j) => `<a href="#/changes/${j}" class="${j === i ? 'on' : ''}">${label(x)}</a>`).join('')}</div>`;
+  const nameOf = x => R(x.k) ? link(x.k) : esc(x.n);
+  const byType = list => { const m = new Map(); for (const x of list) (m.get(x.t) || m.set(x.t, []).get(x.t)).push(x); return [...m].sort((a, b) => b[1].length - a[1].length); };
+  h += `<p>${label(c)}: <b class="good">${c.add.length} added</b>, <b class="bad">${c.rem.length} removed</b>, <b class="gold">${c.chg.length} changed</b>.</p>`;
+  if (c.add.length) h += `<h3>Added</h3>` + byType(c.add).map(([t, l]) => `<h4>${esc(typeName(t))} (${l.length})</h4><ul class="linklist">${l.map(x => `<li>${nameOf(x)}</li>`).join('')}</ul>`).join('');
+  if (c.rem.length) h += `<h3>Removed</h3>` + byType(c.rem).map(([t, l]) => `<h4>${esc(typeName(t))} (${l.length})</h4><ul class="linklist">${l.map(x => `<li>${esc(x.n)}</li>`).join('')}</ul>`).join('');
+  const val = (v, cls) => v == null ? '<span class="muted">none</span>' : `<span class="${cls}">${esc(v)}</span>`;
+  if (c.chg.length) h += `<h3>Changed</h3>` + filterBox('chg', 'Filter by name or field...') + `<table class="wide chg"><thead><tr><th>What</th><th>Changes (was → now)</th></tr></thead><tbody>${c.chg.map(x => `<tr><td>${nameOf(x)}<div class="sub">${esc(ONE[x.t] || words(x.t))}</div></td><td>${x.f.map(f => `<div><span class="sub">${esc(f.p)}</span> ${val(f.a, 'bad')} → ${val(f.b, 'good')}</div>`).join('')}${x.more ? `<div class="sub">and ${x.more} more fields</div>` : ''}</td></tr>`).join('')}</tbody></table>`;
+  return h;
+}
+
 // ---- routing ----
 function route(keepScroll) {
   const [, kind, ...rest] = decodeURIComponent(location.hash.slice(1) || '/').split('/');
   const arg = rest.join('/');
   const pages = { r: () => pageRecord(arg), skill: () => pageSkill(arg), skills: pageSkills, type: () => pageType(arg), gear: () => pageGear(arg), guide: () => rest[0] === 'skill' ? pageSkillGuide(rest[1]) : rest[0] === 'quests' ? pageQuestGuide() : rest[0] === 'completion' ? pageCompletion() : pageGuide(arg), data: pageData,
     items: () => pageItems(arg || 'all'), equipment: () => pageEquipment(arg), monsters: pageMonsters, areas: pageMonsters, shop: pageShop, quests: pageQuests, pets: pagePets, money: () => pageMoney(arg || 'all'), xp: pageXp, guides: pageGuides,
-    plan: () => pagePlan(rest[0], rest[1], rest[2]) };
+    plan: () => pagePlan(rest[0], rest[1], rest[2]), search: () => pageSearch(arg), compare: () => pageCompare(arg), calc: pageCalc, astrology: pageAstroMap, changes: () => pageChanges(arg) };
   const html = (pages[kind] || pageHome)();
   if (!html) return;
   $('main').innerHTML = html;
@@ -1565,9 +2154,14 @@ function route(keepScroll) {
   if (kind) addToc(); markSide(); wireFilters(); document.body.classList.remove('menu');
   if (kind === 'skill') wireSkillPage(arg);
   if (kind === 'plan' || kind === 'guide') wirePlan();
+  if (kind === 'compare') wireCompare();
+  if (kind === 'calc') wireCalc();
+  if (kind === 'astrology') wireAstroMap();
+  hoverCard.hide();
   if ($('moneyLvl')) $('moneyLvl').onchange = () => { window._moneyLvl = $('moneyLvl').value; route(true); };
   const r = kind === 'r' && R(arg);
-  document.title = (r ? r.n + ' | ' : kind === 'skill' || kind === 'gear' ? arg + ' | ' : '') + 'Astrolabe Wiki';
+  const TITLES = { calc: 'Combat calculator', compare: 'Gear compare', astrology: 'Astrology map', changes: 'Game changes', search: 'Search' };
+  document.title = (r ? r.n + ' | ' : kind === 'skill' || kind === 'gear' ? arg + ' | ' : TITLES[kind] ? TITLES[kind] + ' | ' : '') + 'Astrolabe Wiki';
   if (keepScroll !== true) window.scrollTo(0, 0);
 }
 
