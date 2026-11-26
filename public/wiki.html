@@ -171,6 +171,9 @@
   .btn.alt { filter:saturate(.25) brightness(.9); } .btn.alt:hover { filter:saturate(.4); } .btn:disabled { opacity:.6; cursor:default; }
   .course-send .btn { margin:0 6px 6px 0; }
   .lvbox summary { margin:6px 0; }
+  .sv-who { margin:2px 8px; font-weight:600; } .sv-hint { margin:2px 8px 0; font-size:13px; }
+  .sv-card { background:var(--panel); border:2px solid var(--rim); border-radius:3px; padding:4px 14px; margin:10px 0 16px; max-width:640px; }
+  .sv-steps li { margin:6px 0; } .sv-steps code { user-select:all; }
   .lvgrid { display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:4px 14px; margin:6px 0 10px; }
   .lvgrid label { display:flex; align-items:center; gap:4px; font-size:14px; } .lvgrid input { width:58px; margin-left:auto; }
   /* search */
@@ -270,7 +273,7 @@ const bare = s => typeof s === 'string' ? s.replace(/^MelvorBase:/, '') : s;
 const words = s => String(s).replace(/([a-z])([A-Z0-9])/g, '$1 $2').replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
 const pct = x => x == null ? '' : (x * 100 >= 1 ? (x * 100).toFixed(x * 100 < 10 ? 2 : 1) : (x * 100).toPrecision(2)) + '%';
 
-let DB, BANK = null, SKILLS = [], ENTITIES = new Set(), ASTRO = null;
+let DB, BANK = null, SKILLS = [], ENTITIES = new Set(), ASTRO = null, SAVE = null;
 const R = k => DB.records[k];
 const href = k => '#/r/' + encodeURIComponent(k);
 // Icons come from the game's own art (extracted by dump-assets.js + build); missing ones render nothing.
@@ -859,6 +862,7 @@ async function init() {
     const s = await fetch('/api/save').then(r => r.json());
     if (!s.error) { BANK = {}; for (const t of s.bank.tabs) for (const i of t.items) BANK[i.id] = (BANK[i.id] || 0) + i.count; SKILLS = s.skills; ASTRO = s.astrology || {}; }
   } catch {}
+  else applySave(store.get(SAVE_KEY, null));
   $('foot').innerHTML = `Unofficial fan wiki for Melvor Idle 2${DB.gameVersion ? ' ' + esc(DB.gameVersion) : ''}. Not affiliated with Games By Malcs. Data is read from the game's files${DB.built ? ', built ' + esc(DB.built) : ''}; rates are calculated, not official.`;
   buildSide();
   $('menuBtn').onclick = () => document.body.classList.toggle('menu');
@@ -907,7 +911,9 @@ const keysFromConfig = (sk, field, type) => (entity(sk)[field] || []).map(x => r
 function buildSide() {
   const lv = sk => { const x = SKILLS.find(s => s.id === sk); return x ? `<span class="lv">${x.level}</span>` : ''; };
   const box = (t, html) => `<div class="sbox"><h4>${t}</h4>${html}</div>`;
-  $('side').innerHTML =
+  $('side').innerHTML = (STATIC ? box('Your save', SAVE
+      ? `<p class="sv-who">${esc(SAVE.name)} <span class="sub">· loaded ${esc(new Date(SAVE.loaded).toLocaleDateString())}</span></p><a href="#/save">Update or forget it</a>`
+      : `<a href="#/save">Load my save</a><p class="sub sv-hint">See your own levels and bank. Read in your browser; nothing is uploaded.</p>`) : '') +
     box('Wiki', `<a href="#/">Main page</a><a href="#/plan">Planner</a><a href="#/guides">Guides</a><a href="#/guide/quests">Quest guide</a><a href="#/guide/completion">Completion guide</a><a href="#/skills">All skills</a><a href="#/money">Money making</a><a href="#/xp">Experience table</a><a href="#/guide/mechanics">Mechanics guide</a>`) +
     box('Tools', `<a href="#/calc">Combat calculator</a><a href="#/compare">Gear compare</a><a href="#/astrology">Astrology map</a><a href="#/changes">Game changes</a><a href="#/mods">Mods</a>`) +
     SKILL_GROUPS.map(([g, list]) => box(g + ' skills', list.map(sk => `<a href="#/skill/${sk}">${skillIcon(sk)}${sk}${lv(sk)}</a>`).join(''))).join('') +
@@ -1195,19 +1201,24 @@ function pageMoney(skill = 'all') {
   const all = Object.entries(DB.rates || {}).filter(([, x]) => x.area !== 'Quests' && (skill === 'all' || x.skill === skill));
   const skills = [...new Set(Object.values(DB.rates || {}).map(x => x.skill))].sort();
   const lvl = +(window._moneyLvl || 120);
+  let mine = !!window._moneyMine;
+  if (window._moneyMine === undefined) { try { mine = localStorage.getItem('mi2.moneyMine') === '1'; } catch {} window._moneyMine = mine; }
+  const L = planLevels();
   const PR = Object.fromEntries(planRates().map(r => [r.id, r])), SG = {};
-  for (const [id] of all) SG[id] = PR[id] ? selfGp(PR[id], {}) : null;
-  return `<h2>Money making</h2><p class="lead">Every skilling action ranked by gold per hour at base rates (no gear, upgrades or mastery). The first column is gold per hour of your own time when you gather the ingredients yourself; the second treats ingredients as bought or already owned, valued at their sell price. Combat is on the <a href="#/monsters">monster pages</a> (gold per kill).</p>` +
+  for (const [id] of all) SG[id] = PR[id] ? selfGp(PR[id], mine ? L : {}, mine) : null;
+  // With your save (Astrolabe Tools) the rates are yours; on the public wiki they are base rates.
+  const gpOf = (id, x) => PR[id]?.gp ?? x.gp, xpOf = (id, x) => PR[id]?.xp ?? x.xp;
+  return `<h2>Money making</h2><p class="lead">Every skilling action ranked by gold per hour ${MONEY ? 'at your rates (your levels, gear and bonuses from your save)' : 'at base rates (no gear, upgrades or mastery)'}. <b>Gathering it all yourself</b> is gold per hour of your own time when you gather every ingredient too. <b>Using your stock</b> is what it adds over simply selling the ingredients you already own; below zero, selling the ingredients pays more. Combat is on the <a href="#/monsters">monster pages</a> (gold per kill).</p>` +
     chips('#/money/', [['all', 'All skills'], ...skills.map(s => [s, s])], skill) +
-    `<p>Only show actions up to level <input id="moneyLvl" type="number" min="1" max="120" value="${lvl}" style="width:70px"></p>` + filterBox('money') + dataTable('money', [
+    `<p><label><input id="moneyMine" type="checkbox"${mine ? ' checked' : ''}> Only what I can do now</label> <span class="sub">(each skill's own level${SKILLS.length ? ', from your save' : '; set them below'})</span>${mine ? '' : ` · or only up to level <input id="moneyLvl" type="number" min="1" max="120" value="${lvl}" style="width:70px">`}</p>` + (mine ? levelsBox() : '') + filterBox('money') + dataTable('money', [
       { k: 'name', l: 'Action', v: ([, x]) => x.name, h: ([id, x]) => { const rk = Object.keys(DB.records).find(k => DB.records[k].id === id.split(':').slice(1).join(':') && DB.records[k].o === x.skill); return `${rk ? link(rk) : esc(x.name)}${x.gate ? ` <span class="chip">needs ${gateText(x.gate)}</span>` : ''}${x.area ? `<div class="sub">${esc(x.area)}</div>` : ''}`; } },
       { k: 'skill', l: 'Skill', v: ([, x]) => x.skill, h: ([, x]) => skillLink(x.skill) },
       { k: 'level', l: 'Lvl', num: 1, v: ([, x]) => x.level },
-      { k: 'self', l: 'Gold/hr, own ingredients', num: 1, v: ([id]) => SG[id] ?? -1e12, h: ([id]) => SG[id] == null ? '<span class="sub">no source</span>' : `<span class="gold">${fmt(Math.round(SG[id]))}</span>` },
-      { k: 'gp', l: 'Gold/hr, ingredients bought', num: 1, v: ([, x]) => x.gp, h: ([, x]) => `<span class="${x.gp < 0 ? 'bad' : ''}">${fmt(x.gp)}</span>` },
-      { k: 'xp', l: 'XP/hr', num: 1, v: ([, x]) => x.xp },
+      { k: 'self', l: 'Gold/hr, gathering it all yourself', num: 1, v: ([id]) => SG[id] ?? -1e12, h: ([id]) => SG[id] == null ? '<span class="sub">no source</span>' : `<span class="gold">${fmt(Math.round(SG[id]))}</span>` },
+      { k: 'gp', l: 'Gold/hr, using your stock', num: 1, v: ([id, x]) => gpOf(id, x), h: ([id, x]) => `<span class="${gpOf(id, x) < 0 ? 'bad' : ''}">${fmt(Math.round(gpOf(id, x)))}</span>` },
+      { k: 'xp', l: 'XP/hr', num: 1, v: ([id, x]) => xpOf(id, x), h: ([id, x]) => fmt(Math.round(xpOf(id, x))) },
       { k: 'needs', l: 'Needs', h: ([, x]) => `<span class="sub">${esc(x.needs.join(', '))}</span>` },
-    ], all.filter(([, x]) => x.level <= lvl), { sort: 'self', dir: -1 });
+    ], all.filter(([, x]) => mine ? x.level <= lvOf(L, x.skill) : x.level <= lvl), { sort: 'self', dir: -1 });
 }
 function pageXp() {
   const t = DB.xpTable || [];
@@ -1419,10 +1430,11 @@ function planItem(id, qty, L, depth = 0, seen = new Set()) {
 }
 
 // Gold per hour of total effort when you gather the ingredients yourself (sales over action + gathering time).
-function selfGp(r, L) {
+// now: only gather with what those levels can do already (no levelling up on the way).
+function selfGp(r, L, now) {
   if (!r.in.length) return r.gp;
   const C = costsFor(L || planLevels());
-  const ic = r.in.reduce((s, [j, n]) => s + n * (C.any.cost[j] ?? Infinity), 0);
+  const ic = r.in.reduce((s, [j, n]) => s + n * ((now ? C.now : C.any).cost[j] ?? Infinity), 0);
   return isFinite(ic) ? (r.sales ?? r.gp) / (1 + ic) : null;
 }
 // ---- rendering ----
@@ -1448,9 +1460,10 @@ function planTree(n, depth = 0) {
   return `<li><b>${amt}</b> ${name}: ${noSrc || srcText(n.src)}${n.src && n.src.kind !== 'bank' ? ` <span class="sub">· ${hrs(n.src.actH)}</span>` : ''}${n.children.length ? `<ul>${n.children.map(c => planTree(c, depth + 1)).join('')}</ul>` : ''}</li>`;
 }
 function levelsBox() {
+  if (SAVE) return `<p class="note">Using your levels and bank from your save (${esc(SAVE.name)}, loaded ${esc(new Date(SAVE.loaded).toLocaleString())}). <a href="#/save">Load a newer one</a></p>`;
   if (SKILLS.length) return `<p class="note">Using your levels, bank and rates from your save.</p>`;
   const L = planLevels(), all = SKILL_GROUPS.flatMap(g => g[1]);
-  return `<details class="lvbox"><summary>Your levels (saved in this browser)</summary><div class="lvgrid">${all.map(sk => `<label>${skillIcon(sk)}${sk}<input type="number" min="1" max="99" value="${lvOf(L, sk)}" data-lv="${sk}"></label>`).join('')}</div></details>`;
+  return (STATIC ? `<p class="note"><a href="#/save">Load your save</a> to use your own levels and bank, or set your levels here.</p>` : '') + `<details class="lvbox"><summary>Your levels (saved in this browser)</summary><div class="lvgrid">${all.map(sk => `<label>${skillIcon(sk)}${sk}<input type="number" min="1" max="99" value="${lvOf(L, sk)}" data-lv="${sk}"></label>`).join('')}</div></details>`;
 }
 function wireLevels() { document.querySelectorAll('input[data-lv]').forEach(i => i.onchange = () => { setPlanLevel(i.dataset.lv, i.value); route(true); }); }
 
@@ -2005,7 +2018,7 @@ function pageCalc() {
   const prayers = recsOf('Prayer').sort((a, b) => (levelReq(R(a), 'Prayer') || 0) - (levelReq(R(b), 'Prayer') || 0));
   const cats = [...new Set(recsOf('CombatArea').map(k => bare(R(k).d.Category || '')).filter(Boolean))];
   let h = `<h2>${icon('res://Assets/Attack_32.png', 'ic-l')}Combat calculator</h2><p class="lead">Set your levels and gear to see your hit chance, kill time, XP, gold and damage taken against every monster and dungeon. It uses the game's own combat formulas and simulates each fight, like the Astrolabe Tools combat tab. Toolbelt potions count as always active. Shop upgrades, pets, mastery ranks and astrology bonuses are not counted here.</p>`;
-  h += `<div class="calc-grid"><div class="calc"><h4>Levels</h4><div class="lvgrid calc-lv">${CALC_SKILLS.map(s => `<label>${skillIcon(s)}${s}<input type="number" min="1" max="120" data-clv="${s}" value="${st.lv[s]}"></label>`).join('')}</div>${STATIC ? '' : '<button class="btn" id="calcMine" type="button">Use my save</button>'}</div>
+  h += `<div class="calc-grid"><div class="calc"><h4>Levels</h4><div class="lvgrid calc-lv">${CALC_SKILLS.map(s => `<label>${skillIcon(s)}${s}<input type="number" min="1" max="120" data-clv="${s}" value="${st.lv[s]}"></label>`).join('')}</div>${!STATIC || SAVE ? '<button class="btn" id="calcMine" type="button">Use my save</button>' : '<p class="sub"><a href="#/save">Load your save</a> to fill in your levels and gear.</p>'}</div>
     <div class="calc"><h4>Equipment</h4><div class="calc-eq">${CALC_SLOTS.map(([slot, type]) => `<label><span>${esc(words(slot.replace(/Slot\d/, '')))}</span><select data-ceq="${slot}"><option value="">(empty)</option>${slotItems(type).map(k => opt(R(k).id, levelOpt(k), st.eq[slot])).join('')}</select></label>`).join('')}</div>
     <h4 style="margin-top:12px">Toolbelt</h4><div class="calc-eq">${CALC_BELT.map(([label, slot], i) => `<label><span>${label}</span><select data-cbelt="${i}"><option value="">(empty)</option>${beltItems(slot).map(k => opt(R(k).id, R(k).n, st.belt[i])).join('')}</select></label>`).join('')}</div></div>
     <div class="calc"><h4>Style</h4><div class="calc-eq">
@@ -2075,8 +2088,8 @@ function wireCalc() {
   if ($('calcReset')) $('calcReset').onclick = e => { e.preventDefault(); store.set(CALC_KEY, calcDefault()); route(true); };
   if ($('calcMine')) $('calcMine').onclick = async () => {
     try {
-      const s = await fetch('/api/save').then(r => r.json());
-      if (s.error) throw new Error(s.error);
+      const s = STATIC ? SAVE : await fetch('/api/save').then(r => r.json());
+      if (!s || s.error) throw new Error(s ? s.error : 'no save loaded');
       for (const x of s.skills || []) if (CALC_SKILLS.includes(x.id)) st.lv[x.id] = x.level;
       const lo = s.combat?.loadouts?.[s.combat.activeLoadout] || Object.values(s.combat?.loadouts || {})[0];
       if (lo) {
@@ -2235,12 +2248,77 @@ function pageMods() {
 }
 
 // ---- routing ----
+// ---- Your save (public wiki) ----
+// The save is decompressed (lib/brotli.js) and parsed (lib/savecore.js, the same parser the local tools use) right
+// here in the browser. Only the parts the wiki uses are kept, in localStorage, until "Forget my save".
+const SAVE_KEY = 'astrolabe.save';
+const SAVE_DIR = '%APPDATA%\\Games By Malcs\\Melvor Idle 2\\steam';
+function applySave(x) {
+  SAVE = x && x.v === 1 ? x : null;
+  BANK = SAVE ? SAVE.bank : null; SKILLS = SAVE ? SAVE.skills : []; ASTRO = SAVE ? SAVE.astrology || {} : null;
+  PLAN.key = ''; PLAN.rates = null;
+}
+function loadScript(src, ready) {
+  return ready() ? Promise.resolve() : new Promise((ok, fail) => {
+    const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => fail(new Error(`${src} failed to load. Reload the page and try again.`)); document.head.append(s);
+  });
+}
+async function readSaveFile(file) {
+  await Promise.all([loadScript('brotli.js', () => window.Brotli), loadScript('savecore.js', () => window.MI2Save)]);
+  const [bytes, dict] = await Promise.all([file.arrayBuffer(), fetch('brotli-dict.bin').then(r => { if (!r.ok) throw new Error('brotli-dict.bin failed to load. Reload the page and try again.'); return r.arrayBuffer(); })]);
+  let s;
+  try { s = MI2Save.parseSave(Brotli.decode(new Uint8Array(bytes), new Uint8Array(dict))); } catch { s = null; }
+  if (!s || !s.skills.length) throw new Error(`${file.name} isn't a Melvor Idle 2 save. Pick the .sav file from the saves folder.`);
+  const bank = {};
+  for (const t of s.bank.tabs) for (const i of t.items) bank[i.id] = (bank[i.id] || 0) + i.count;
+  return { v: 1, name: s.header.name, mode: s.header.mode, gp: s.header.gp, totalLevel: s.totalLevel, file: file.name, fileTime: file.lastModified, loaded: Date.now(),
+    skills: s.skills.map(({ id, name, xp, level, category }) => ({ id, name, xp, level, category })), bank, astrology: s.astrology, combat: s.combat };
+}
+function pageSave() {
+  let h = `<h2>${icon('Assets/Icons/Bank_64.png', 'ic-l')}Your save</h2>`;
+  if (!STATIC) return h + `<p class="lead">Astrolabe Tools reads your save for you, so this page is only on the public wiki.</p>`;
+  h += `<p class="lead">Load your save to see your own levels and bank across the wiki: the planner, money making, quest guide, item pages, astrology map and combat calculator all use it. The file is read in your browser. Nothing is uploaded.</p>`;
+  if (SAVE) {
+    const items = Object.keys(SAVE.bank).length;
+    h += `<div class="sv-card"><p><b>${esc(SAVE.name)}</b> <span class="sub">${esc(SAVE.mode || '')}</span></p>
+      <p>Total level ${fmt(SAVE.totalLevel)} · ${fmt(SAVE.gp)} GP · ${fmt(items)} item types in the bank</p>
+      <p class="sub">Saved by the game ${esc(new Date(SAVE.fileTime).toLocaleString())}; loaded here ${esc(new Date(SAVE.loaded).toLocaleString())}. Load it again after you play to update it.</p>
+      <p><button class="btn" id="svPick" type="button">Load a newer save</button> <button class="btn alt" id="svForget" type="button">Forget my save</button></p></div>`;
+  }
+  h += `<h3>${SAVE ? 'Loading it again' : 'How to load it'}</h3>
+    <ol class="sv-steps">
+      <li>Click <b>${SAVE ? 'Load a newer save' : 'Choose save file'}</b>.</li>
+      <li>In the file window, paste this into the address bar at the top and press Enter:<br><code id="svDir">${esc(SAVE_DIR)}</code> <button class="btn alt" id="svCopy" type="button">Copy</button></li>
+      <li>Open the folder named with a long number (your Steam ID), then <b>saves</b>, and pick the <b>.sav</b> file. If there's more than one, take the newest.</li>
+    </ol>
+    <p>${SAVE ? '' : '<button class="btn" id="svPick" type="button">Choose save file</button> '}<span class="sub">You can also drop the file anywhere on this page.</span></p>
+    <input type="file" id="svFile" accept=".sav" hidden>
+    <div id="svMsg"></div>
+    <p class="note">Your save stays in this browser until you click Forget my save. Only your levels, bank, astrology and combat loadouts are kept. Personal action rates (with your gear, upgrades and mastery) need Astrolabe Tools.</p>`;
+  return h;
+}
+function wireSave() {
+  const msg = (t, cls) => { if ($('svMsg')) $('svMsg').innerHTML = t ? `<p class="${cls || ''}">${t}</p>` : ''; };
+  const take = async file => {
+    if (!file) return;
+    msg('Reading your save...', 'sub');
+    try { const x = await readSaveFile(file); store.set(SAVE_KEY, x); applySave(x); buildSide(); route(true); msg(`Loaded ${esc(x.name)}.`, 'good'); }
+    catch (e) { msg(esc(e.message), 'bad'); }
+  };
+  if ($('svPick')) $('svPick').onclick = () => $('svFile').click();
+  $('svFile').onchange = () => take($('svFile').files[0]);
+  if ($('svForget')) $('svForget').onclick = () => { try { localStorage.removeItem(SAVE_KEY); } catch {} applySave(null); buildSide(); route(true); msg('Your save is gone from this browser.', 'sub'); };
+  if ($('svCopy')) $('svCopy').onclick = () => navigator.clipboard?.writeText(SAVE_DIR).then(() => { $('svCopy').textContent = 'Copied'; });
+  document.body.ondragover = e => { if (location.hash.startsWith('#/save')) e.preventDefault(); };
+  document.body.ondrop = e => { if (!location.hash.startsWith('#/save')) return; e.preventDefault(); take(e.dataTransfer.files[0]); };
+}
+
 function route(keepScroll) {
   const [, kind, ...rest] = decodeURIComponent(location.hash.slice(1) || '/').split('/');
   const arg = rest.join('/');
   const pages = { r: () => pageRecord(arg), skill: () => pageSkill(arg), skills: pageSkills, type: () => pageType(arg), gear: () => pageGear(arg), guide: () => rest[0] === 'skill' ? pageSkillGuide(rest[1]) : rest[0] === 'quests' ? pageQuestGuide() : rest[0] === 'completion' ? pageCompletion() : pageGuide(arg), data: pageData,
     items: () => pageItems(arg || 'all'), equipment: () => pageEquipment(arg), monsters: pageMonsters, areas: pageMonsters, shop: pageShop, quests: pageQuests, pets: pagePets, money: () => pageMoney(arg || 'all'), xp: pageXp, guides: pageGuides,
-    plan: () => pagePlan(rest[0], rest[1], rest[2]), search: () => pageSearch(arg), compare: () => pageCompare(arg), calc: pageCalc, astrology: pageAstroMap, changes: () => pageChanges(arg), mods: pageMods };
+    plan: () => pagePlan(rest[0], rest[1], rest[2]), search: () => pageSearch(arg), compare: () => pageCompare(arg), calc: pageCalc, save: pageSave, astrology: pageAstroMap, changes: () => pageChanges(arg), mods: pageMods };
   const html = (pages[kind] || pageHome)();
   if (!html) return;
   $('main').innerHTML = html;
@@ -2253,10 +2331,15 @@ function route(keepScroll) {
   if (kind === 'compare') wireCompare();
   if (kind === 'calc') wireCalc();
   if (kind === 'astrology') wireAstroMap();
+  if (kind === 'save') wireSave();
   hoverCard.hide();
   if ($('moneyLvl')) $('moneyLvl').onchange = () => { window._moneyLvl = $('moneyLvl').value; route(true); };
+  if ($('moneyMine')) {
+    $('moneyMine').onchange = () => { window._moneyMine = $('moneyMine').checked; try { localStorage.setItem('mi2.moneyMine', window._moneyMine ? '1' : '0'); } catch {} route(true); };
+    wireLevels();
+  }
   const r = kind === 'r' && R(arg);
-  const TITLES = { calc: 'Combat calculator', compare: 'Gear compare', astrology: 'Astrology map', changes: 'Game changes', search: 'Search', mods: 'Mods' };
+  const TITLES = { calc: 'Combat calculator', compare: 'Gear compare', astrology: 'Astrology map', changes: 'Game changes', search: 'Search', mods: 'Mods', save: 'Your save' };
   document.title = (r ? r.n + ' | ' : kind === 'skill' || kind === 'gear' ? arg + ' | ' : TITLES[kind] ? TITLES[kind] + ' | ' : '') + 'Astrolabe Wiki';
   if (keepScroll !== true) window.scrollTo(0, 0);
 }

@@ -1,7 +1,8 @@
 // Builds the public, save-free wiki into dist/wiki/ (index.html + wiki.json).
 // Run: node build-wiki.js [outDir]   (or double-click Build-Public-Wiki.cmd)
 // The output is static files: host it anywhere (GitHub Pages, Netlify, any web server).
-// Only game data goes in. No save, no personal panels, no decompiled code.
+// Only game data goes in. No save, no personal panels, no decompiled code. Visitors can load their own save,
+// which is read in their browser (lib/savecore.js, lib/brotli.js) and never sent anywhere.
 const fs = require('fs');
 const path = require('path');
 const { findGameExe, readPackFile } = require('./lib/gamedata');
@@ -49,6 +50,8 @@ fs.writeFileSync(path.join(out, 'index.html'), html);
 fs.writeFileSync(path.join(out, 'wiki.json'), JSON.stringify(db));
 // combat.js: the combat formulas, shared with the local tools, for the wiki's calculator.
 fs.copyFileSync(path.join(__dirname, 'lib', 'combat.js'), path.join(out, 'combat.js'));
+// Load my save: the save parser (shared with the local tools) and a Brotli decoder, run in the browser.
+for (const f of ['savecore.js', 'brotli.js', 'brotli-dict.bin', 'brotli-LICENSE.txt']) fs.copyFileSync(path.join(__dirname, 'lib', f), path.join(out, f));
 // spyglass.json: item sources, uses and unlocks for the in-game Spyglass lookup.
 fs.writeFileSync(path.join(out, 'spyglass.json'), JSON.stringify(require('./lib/spyglass').buildSpyglass(db)));
 // cleanup.json: what each item is for, so the in-game Hold mod can say what in your bank is safe to sell.
