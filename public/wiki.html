@@ -649,7 +649,33 @@ function pageRecord(k) {
   if (req.length) h += `<p><b>Requires:</b><br>${reqText(req)}</p>`;
   if (d.Description) h += `<p class="desc">${bb(typeof d.Description === 'string' ? d.Description : JSON.stringify(d.Description))}</p>`;
   h += ratesBox(r);
+  if (r.t === 'FarmingRecipe') h += farmAutoHtml(r);
   return h + `<h3>Details</h3><div class="tree">${tree(d, '')}</div>` + refByHtml(r);
+}
+
+// ---------- farming automation ----------
+// Each automated step on a plot pays the crop's automation cost: plant, water and compost once per planting
+// (water is free once the crop's sprinkler upgrade is bought), harvest once per harvest. Base costs, before bonuses.
+function farmAuto(r) {
+  const d = r.d, c = R(refKey(d.Category || '', 'FarmingCategory'))?.d || {};
+  const cost = (d.AutomationCosts?.Items || []).map(i => ({ id: i.Item, q: i.Quantity }));
+  const gold = (d.AutomationCosts?.Currencies || []).map(i => ({ id: i.Currency, q: i.Quantity }));
+  if (!cost.length && !gold.length) return null;
+  const water = c.CanWater !== false && d.CanWater !== false, compost = c.CanCompost !== false && d.CanCompost !== false;
+  const harvests = 1 + (d.Regrows || 0);
+  const steps = 1 + harvests + (water ? 1 : 0) + (compost ? 1 : 0);
+  return { cost, gold, water, compost, harvests, steps, needs: d.AutomationRequirements, free: d.FreeAutoWateringRequirements };
+}
+const autoQty = (a, n = 1) => [...a.cost, ...a.gold].map(x => `${fmt(x.q * n)} ${linkRef(x.id, 'Item')}`).join(', ');
+function farmAutoHtml(r) {
+  const a = farmAuto(r);
+  if (!a) return '';
+  const names = ['plant', a.water && 'water', a.compost && 'compost', 'harvest'].filter(Boolean);
+  let h = `<h3>Automation</h3><p>Each automated step costs <b>${autoQty(a)}</b>: ${names.join(', ')}${a.harvests > 1 ? ` (harvest is paid on each of the ${a.harvests} harvests)` : ''}. Turn steps on in the plot's <b>Automations</b> panel.</p><ul>`;
+  if (a.needs?.length) h += `<li><b>Needs:</b> ${reqText(a.needs)}</li>`;
+  if (a.water && a.free?.length) h += `<li><b>Free watering</b> (auto water costs nothing and happens even when off) once you have: ${reqText(a.free)}</li>`;
+  h += `<li><b>Full cycle with everything on:</b> ${autoQty(a, a.steps)}${a.water && a.free?.length ? ` (${autoQty(a, a.steps - 1)} once watering is free)` : ''}.</li>`;
+  return h + `</ul><p class="note">Base costs: automation cost bonuses lower them. If you can't pay, the step is skipped and the game logs "Automation Failed - Cannot afford automation".</p>`;
 }
 
 // ---------- reference rates (max level, no gear, no account bonuses) ----------
@@ -980,6 +1006,8 @@ function pageSkill(skill) {
       { k: 't', l: 'Time', num: 1, v: o => parseFloat(o.t) || 0, h: o => (o.t ? o.t + 's' : '') + (o.r.d.Steps > 1 ? ` ×${o.r.d.Steps}` : '') },
       { k: 'in', l: 'Uses', h: o => (o.r.d.Ingredients?.Items || []).map(i => `${fmt(i.Quantity)} ${linkRef(i.Item, 'Item')}`).join('<br>') },
       { k: 'out', l: 'Makes', h: o => [...(o.r.d.Products || []), ...(o.r.d.Product ? [o.r.d.Product] : [])].map(p => `${p.Quantity != null ? fmt(p.Quantity) + ' ' : ''}${linkRef(p.Item, 'Item')}`).join('<br>') || (o.r.d.RandomProducts || []).map(p => linkRef(p.Item, 'Item')).join('<br>') },
+      ...(skill === 'Farming' ? [{ k: 'auto', l: 'Automation', num: 1, v: o => farmAuto(o.r)?.cost[0]?.q ?? 0,
+        h: o => { const a = farmAuto(o.r); return a ? `${autoQty(a)}<div class="sub">per step${a.needs?.length ? ', ' + reqText(a.needs).replace(/^bought /, '') : ''}</div>` : ''; } }] : []),
       { k: 'xph', l: 'XP/hr', num: 1, v: o => o.x?.xp ?? 0, h: o => o.x ? fmt(o.x.xp) : '' },
       { k: 'gph', l: 'Gold/hr', num: 1, v: o => o.x?.gp ?? -1e12, h: o => o.x ? `<span class="${o.x.gp < 0 ? 'bad' : ''}">${fmt(o.x.gp)}</span>` : '' },
     ], rows, { sort: 'lvl' });
