@@ -2185,8 +2185,8 @@ function pageMods() {
   const all = zip('All');
   let h = `<h2>Mods</h2><p class="lead">Astrolabe's own mods for Melvor Idle 2: a queue for your actions, session stats, alerts, bank rules, item lookup and save backups, all in windows drawn like the game's own. Unofficial; no game files are changed.</p>`;
   if (RELEASE === 'loading') h += '<p class="muted">Looking up the newest release...</p>';
-  else if (!all) h += `<p>Download from <a href="${page}" target="_blank" rel="noopener">the release page on GitHub</a>.</p>`;
-  else h += `<p class="course-send"><a class="btn" href="${esc(all.browser_download_url)}">Download everything${mb(all)}</a> <span class="muted">${esc(RELEASE.tag_name || '')}, ${esc((RELEASE.published_at || '').slice(0, 10))}. <a href="${page}" target="_blank" rel="noopener">Release notes</a></span></p>`;
+  else if (!all) h += `<p>Download from <a href="${page}" target="_blank" rel="noopener">the release page on GitHub</a> or <a href="https://www.nexusmods.com/melvoridle2/mods/55" target="_blank" rel="noopener">Nexus Mods</a>.</p>`;
+  else h += `<p class="course-send"><a class="btn" href="${esc(all.browser_download_url)}">Download everything${mb(all)}</a> <span class="muted">${esc(RELEASE.tag_name || '')}, ${esc((RELEASE.published_at || '').slice(0, 10))}. <a href="${page}" target="_blank" rel="noopener">Release notes</a>. Also on <a href="https://www.nexusmods.com/melvoridle2/mods/55" target="_blank" rel="noopener">Nexus Mods</a>.</span></p>`;
   h += `<h3>Install</h3><ol>
     <li>Close the game.</li>
     <li>Open the game folder: in Steam, right-click Melvor Idle 2, then Manage, then Browse local files.</li>
